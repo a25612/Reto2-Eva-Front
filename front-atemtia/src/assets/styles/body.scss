@@ -1,0 +1,22 @@
+@import '../styles/variables.scss';
+
+body {
+  margin: 0;
+  padding: 0;
+  margin-top: 80px;
+  font-family: $fuente-principal;
+  background-color: $color-fondo;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  padding-top: 80px;
+  padding-bottom: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

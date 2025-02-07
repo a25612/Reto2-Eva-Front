@@ -1,35 +1,273 @@
-@import './base.css';
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+body {
+  margin: 0;
+  padding: 0;
+  margin-top: 80px;
+  font-family: "Nunito Sans", sans-serif;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-a,
-.green {
+main {
+  flex: 1;
+  padding-top: 80px;
+  padding-bottom: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.desplegable-izquierda {
+  position: relative;
+}
+.desplegable-izquierda .nav-izquierda {
+  position: fixed;
+  top: 0;
+  left: -36%;
+  width: 27%;
+  height: 100%;
+  margin-top: 101px;
+  background: #63bde1;
+  box-shadow: 2px 0 8px #76b82a;
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+.desplegable-izquierda .nav-izquierda-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.desplegable-izquierda .nav-izquierda-menu li {
+  margin: 1rem 0;
+}
+.desplegable-izquierda .nav-izquierda-menu li .menu-izquierda-link {
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  color: #FFFFFF;
+}
+.desplegable-izquierda .nav-izquierda-menu li .menu-izquierda-link i {
+  margin-right: 15px;
+  font-size: 1.2rem;
+}
+.desplegable-izquierda .nav-izquierda-menu li .menu-izquierda-link:hover {
+  color: #dedfe1;
+}
+.desplegable-izquierda .nav-izquierda.active {
+  left: 0;
+  margin-top: 101px;
+}
+.desplegable-izquierda.active .btn-menudesplegable {
+  left: 31%;
+}
+.desplegable-izquierda .btn-menudesplegable .bar-izquierda.active:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+.desplegable-izquierda .btn-menudesplegable .bar-izquierda.active:nth-child(2) {
+  opacity: 0;
+}
+.desplegable-izquierda .btn-menudesplegable .bar-izquierda.active:nth-child(3) {
+  transform: rotate(-45deg) translate(4px, -4px);
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.titulo-anuncios {
+  margin-top: 60px;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+.separador {
+  display: flex;
+  justify-content: center;
+}
+.separador .bar-separador {
+  margin-top: 20px;
+  display: block;
+  width: 350px;
+  height: 1px;
+  background: rgba(84, 190, 84, 0.441);
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+.separador-abajo {
+  display: flex;
+  justify-content: center;
+}
+.separador-abajo .bar-separador {
+  margin-top: -19px;
+  margin-bottom: 25px;
+  display: block;
+  width: 350px;
+  height: 1px;
+  background: rgba(84, 190, 84, 0.441);
+}
+
+.div-mi-espacio h2 {
+  margin-bottom: 40px;
+  margin-left: 40px;
+  color: #63bde1;
+  font-size: 22px;
+}
+.div-mi-espacio .mi-espacio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  max-width: 350px;
+  margin: 0 auto;
+}
+.div-mi-espacio .espacio-item {
+  position: relative;
+  padding: 1rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+.div-mi-espacio .espacio-item:hover {
+  transform: scale(1.05);
+  box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.25);
+}
+.div-mi-espacio .espacio-item.mensajes, .div-mi-espacio .espacio-item.reservas, .div-mi-espacio .espacio-item.incidencias, .div-mi-espacio .espacio-item.mi-cuenta {
+  background: linear-gradient(135deg, #63bde1 20%, #76b82a 80%);
+}
+.div-mi-espacio .espacio-item .icono {
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.div-mi-espacio .espacio-item p {
+  margin-top: -1.45rem;
+  font-size: 15px;
+}
+.div-mi-espacio .espacio-item .notificacion {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: #76b82a;
+  color: #FFFFFF;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 5px 8px;
+  border-radius: 50%;
+}
+
+@keyframes slope {
+  50% {
+    transform: rotate(10deg);
   }
 }
+.popup {
+  display: inline-block;
+  text-rendering: optimizeLegibility;
+  position: relative;
+}
+.popup input {
+  display: none;
+}
+.popup .burger {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background: #76b82a;
+  width: 3.125em;
+  height: 3.125em;
+  border-radius: 1.562em;
+  margin-bottom: -12px;
+  margin-right: 20px;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.1s ease-in-out;
+  outline: 0.125em solid transparent;
+  outline-offset: 0;
+}
+.popup .burger:hover {
+  transform: scale(1.1);
+}
+.popup .burger:active {
+  transform: scale(0.95);
+}
+.popup .burger:focus:not(:hover) {
+  outline-color: #76b82a;
+  outline-offset: 0.125em;
+}
+.popup .popup-window {
+  transform: scale(0.8) translateX(-50%);
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: calc(100% + 0.125em + 0.125em);
+  left: 18%;
+  padding: 0.625em 0.25em;
+  margin-top: 12px;
+  background: #eee;
+  font-family: "Nunito Sans", sans-serif;
+  color: #333;
+  border-radius: 0.375em;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  border: 0.0625em solid #ccc;
+  transform-origin: top center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 1000;
+}
+.popup ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.popup ul button {
+  outline: none;
+  width: 100%;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  color: #333;
+  font-size: 17px;
+  padding: 0.375em 1rem;
+  white-space: nowrap;
+  border-radius: 0.375em;
+  cursor: pointer;
+  column-gap: 0.875em;
+}
+.popup ul button:hover, .popup ul button:focus-visible {
+  background: #d2d5d8;
+}
+.popup hr {
+  margin: 0.3125em 0;
+  border: none;
+  border-bottom: 0.0625em solid #ccc;
+}
+.popup input:checked ~ .burger span:nth-child(1) {
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+.popup input:checked ~ .burger span:nth-child(2) {
+  bottom: 50%;
+  transform: translateY(50%) rotate(-45deg);
+}
+.popup input:checked ~ .burger span:nth-child(3) {
+  transform: translateX(-3.25em);
+}
+.popup input:checked ~ .popup-window {
+  transform: scale(1) translateX(-50%);
+  visibility: visible;
+  opacity: 1;
+}
+
+/*# sourceMappingURL=main.css.map */
