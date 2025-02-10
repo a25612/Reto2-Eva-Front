@@ -31,7 +31,7 @@
       </div>
   
       <div class="footer__bottom">
-        <p class="footer__copyright">&copy; 2024. Todos los derechos reservados.</p>
+        <p class="footer__copyright">&copy; Copyright Espacio Atemtia. Un proyecto de Atades</p>
       </div>
     </footer>
   </template>
