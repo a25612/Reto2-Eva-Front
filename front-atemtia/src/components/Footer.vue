@@ -1,35 +1,47 @@
 <template>
-    <footer class="footer">
-      <div class="footer__container">
-        <div class="footer__section">
-          <h3 class="footer__title">Enlaces Rápidos</h3>
-          <ul class="footer__list">
-            <li class="footer__item"><a href="#" class="footer__link">Cartelera</a></li>
-            <li class="footer__item"><a href="#" class="footer__link">Promociones</a></li>
-            <li class="footer__item"><a href="#" class="footer__link">Contacto</a></li>
-          </ul>
-        </div>
-  
-        <div class="footer__section">
-          <h3 class="footer__title">Síguenos</h3>
-          <div class="footer__social">
-            <a href="#" class="footer__social-link">
-              <img src="../components/icons/Instagram.svg" alt="Instagram">
-            </a>
-          </div>
+  <footer class="footer">
+    <div class="footer__container">
+      
+      <div class="footer__section">
+        <h3 class="footer__title">Dónde estamos</h3>
+        <p class="footer__address">
+          C/ Castilla, 2<br>
+          50009 Zaragoza
+        </p>
+        <p class="footer__address">
+          C/ Octavio de Toledo, 2<br>
+          50007 Zaragoza
+        </p>
+        <a href="mailto:consulta@espacioatemtia.es" class="footer__email">consulta@espacioatemtia.es</a>
+        <p class="footer__phone">Tel. 620 844 236</p>
+      </div>
+
+      <div class="footer__section">
+        <h3 class="footer__title">Síguenos</h3>
+        <div class="footer__social">
+          <a href="https://www.instagram.com/atemtia/" class="footer__social-link">
+            <img src="../components/icons/Instagram.svg" alt="Instagram">  
+          </a>
+          <p>@Atemtia</p>
         </div>
       </div>
-  
-      <div class="footer__bottom">
-        <p class="footer__copyright">&copy; 2024. Todos los derechos reservados.</p>
-      </div>
-    </footer>
-  </template>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copyright">&copy; 2024. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</template>
+
+
   
 
 
 
 <style lang="scss">
+@import '../assets/styles/variables.scss';
+
 @import '../assets/styles/variables.scss';
 
 .footer {
@@ -59,21 +71,19 @@
     text-transform: uppercase;
   }
 
-  &__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  &__address, 
+  &__phone {
+    font-family: 'Open Sans Regular', sans-serif;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
   }
 
-  &__item {
-    margin: 5px 0;
-  }
-
-  &__link {
-    color: #1e90ff;
+  &__email {
+    font-family: 'Open Sans Regular', sans-serif;
+    font-size: 16px;
+    color: #67a5cf;
     text-decoration: none;
-    font-family: $fuente-principal;
-    font-size: 14px;
     transition: color 0.3s ease;
 
     &:hover {
@@ -100,7 +110,7 @@
 
   &__bottom {
     margin-top: 20px;
-    border-top: 1px solid #333;
+    border-top: 1px solid #65bde1;
     padding-top: 10px;
   }
 
@@ -118,6 +128,7 @@
     }
   }
 }
+
 
 
 
