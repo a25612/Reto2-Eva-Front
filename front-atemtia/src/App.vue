@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router';
 import Header from "./components/Header.vue";
 import Home from "./components/Home.vue";
 import Footer from "./components/Footer.vue";
+import Login from "./components/Login.vue"
+
+const route = useRoute();
 </script>
 
 <template>
-    <Header />
+    <Header v-if="route.path !== '/login'" />
 
-    <Home />
+    <RouterView />
 
-
-    <Footer />
+    <Footer v-if="route.path !== '/login'" />
 </template>
 
 <style lang="scss">
