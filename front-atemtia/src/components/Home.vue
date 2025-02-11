@@ -51,7 +51,7 @@
     scrollToTop() {
       window.scrollTo({
         top: 0,
-        behavior: "smooth" // Hace que la transición sea suave
+        behavior: "smooth" 
       });
     }
   }
@@ -194,8 +194,8 @@
   transition: background-color 0.3s ease, transform 0.3s ease;
 
   &:hover {
-    background-color: $color-secundario;
-    transform: scale(1.1);
+    background-color: #dddccc;
+    transform: scale(1.05);
   }
 }
 
