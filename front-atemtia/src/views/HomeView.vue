@@ -37,12 +37,22 @@
       </div>
     </section>
 
-    <button class="boton-scroll-top" @click="scrollToTop">↑</button>
+    <button 
+    class="boton-scroll-top" 
+    :class="{ mostrar: mostrarBotonScroll }" 
+    @click="scrollToTop">
+    ↑
+  </button>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      mostrarBotonScroll: false,
+    };
+  },
   methods: {
     redirigirAWeb() {
       window.location.href = "https://espacioatemtia.es/";
@@ -50,10 +60,19 @@ export default {
     scrollToTop() {
       window.scrollTo({
         top: 0,
-        behavior: "smooth" 
+        behavior: "smooth",
       });
-    }
-  }
+    },
+    handleScroll() {
+      this.mostrarBotonScroll = window.scrollY > 100;
+    },
+  },
+  mounted() {
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
+  },
 };
 </script>
 
@@ -209,11 +228,18 @@ button {
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
 
-  &:hover {
-    background-color: #dddccc;
-    transform: scale(1.05);
-  }
+.boton-scroll-top.mostrar {
+  opacity: 1;
+  visibility: visible;
+}
+
+.boton-scroll-top:active,
+.boton-scroll-top:focus {
+  background-color: $color-boton;
 }
 </style>
