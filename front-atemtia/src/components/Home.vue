@@ -7,7 +7,7 @@
         </div>
       </div>
 
-      <button class="boton-app">Visita la app</button>
+      <li><router-link  class="boton-app" to="/login">Visita la app</router-link></li>
 
       <section class="info">
         <h2>¿Qué ofrecemos?</h2>
