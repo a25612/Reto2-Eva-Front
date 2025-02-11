@@ -99,7 +99,6 @@ button {
               transform 0.2s ease, box-shadow 0.3s ease;
   background-color: $color-boton;
   color: $color-fondo;
-  position: relative;
   overflow: hidden;
 
   &:hover {
@@ -128,7 +127,7 @@ button {
   margin-top: 20px;
   background-color: $color-boton;
   color: $color-fondo;
-  position: relative;
+  
   overflow: hidden;
 
   &:hover {
