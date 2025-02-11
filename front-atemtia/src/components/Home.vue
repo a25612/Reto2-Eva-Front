@@ -37,17 +37,27 @@
           Más información
         </button>
       </section>
+      <button class="boton-scroll-top" @click="scrollToTop">↑</button>
+
     </div>
   </template>
   
   <script>
-  export default {
-    methods: {
-      redirigirAWeb() {
-        window.location.href = "https://espacioatemtia.es/";
-      }
+ export default {
+  methods: {
+    redirigirAWeb() {
+      window.location.href = "https://espacioatemtia.es/";
+    },
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth" // Hace que la transición sea suave
+      });
     }
-  };
+  }
+};
+
+  
   </script>
   
   <style lang="scss" scoped>
@@ -142,5 +152,26 @@
       margin: 0 auto;
     }
   }
+  .boton-scroll-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-color: $color-secundario;
+    transform: scale(1.1);
+  }
+}
+
   </style>
   
