@@ -7,7 +7,7 @@
         </div>
       </div>
 
-      <li><router-link  class="boton-app" to="/login">Visita la app</router-link></li>
+      <router-link  class="boton-app" to="/login">Visita la app</router-link>
 
       <section class="info">
         <h2>¿Qué ofrecemos?</h2>
@@ -90,16 +90,42 @@
   }
   
   .boton-app {
-    margin-top: -13px;
-    background-color: $color-boton;
-    color: $color-fondo;
-  
-    &:hover {
-      background-color: $color-secundario;
-      color: $color-fondo;
-      transform: scale(1.05);
-    }
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 15px;
+  font-size: 19px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, 
+              transform 0.2s ease, box-shadow 0.3s ease;
+  background-color: $color-boton;
+  color: $color-fondo;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background-color: $color-secundario;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: left 0.4s ease-in-out;
+  }
+
+  &:hover::after {
+    left: 100%;
+  }
+}
+
   
   .boton-web-atemtia {
     margin-top: 20px;
