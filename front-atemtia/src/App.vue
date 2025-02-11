@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router';
 import Header from "./components/Header.vue";
-import Home from "./components/Home.vue";
+import Home from "./views/HomeView.vue";
 import Footer from "./components/Footer.vue";
-import Login from "./components/Login.vue"
+import LoginView from "./views/LoginView.vue"
 
 const route = useRoute();
 </script>
