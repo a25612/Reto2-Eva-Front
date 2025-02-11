@@ -15,7 +15,14 @@
           <a href="mailto:consulta@espacioatemtia.es" class="footer__email">consulta@espacioatemtia.es</a>
           <p class="footer__phone">Tel. 620 844 236</p>
         </div>
-  
+        
+        <div class="footer-logo">
+          <a href="" class="footer-titulo-link">
+            <img src="http://espacioatemtia.es/wp-content/uploads/2020/06/recursos-atemtia-casa-a@2x-240x300.png"
+            alt="Servicios ATEMTIA" class="footer-logo-atemtia">
+          </a>
+        </div>
+
         <div class="footer__section">
           <h3 class="footer__title">Síguenos</h3>
           <div class="footer__social">
@@ -93,7 +100,20 @@
       gap: 10px;
       margin-top: 10px;
     }
-  
+    
+    &-logo {
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-logo-atemtia {
+      width: 140px;
+      height: auto;
+    }
+  }
+
     &__social-link {
       text-decoration: none;
       
@@ -153,6 +173,11 @@
       &__social {
         justify-content: flex-start;
       }
+      .footer-logo-atemtia {
+        margin-right: 85px;
+        width: 140px;
+        height: auto;
+    }
     }
   }
   </style>
