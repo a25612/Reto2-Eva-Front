@@ -122,23 +122,8 @@ button {
 
   &:hover {
     background-color: $color-secundario;
-    transform: scale(1.05);
+    transform: scale(1.03);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: left 0.4s ease-in-out;
-  }
-
-  &:hover::after {
-    left: 100%;
   }
 }
 
@@ -151,23 +136,8 @@ button {
 
   &:hover {
     background-color: $color-secundario;
-    transform: scale(1.05);
+    transform: scale(1.03);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: left 0.4s ease-in-out;
-  }
-
-  &:hover::after {
-    left: 100%;
   }
 }
 
