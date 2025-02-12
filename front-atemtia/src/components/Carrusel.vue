@@ -1,0 +1,133 @@
+<script>
+import carrusel from '../js/carrusel.js';
+
+export default {
+  mounted() {
+    carrusel();
+  }
+};
+</script>
+
+
+
+<template>
+    <!-- CARRUSEL DE ANUNCIOS -->
+  <div class="carrusel">
+    <div class="carrusel-container">
+      <div class="carrusel-tarjeta">
+        <img src="" class="carrusel-imagen">
+        <div class="carrusel-content">
+          <h3 class="carrusel-titulo">Curso 1</h3>
+          <p class="carrusel-fecha">23 de enero de 2025</p>
+          <p class="carrusel-autor">Ruben Arnadillo</p>
+        </div>
+      </div>
+      <div class="carrusel-tarjeta">
+        <img src="" class="carrusel-imagen">
+        <div class="carrusel-content">
+          <h3 class="carrusel-title">Curso 2</h3>
+          <p class="carrusel-date">15 de enero de 2025</p>
+          <p class="carrusel-autor">Javier Plo</p>
+        </div>
+      </div>
+      <div class="carrusel-tarjeta">
+        <img src="" class="carrusel-imagen">
+        <div class="carrusel-content">
+          <h3 class="carrusel-titulo">Curso 3</h3>
+          <p class="carrusel-fecha">12 de febrero de 2025</p>
+          <p class="carrusel-autor">Ruben Arnadillo</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLL PARA EL CARRUSEL -->
+    <div class="carrusel-scroll">
+      <div class="carrusel-scrollbar"></div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss">
+    @import '../assets/styles/variables.scss';
+    .carrusel {
+    margin-top: -95px;
+    position: relative;
+    overflow: hidden;
+    padding: 16px;
+    margin-left: 40px;
+    padding: 90px 10px 0;
+  
+    &-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 16px;
+      padding-bottom: 16px;
+      scroll-behavior: smooth;
+  
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  
+    &-tarjeta {
+      flex: 0 0 80%; 
+      scroll-snap-align: center;
+      background-color: $color-fondo;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    &-imagen {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+  
+    &-content {
+      padding: 12px;
+  
+      .carrusel-titulo {
+        font-size: 16px;
+        color: #333;
+        margin: 0 0 8px;
+      }
+  
+      .carrusel-fecha {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .carrusel-autor {
+        font-size: 14px;
+        color: #666;
+      }
+    }
+  
+    &-scroll {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background-color: #EEEEEE;
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+       &-scrollbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 25%; 
+        background-color: $color-boton;
+        border-radius: 4px;
+        transition: transform 0.2s;
+      }
+    
+  }
+</style>
+
