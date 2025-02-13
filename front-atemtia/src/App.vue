@@ -12,8 +12,6 @@ const route = useRoute();
     <RouterView />
 
     <Footer v-if="route.path !== '/login'" />
-
-    
 </template>
 
 <style lang="scss">

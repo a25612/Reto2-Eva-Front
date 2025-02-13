@@ -1,3 +1,7 @@
+<script setup lang="ts">
+  import BotonScrolltop from '../components/BotonScrolltop.vue';
+</script>
+
 <template>
   <div class="home">
     <div class="bienvenida">
@@ -31,50 +35,15 @@
         <p>
           Si quieres saber más información sobre Atemtia y sus servicios, visita nuestra página web.
         </p>
-        <button class="boton-web-atemtia" @click="redirigirAWeb">
+        <button class="boton-web-atemtia" window.location.href = "https://espacioatemtia.es/">
           Más información
         </button>
       </div>
     </section>
 
-    <button 
-    class="boton-scroll-top" 
-    :class="{ mostrar: mostrarBotonScroll }" 
-    @click="scrollToTop">
-    ↑
-  </button>
+    <BotonScrolltop />
   </div>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      mostrarBotonScroll: false,
-    };
-  },
-  methods: {
-    redirigirAWeb() {
-      window.location.href = "https://espacioatemtia.es/";
-    },
-    scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    },
-    handleScroll() {
-      this.mostrarBotonScroll = window.scrollY > 100;
-    },
-  },
-  mounted() {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
-  },
-};
-</script>
 
 <style lang="scss" scoped>
 @import '../assets/styles/variables.scss';
@@ -96,14 +65,14 @@ export default {
   }
 }
 
-button {
+.boton-app, .boton-web-atemtia {
   padding: 10px 15px;
   font-size: 19px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, 
-              transform 0.2s ease, box-shadow 0.3s ease;
+  transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .boton-app {
@@ -115,12 +84,12 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, 
-              transform 0.2s ease, box-shadow 0.3s ease;
+  transform 0.2s ease, box-shadow 0.3s ease;
   background-color: $color-boton;
   color: $color-fondo;
   overflow: hidden;
 
-  &:hover {
+  &:hover { 
     background-color: $color-secundario;
     transform: scale(1.03);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -147,12 +116,6 @@ button {
   flex-direction: column;
   gap: 20px;
   padding: 20px;
-
-  @media (min-width: 1024px) {
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-  }
 }
 
 
@@ -178,38 +141,18 @@ button {
     max-width: 800px;
     margin: 0 auto;
   }
+}
 
-  @media (min-width: 1024px) {
+@media (min-width: 768px) {
+  .info-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .info {
     padding: 40px;
     max-width: 33%;
   }
-}
-
-.boton-scroll-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: $color-boton;
-  color: $color-fondo;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.boton-scroll-top.mostrar {
-  opacity: 1;
-  visibility: visible;
-}
-
-.boton-scroll-top:active,
-.boton-scroll-top:focus {
-  background-color: $color-boton;
 }
 </style>
