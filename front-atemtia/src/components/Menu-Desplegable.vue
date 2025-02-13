@@ -84,9 +84,9 @@ export default {
 
   .nav-izquierda {
     position: fixed;
-    top: 0;
+    top: 1px;
     left: -36%;
-    width: 27%;
+    width: 33%;
     height: 100%;
     margin-top: 101px;
     background: $color-secundario;
