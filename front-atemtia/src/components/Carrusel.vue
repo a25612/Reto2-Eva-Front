@@ -1,13 +1,11 @@
-<script>
-import carrusel from '../js/carrusel.js';
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { iniciarCarrusel } from "../ts/carrusel";
 
-export default {
-  mounted() {
-    carrusel();
-  }
-};
+onMounted(() => {
+  iniciarCarrusel();
+});
 </script>
-
 
 
 <template>

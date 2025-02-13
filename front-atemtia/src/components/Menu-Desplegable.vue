@@ -1,11 +1,5 @@
-<script>
-import { abrirMenuIzquierda } from '../js/menu-desplegable.js';
-
-export default {
-  methods: {
-    abrirMenuIzquierda
-  }
-};
+<script setup lang="ts">
+import { abrirMenuIzquierda } from '../ts/menu-desplegable';
 </script>
 
 <template>

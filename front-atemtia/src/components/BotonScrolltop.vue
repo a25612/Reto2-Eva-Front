@@ -1,9 +1,7 @@
-<script>
-import botonScroll from '../js/boton-scrolltop.js';
+<script setup>
+import { useBotonScroll } from '../ts/boton-scrolltop';
 
-export default {
-  ...botonScroll
-};
+const { mostrarBotonScroll, scrollToTop } = useBotonScroll();
 </script>
 
 <template>
