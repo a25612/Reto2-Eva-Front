@@ -51,7 +51,6 @@ export default {
     @import '../assets/styles/variables.scss';
     .carrusel {
     margin-top: -95px;
-    position: relative;
     overflow: hidden;
     padding: 16px;
     margin-left: 40px;

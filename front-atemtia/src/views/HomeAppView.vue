@@ -50,7 +50,7 @@
 
   .bar-separador {
     margin-top: -19px;
-    margin-bottom: 15px;
+    margin-bottom: 30px;
     display: block;
     width: 350px;
     height: 1px;
