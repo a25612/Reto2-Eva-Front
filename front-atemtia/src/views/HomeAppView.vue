@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream
-=======
 <script setup lang="ts">
   import Carrusel from '../components/Carrusel.vue';
   import BotonScrolltop from '../components/BotonScrolltop.vue';
 </script>
->>>>>>> Stashed changes
 <template>
   <div class="titulo-anuncios">
     <!-- SEPARADOR -->
@@ -23,18 +20,9 @@
     </div>
   </div>
 
-<<<<<<< Updated upstream
-  <!-- SEPARADOR -->
-  <div class="separador">
-    <span class="bar-separador"></span>
-  </div>
-
-
-=======
   <Carrusel />
 
   <BotonScrolltop />
->>>>>>> Stashed changes
 </template>
 
 <style lang="scss">
