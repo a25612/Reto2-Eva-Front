@@ -1,11 +1,10 @@
 <script setup lang="ts">
   import Carrusel from '../components/Carrusel.vue';
   import BotonScrolltop from '../components/BotonScrolltop.vue';
-  import menuDesplegable from '../components/menu-desplegable.vue';
+  import MenuDesplegable from '../components/Menu-Desplegable.vue';
 </script>
 <template>
-
-  <menuDesplegable />
+  <MenuDesplegable />
   <div class="titulo-anuncios">
     <!-- SEPARADOR -->
     <div class="separador">

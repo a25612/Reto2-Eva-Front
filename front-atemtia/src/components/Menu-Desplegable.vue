@@ -1,14 +1,16 @@
-<script >
-import menudesplegable from '../js/menu-desplegable.js';
+<script>
+import { abrirMenuIzquierda } from '../js/menu-desplegable.js';
 
 export default {
-  ...menudesplegable
+  methods: {
+    abrirMenuIzquierda
+  }
 };
 </script>
 
 <template>
     <div class="desplegable-izquierda">
-    <button class="btn-menudesplegable" onclick="abrirMenuIzquierda()">
+      <button class="btn-menudesplegable" @click="abrirMenuIzquierda">
       <span class="bar-izquierda"></span>
       <span class="bar-izquierda"></span>
       <span class="bar-izquierda"></span>
