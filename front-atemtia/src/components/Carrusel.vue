@@ -15,7 +15,7 @@ export default {
   <div class="carrusel">
     <div class="carrusel-container">
       <div class="carrusel-tarjeta">
-        <img src="" class="carrusel-imagen">
+        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
         <div class="carrusel-content">
           <h3 class="carrusel-titulo">Curso 1</h3>
           <p class="carrusel-fecha">23 de enero de 2025</p>
@@ -23,15 +23,15 @@ export default {
         </div>
       </div>
       <div class="carrusel-tarjeta">
-        <img src="" class="carrusel-imagen">
+        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
         <div class="carrusel-content">
-          <h3 class="carrusel-title">Curso 2</h3>
+          <h3 class="carrusel-titulo">Curso 2</h3>
           <p class="carrusel-date">15 de enero de 2025</p>
           <p class="carrusel-autor">Javier Plo</p>
         </div>
       </div>
       <div class="carrusel-tarjeta">
-        <img src="" class="carrusel-imagen">
+        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
         <div class="carrusel-content">
           <h3 class="carrusel-titulo">Curso 3</h3>
           <p class="carrusel-fecha">12 de febrero de 2025</p>
@@ -64,6 +64,7 @@ export default {
       gap: 16px;
       padding-bottom: 16px;
       scroll-behavior: smooth;
+      align-items: center;
   
       &::-webkit-scrollbar {
         display: none;
@@ -71,12 +72,10 @@ export default {
     }
   
     &-tarjeta {
-      flex: 0 0 80%; 
-      scroll-snap-align: center;
+      flex: 0 0 85%; 
       background-color: $color-fondo;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
@@ -118,14 +117,10 @@ export default {
       cursor: pointer;
     }
        &-scrollbar {
-        position: absolute;
-        top: 0;
-        left: 0;
         height: 100%;
         width: 25%; 
         background-color: $color-boton;
         border-radius: 4px;
-        transition: transform 0.2s;
       }
     
   }
