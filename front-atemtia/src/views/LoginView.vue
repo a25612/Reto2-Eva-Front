@@ -1,19 +1,28 @@
+<script>
+import login from '../js/login.js';
+
+export default {
+  ...login
+};
+</script>
+
 <template>
-    <div class="login-container">
+  <div class="login-container">
     <div class="logo">
       <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png" 
-           alt="Servicios ATEMTIA" 
-           class="logo-atemtia-login">
+          alt="Servicios ATEMTIA" 
+          class="logo-atemtia-login">
     </div>
-    <form class="login-form">
+    <form class="login-form" @submit.prevent="login">
       <div class="input-group">
-        <input type="text" id="username" placeholder="USUARIO">
+        <input type="text" id="username" placeholder="USUARIO" v-model="username">
       </div>
       <div class="input-group">
-        <input type="password" id="password" placeholder="CONTRASEÑA">
+        <input type="password" id="password" placeholder="CONTRASEÑA" v-model="password">
       </div>
       <button type="submit" class="btn-submit">INICIAR SESIÓN →</button>
     </form>
+    <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
 
@@ -71,5 +80,9 @@ input {
     background-color: $color-principal;
     transform: scale(1.01);
   }
+}
+.error-message{
+  margin-top: 20px;
+  color: red;
 }
 </style>
