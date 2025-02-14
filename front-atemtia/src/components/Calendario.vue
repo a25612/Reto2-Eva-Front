@@ -1,0 +1,174 @@
+<script setup lang="ts">
+import { useCalendario } from '../ts/calendario';
+
+const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual } = useCalendario();
+</script>
+
+
+<template>
+ <!-- BOTÓN CALENDARIO DESPLEGABLE -->
+ <div class="calendario-desplegable">
+    <button class="btn-calendario" onclick="abrirCalendario()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none" class="svg-icon">
+        <g stroke-width="2" stroke-linecap="round" stroke="#fff">
+          <rect y="5" x="4" width="16" rx="2" height="16"></rect>
+          <path d="m8 3v4"></path>
+          <path d="m16 3v4"></path>
+          <path d="m4 11h16"></path>
+        </g>
+      </svg>
+    </button>
+
+    <!-- CALENDIARIO -->
+    <nav class="nav-calendario">
+      <div class="nav-calendario-header">
+        <h2>Mi agenda</h2>
+        <div class="nav-controls">
+          <button onclick="cambiarDia(-1)">‹</button>
+          <span id="fecha-actual"></span>
+          <button onclick="cambiarDia(1)">›</button>
+        </div>
+      </div>
+
+      <div class="nav-calendario-content" id="contenido-agenda">
+        <!-- Las actividades se cargarán dinámicamente aquí -->
+      </div>
+    </nav>
+  </div>
+</template>
+
+<style lang="scss">
+@import '../assets/styles/variables.scss';
+// Botón de calendario
+.calendario-desplegable {
+    position: relative;
+
+    .btn-calendario {
+        position: fixed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 9px 12px;
+        gap: 8px;
+        height: 40px;
+        width: 50px;
+        border: none;
+        margin-top: 30px;
+        background: $color-principal;
+        border-radius: 20px;
+        cursor: pointer;
+        right: 3%;
+        z-index: 1001;
+        transition: right 0.5s ease-out; 
+        
+        &:hover {
+            background: $color-secundario;
+
+            .svg-icon {
+                animation: slope 1s linear infinite;
+            }
+        }
+        
+        &.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
+    .nav-calendario {
+        position: fixed;
+        top: 1px;
+        right: -53%;
+        width: 41%;
+        height: 100%;
+        margin-top: 101px;
+        background: $color-fondo;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+        transition: right 0.5s ease-out; 
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+
+        &-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+
+            h2 {
+                margin: 0;
+                color: $color-principal;
+                font-size: 1.5rem;
+            }
+
+            .nav-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                
+                button {
+                    background: none;
+                    border: none;
+                    color: $color-secundario;
+                    cursor: pointer;
+                    font-size: 1.5rem;
+                    padding: 0.5rem;
+                    
+                    &:hover {
+                        color: $color-principal;
+                    }
+                }
+
+                span {
+                    color: #333;
+                    font-size: 1rem;
+                }
+            }
+        }
+
+        &-content {
+            .agenda-item {
+                display: flex;
+                margin-bottom: 1.5rem;
+                
+                .time {
+                    min-width: 60px;
+                    color: #333;
+                    font-weight: bold;
+                }
+                
+                .details {
+                    margin-left: 1rem;
+                    padding-left: 1rem;
+                    border-left: 2px solid $color-secundario;
+                    
+                    .title {
+                        color: #333;
+                        margin-bottom: 0.25rem;
+                        font-weight: 500;
+                    }
+                    
+                    .location {
+                        color: #666;
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+        }
+
+        &.active {
+            right: 0;
+            margin-top: 100px;
+        }
+    }
+
+    &.active {
+        .btn-calendario {
+            right: 55%;
+        }
+    }
+}
+
+</style> 

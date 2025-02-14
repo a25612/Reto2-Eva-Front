@@ -2,9 +2,14 @@
   import Carrusel from '../components/Carrusel.vue';
   import BotonScrolltop from '../components/BotonScrolltop.vue';
   import MenuDesplegable from '../components/Menu-Desplegable.vue';
+  import Calendario from '../components/Calendario.vue';
 </script>
 <template>
+
+  <Calendario />
+
   <MenuDesplegable />
+  
   <div class="titulo-anuncios">
     <!-- SEPARADOR -->
     <div class="separador">
