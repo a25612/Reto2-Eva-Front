@@ -6,12 +6,12 @@ export function useCalendario() {
   const btn = ref<HTMLElement | null>(null);
   const fechaActual = ref(new Date());
   const actividades = ref<Record<string, { hora: string; titulo: string; ubicacion: string }[]>>({
-    "2025-02-15": [{ hora: "15:55", titulo: "Desarrollo web", ubicacion: "2SWD - S1 (Ordenadores)" }],
+    "2025-02-17": [{ hora: "15:55", titulo: "Desarrollo web", ubicacion: "2SWD - S1 (Ordenadores)" }],
     "2025-02-14": [
       { hora: "10:00", titulo: "Revisión de proyecto", ubicacion: "Sala 3" },
       { hora: "12:30", titulo: "Reunión con equipo", ubicacion: "Sala 2" },
     ],
-    "2025-02-16": [{ hora: "09:00", titulo: "Taller de innovación", ubicacion: "Auditorio" }],
+    "2025-02-18": [{ hora: "09:00", titulo: "Taller de innovación", ubicacion: "Auditorio" }],
   });
 
   // Computed para filtrar las actividades por fecha
@@ -49,10 +49,14 @@ export function useCalendario() {
 
   function cambiarDia(direccion: number) {
     do {
-      fechaActual.value.setDate(fechaActual.value.getDate() + direccion);
+      const nuevaFecha = new Date(fechaActual.value);
+      nuevaFecha.setDate(nuevaFecha.getDate() + direccion);
+      fechaActual.value = nuevaFecha; 
     } while (!esLaborable(fechaActual.value));
+  
     actualizarCalendario();
   }
+  
 
   function actualizarCalendario() {
     const opcionesFecha: Intl.DateTimeFormatOptions = { weekday: "long", day: "numeric", month: "long", year: "numeric" };

@@ -14,7 +14,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
           <path d="m16 3v4"></path>
           <path d="m4 11h16"></path>
         </g>
-      </svg>
+      </svg>    
     </button>
 
     <nav ref="nav" class="nav-calendario">
@@ -90,8 +90,8 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
     .nav-calendario {
         position: fixed;
         top: 1px;
-        right: -53%;
-        width: 50%;
+        right: -56%;
+        width: 56%;
         height: 100%;
         margin-top: 101px;
         background: $color-fondo;
@@ -178,7 +178,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
 
     &.active {
         .btn-calendario {
-            right: 52%;
+            right: 58%;
         }
     }
 }
