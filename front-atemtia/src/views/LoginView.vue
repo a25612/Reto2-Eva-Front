@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {useLogin} from '../ts/login';
+import { useLogin } from '../ts/login';
 
-const {username, password, error, login} = useLogin();
+const { username, password, error, login } = useLogin();
 </script>
 
 <template>
