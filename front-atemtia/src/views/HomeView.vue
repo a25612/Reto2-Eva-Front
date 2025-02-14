@@ -1,5 +1,9 @@
 <script setup lang="ts">
   import BotonScrolltop from '../components/BotonScrolltop.vue';
+
+  const irAWeb = () => {
+    window.location.href = "https://espacioatemtia.es/";
+  };
 </script>
 
 <template>
@@ -35,7 +39,7 @@
         <p>
           Si quieres saber más información sobre Atemtia y sus servicios, visita nuestra página web.
         </p>
-        <button class="boton-web-atemtia" window.location.href = "https://espacioatemtia.es/">
+        <button class="boton-web-atemtia" @click="irAWeb">
           Más información
         </button>
       </div>
