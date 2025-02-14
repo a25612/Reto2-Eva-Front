@@ -112,6 +112,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
                 margin: 0;
                 color: $color-principal;
                 font-size: 1.5rem;
+                margin-left: 20px;
             }
 
             .nav-controls {
