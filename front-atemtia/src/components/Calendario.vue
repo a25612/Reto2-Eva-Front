@@ -6,36 +6,35 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual } = useCa
 
 
 <template>
- <!-- BOTÓN CALENDARIO DESPLEGABLE -->
- <div class="calendario-desplegable">
-    <button class="btn-calendario" onclick="abrirCalendario()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none" class="svg-icon">
-        <g stroke-width="2" stroke-linecap="round" stroke="#fff">
-          <rect y="5" x="4" width="16" rx="2" height="16"></rect>
-          <path d="m8 3v4"></path>
-          <path d="m16 3v4"></path>
-          <path d="m4 11h16"></path>
-        </g>
-      </svg>
-    </button>
-
-    <!-- CALENDIARIO -->
-    <nav class="nav-calendario">
-      <div class="nav-calendario-header">
-        <h2>Mi agenda</h2>
-        <div class="nav-controls">
-          <button onclick="cambiarDia(-1)">‹</button>
-          <span id="fecha-actual"></span>
-          <button onclick="cambiarDia(1)">›</button>
+    <div ref="contenedor" class="calendario-desplegable">
+      <button ref="btn" class="btn-calendario" @click="abrirCalendario">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none" class="svg-icon">
+          <g stroke-width="2" stroke-linecap="round" stroke="#fff">
+            <rect y="5" x="4" width="16" rx="2" height="16"></rect>
+            <path d="m8 3v4"></path>
+            <path d="m16 3v4"></path>
+            <path d="m4 11h16"></path>
+          </g>
+        </svg>
+      </button>
+  
+      <nav ref="nav" class="nav-calendario">
+        <div class="nav-calendario-header">
+          <h2>Mi agenda</h2>
+          <div class="nav-controls">
+            <button @click="cambiarDia(-1)">‹</button>
+            <span>{{ fechaActual.toLocaleDateString("es-ES") }}</span>
+            <button @click="cambiarDia(1)">›</button>
+          </div>
         </div>
-      </div>
-
-      <div class="nav-calendario-content" id="contenido-agenda">
-        <!-- Las actividades se cargarán dinámicamente aquí -->
-      </div>
-    </nav>
-  </div>
-</template>
+  
+        <div class="nav-calendario-content">
+          <!-- Las actividades se cargarán dinámicamente aquí -->
+        </div>
+      </nav>
+    </div>
+  </template>
+  
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
