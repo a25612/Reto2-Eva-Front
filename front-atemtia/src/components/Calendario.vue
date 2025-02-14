@@ -52,11 +52,11 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual } = useCa
         height: 40px;
         width: 50px;
         border: none;
-        margin-top: 30px;
+        margin-top: 12px;
         background: $color-principal;
         border-radius: 20px;
         cursor: pointer;
-        right: 3%;
+        right: 4%;
         z-index: 1001;
         transition: right 0.5s ease-out; 
         
@@ -159,13 +159,13 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual } = useCa
 
         &.active {
             right: 0;
-            margin-top: 100px;
+            margin-top: 101px;
         }
     }
 
     &.active {
         .btn-calendario {
-            right: 55%;
+            right: 43%;
         }
     }
 }
