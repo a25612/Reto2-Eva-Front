@@ -6,12 +6,12 @@ export function useCalendario() {
   const btn = ref<HTMLElement | null>(null);
   const fechaActual = ref(new Date());
   const actividades = ref<Record<string, { hora: string; titulo: string; ubicacion: string }[]>>({
-    "2025-02-05": [{ hora: "15:55", titulo: "Desarrollo web", ubicacion: "2SWD - S1 (Ordenadores)" }],
-    "2025-02-03": [
+    "2025-02-15": [{ hora: "15:55", titulo: "Desarrollo web", ubicacion: "2SWD - S1 (Ordenadores)" }],
+    "2025-02-14": [
       { hora: "10:00", titulo: "Revisión de proyecto", ubicacion: "Sala 3" },
       { hora: "12:30", titulo: "Reunión con equipo", ubicacion: "Sala 2" },
     ],
-    "2025-02-04": [{ hora: "09:00", titulo: "Taller de innovación", ubicacion: "Auditorio" }],
+    "2025-02-16": [{ hora: "09:00", titulo: "Taller de innovación", ubicacion: "Auditorio" }],
   });
 
   // Computed para filtrar las actividades por fecha
