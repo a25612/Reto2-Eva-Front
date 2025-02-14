@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
 export function useCalendario() {
   const contenedor = ref<HTMLElement | null>(null);
@@ -12,6 +12,12 @@ export function useCalendario() {
       { hora: "12:30", titulo: "Reunión con equipo", ubicacion: "Sala 2" },
     ],
     "2025-02-04": [{ hora: "09:00", titulo: "Taller de innovación", ubicacion: "Auditorio" }],
+  });
+
+  // Computed para filtrar las actividades por fecha
+  const actividadesDelDia = computed(() => {
+    const diaClave = fechaActual.value.toISOString().split("T")[0];
+    return actividades.value[diaClave] || [];
   });
 
   function abrirCalendario() {
@@ -55,8 +61,7 @@ export function useCalendario() {
       fechaElemento.innerText = fechaActual.value.toLocaleDateString("es-ES", opcionesFecha);
     }
 
-    const diaClave = fechaActual.value.toISOString().split("T")[0];
-    const agenda = actividades.value[diaClave] || [];
+    const agenda = actividadesDelDia.value;
     const contenidoAgenda = document.getElementById("contenido-agenda");
     if (contenidoAgenda) {
       contenidoAgenda.innerHTML = "";
@@ -91,5 +96,5 @@ export function useCalendario() {
     document.removeEventListener('click', cerrarCalendarioFuera);
   });
 
-  return { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual };
+  return { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, actividadesDelDia };
 }
