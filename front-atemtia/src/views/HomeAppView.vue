@@ -3,6 +3,7 @@
   import BotonScrolltop from '../components/BotonScrolltop.vue';
   import MenuDesplegable from '../components/Menu-Desplegable.vue';
   import Calendario from '../components/Calendario.vue';
+  import MiEspacio from '../components/MiEspacio.vue';
 </script>
 <template>
 
@@ -30,6 +31,9 @@
   <Carrusel />
 
   <BotonScrolltop />
+  <MiEspacio />
+
+
 </template>
 
 <style lang="scss">
@@ -61,7 +65,7 @@
     display: block;
     width: 350px;
     height: 1px;
-    background: rgba(84, 190, 84, 0.441);
+    background: rgba(74, 165, 74, 0.441);
   }
 }
 
