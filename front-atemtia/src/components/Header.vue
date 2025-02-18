@@ -16,19 +16,24 @@
 
 .header {
   background-color: $color-fondo;
-  color: $color-fondo;
+  color: $color-titulos; 
   font-family: $fuente-principal;
   padding: 19px;
-  position: sticky; 
-  top: 0; 
+  position: sticky;
+  top: 0;
   left: 0;
   width: 100%;
   border-bottom: 2px solid $color-secundario;
-
+  z-index: 1000; 
+  display: flex; 
+  align-items: center;
+  justify-content: center;
 
   &-container {
     display: flex;
     justify-content: center;
+    align-items: center;
+    width: 100%;
   }
 
   &-logo {
@@ -37,8 +42,9 @@
     }
 
     .logo-atemtia {
-      height: 62px; 
+      height: 62px;
     }
   }
 }
+
 </style>
