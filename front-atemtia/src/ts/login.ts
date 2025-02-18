@@ -8,10 +8,10 @@ export function useLogin() {
   const router = useRouter();
 
   async function login() {
-    error.value = ''; // Reiniciar error antes de cada intento
+    error.value = '';
 
     try {
-      const response = await fetch('http://localhost:5248/api/tutor/login', {
+      const response = await fetch('http://localhost:5248/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.value, password: password.value })
@@ -21,14 +21,18 @@ export function useLogin() {
         const errorData = await response.json();
         throw new Error(errorData.message);
       }
-      
 
       const data = await response.json();
 
-      // Si usas JWT, almacénalo en localStorage o Vuex/Pinia
       localStorage.setItem('token', data.token);
+      localStorage.setItem('rol', data.rol); 
 
-      router.push('/home-app-atemtia'); // Redirigir a la página de inicio
+      if (data.rol = 'Empleado') {
+        router.push('/'); 
+      } else {
+        router.push('/home-app-atemtia'); 
+      }
+
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
     }
