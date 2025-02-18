@@ -27,10 +27,11 @@ export function useLogin() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol); 
 
-      if (data.rol = 'Empleado') {
+      if (data.rol === 'Empleado') {
         router.push('/'); 
       } else {
         router.push('/home-app-atemtia'); 
+        console.log('Rol: ' + data.rol);
       }
 
     } catch (err: any) {
