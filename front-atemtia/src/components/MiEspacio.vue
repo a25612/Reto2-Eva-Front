@@ -37,7 +37,7 @@
 @import '../assets/styles/variables.scss';
 
 .div-mi-espacio {
-  padding-top: 80px; 
+  
 
   h2 {
     margin: 0 0 40px 40px;
