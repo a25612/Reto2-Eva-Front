@@ -31,7 +31,7 @@ export function useLogin() {
         router.push('/'); 
       } else {
         router.push('/home-app-atemtia'); 
-        console.log('Rol: ' + data.rol);
+       
       }
 
     } catch (err: any) {
