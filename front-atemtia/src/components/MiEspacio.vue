@@ -11,33 +11,33 @@
     </div>
 
     <div class="mi-espacio-grid">
-      <div class="espacio-item mensajes">
-        <span class="notificacion">2</span>
-        <div class="icono"></div>
-        <p>Mensajes</p>
-      </div>
-      <div class="espacio-item reservas">
+    
+
+      <router-link class="espacio-item reservas" to="/reservas">
         <div class="icono"></div>
         <p>Reservas</p>
-      </div>
-      <div class="espacio-item incidencias">
+      </router-link>
+
+      <router-link class="espacio-item incidencias" to="/incidencias">
         <span class="notificacion">1</span>
         <div class="icono"></div>
         <p>Incidencias</p>
-      </div>
-      <div class="espacio-item mi-cuenta">
+      </router-link>
+
+      <router-link class="espacio-item mi-cuenta" to="/mi-cuenta">
         <div class="icono"></div>
         <p>Mi cuenta</p>
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .div-mi-espacio {
-  
+
 
   h2 {
     margin: 0 0 40px 40px;
@@ -68,6 +68,7 @@
   }
 
   .espacio-item {
+    text-decoration: none;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -94,12 +95,14 @@
     &.mi-cuenta {
       background: linear-gradient(
         135deg,
-        lighten($color-principal, 10%) 10%,
-        $color-principal 40%,
-        $color-secundario 60%,
-        darken($color-secundario, 10%) 90%
-      );
-    }
+          lighten($color-boton, 10%) 0%,
+            $color-principal 50%,
+              $color-boton 70%
+    );
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 
     .icono {
       width: 40px;
