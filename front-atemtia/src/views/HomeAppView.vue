@@ -4,6 +4,7 @@
   import MenuDesplegable from '../components/Menu-Desplegable.vue';
   import Calendario from '../components/Calendario.vue';
   import MiEspacio from '../components/MiEspacio.vue';
+
 </script>
 <template>
 
@@ -32,6 +33,7 @@
 
   <BotonScrolltop />
   <MiEspacio />
+
 
 
 </template>

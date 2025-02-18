@@ -13,7 +13,7 @@
     <div class="mi-espacio-grid">
     
 
-      <router-link class="espacio-item reservas" to="/reservas">
+      <router-link class="espacio-item reservas" to="/Reservas">
         <div class="icono"></div>
         <p>Reservas</p>
       </router-link>
