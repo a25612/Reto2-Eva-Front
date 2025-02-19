@@ -1,7 +1,16 @@
 <script setup lang="ts">
 </script>
 
+
+
 <template>
+
+
+   <div class="separador-abajo">
+      <span class="bar-separador"></span>
+    </div>
+
+    
   <div class="div-mi-espacio">
     <h2>Mi Espacio</h2>
 
@@ -11,8 +20,6 @@
     </div>
 
     <div class="mi-espacio-grid">
-    
-
       <router-link class="espacio-item reservas" to="/Reservas">
         <div class="icono"></div>
         <p>Reservas</p>
@@ -32,13 +39,10 @@
   </div>
 </template>
 
-
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .div-mi-espacio {
-
-
   h2 {
     margin: 0 0 40px 40px;
     color: $color-titulos;
@@ -51,7 +55,7 @@
     justify-content: center;
 
     .bar-separador {
-      margin: 0 0 25px; 
+      margin: 0 0 25px;
       width: 350px;
       height: 1px;
       background: rgba($color-secundario, 0.6);
@@ -68,20 +72,20 @@
   }
 
   .espacio-item {
+    padding: 1rem;
     text-decoration: none;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 88px;
-    height: 66px;
-    padding: 1rem;
+    width: 97px;
+    height: 93px;
     border-radius: 16px;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
-    font-family: $fuente-principal;
+    font-family: "Raleway", sans-serif;
     font-weight: 600;
-    color: $color-fondo;
+    color: #FFFFFF;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
@@ -95,14 +99,13 @@
     &.mi-cuenta {
       background: linear-gradient(
         135deg,
-          lighten($color-boton, 10%) 0%,
-            $color-principal 50%,
-              $color-boton 70%
-    );
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
+        lighten($color-boton, 10%) 0%,
+        $color-principal 50%,
+        $color-boton 70%
+      );
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
     .icono {
       width: 40px;
@@ -112,14 +115,14 @@
     }
 
     p {
-      margin-top: -1.45rem;
-      font-size: 15px;
+      margin-top: -33px;
+      font-size: 14px;
     }
 
     .notificacion {
       position: absolute;
-      top: -5px; 
-      right: -5px; 
+      top: -5px;
+      right: -5px;
       padding: 5px 8px;
       border-radius: 50%;
       background: $color-secundario;
