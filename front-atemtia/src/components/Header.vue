@@ -1,14 +1,29 @@
+<script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+const irAHome = () => {
+  if (route.path.includes('/home-app-atemtia')) {
+    router.push('/home-app-atemtia'); 
+  } else {
+    router.push('/'); 
+  }
+};
+</script>
+
 <template>
-    <header class="header">
-        <div class="header-container">
-            <div class="header-logo">
-                <a href="" class="header-titulo-link">
-                    <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png"
-                        alt="Servicios ATEMTIA" class="logo-atemtia">
-                </a>
-            </div>
-        </div>
-    </header>
+  <header class="header">
+    <div class="header-container">
+      <div class="header-logo">
+        <a href="" class="header-titulo-link">
+          <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png"
+            alt="Servicios ATEMTIA" class="logo-atemtia">
+        </a>
+      </div>
+    </div>
+  </header>
 </template>
 
 <style lang="scss">
@@ -24,7 +39,7 @@
   left: 0;
   width: 100%;
   border-bottom: 2px solid $color-secundario;
-  z-index: 1000; 
+  z-index: 3000; 
   display: flex; 
   align-items: center;
   justify-content: center;
@@ -39,6 +54,7 @@
   &-logo {
     a {
       display: flex;
+      cursor: pointer;
     }
 
     .logo-atemtia {
@@ -46,5 +62,4 @@
     }
   }
 }
-
 </style>
