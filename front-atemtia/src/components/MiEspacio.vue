@@ -5,16 +5,15 @@
 
 <template>
 
-
-   <div class="separador-abajo">
+    <!-- SEPARADOR -->
+    <div class="separador">
       <span class="bar-separador"></span>
     </div>
-
-    
+  
   <div class="div-mi-espacio">
     <h2>Mi Espacio</h2>
 
-    <!-- SEPARADOR -->
+    <!-- Separador -->
     <div class="separador-abajo">
       <span class="bar-separador"></span>
     </div>
@@ -54,7 +53,7 @@
     justify-content: center;
 
     .bar-separador {
-      margin: 0 0 25px;
+      margin-bottom: 25px;
       width: 350px;
       height: 1px;
       background: rgba($color-secundario, 0.6);
@@ -73,7 +72,6 @@
   .espacio-item {
     padding: 1rem;
     text-decoration: none;
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -92,7 +90,6 @@
       box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.25);
     }
 
-    &.mensajes,
     &.reservas,
     &.incidencias,
     &.mi-cuenta {
@@ -117,7 +114,6 @@
       margin-top: -33px;
       font-size: 14px;
     }
-
   }
 }
 </style>
