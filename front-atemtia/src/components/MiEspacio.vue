@@ -26,7 +26,6 @@
       </router-link>
 
       <router-link class="espacio-item incidencias" to="/incidencias">
-        <span class="notificacion">1</span>
         <div class="icono"></div>
         <p>Incidencias</p>
       </router-link>
@@ -119,20 +118,6 @@
       font-size: 14px;
     }
 
-    .notificacion {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      padding: 5px 8px;
-      border-radius: 50%;
-      background: $color-secundario;
-      color: $color-fondo;
-      font-size: 0.8rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
   }
 }
 </style>
