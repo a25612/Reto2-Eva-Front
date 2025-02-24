@@ -44,7 +44,7 @@ function isAuthenticated() {
 
 // Guardia de navegación para proteger rutas privadas
 router.beforeEach((to, from, next) => {
-  if (to.name === 'login' || to.name === 'error-404') {
+  if (to.name === 'login' || to.name === 'error-404' || to.name === 'home' ) {
     next(); 
   } else if (!isAuthenticated()) {
     console.warn('Acceso denegado: Usuario no autenticado');
