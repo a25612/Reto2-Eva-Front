@@ -13,9 +13,9 @@ const router = createRouter({
     { path: '/', name: 'home', component: Home },
     { path: '/login', name: 'login', component: Login },
     { path: '/home-app-atemtia', name: 'home-app-atemtia', component: HomeAppView },
-    { path: '/reservas', name: 'reservas', component: ReservasView },
-    { path: '/incidencias', name: 'incidencias', component: IncidenciasView },
-    { path: '/mi-cuenta', name: 'mi-cuenta', component: MiCuentaView },
+    { path: '/home-app-atemtia/reservas', name: 'reservas', component: ReservasView },
+    { path: '/home-app-atemtia/incidencias', name: 'incidencias', component: IncidenciasView },
+    { path: '/home-app-atemtia/mi-cuenta', name: 'mi-cuenta', component: MiCuentaView },
     { path: '/error-404', name: 'error-404', component: Error404View },
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
@@ -27,11 +27,11 @@ function isAuthenticated() {
   if (!token) return false;
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1])); // Decodifica el JWT
-    const exp = payload.exp * 1000; // Convierte a milisegundos
+    const payload = JSON.parse(atob(token.split('.')[1])); 
+    const exp = payload.exp * 1000; 
     if (Date.now() > exp) {
       console.warn('Token expirado, eliminando y redirigiendo a login');
-      localStorage.removeItem('token'); // Elimina el token expirado
+      localStorage.removeItem('token'); 
       return false;
     }
     return true;
@@ -45,10 +45,10 @@ function isAuthenticated() {
 // Guardia de navegación para proteger rutas privadas
 router.beforeEach((to, from, next) => {
   if (to.name === 'login' || to.name === 'error-404') {
-    next(); // Permitir acceso libre a estas rutas
+    next(); 
   } else if (!isAuthenticated()) {
     console.warn('Acceso denegado: Usuario no autenticado');
-    next({ name: 'login' }); // Redirigir a login si no está autenticado
+    next({ name: 'login' }); 
   } else {
     next();
   }
