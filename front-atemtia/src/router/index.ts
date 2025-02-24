@@ -17,25 +17,38 @@ const router = createRouter({
     { path: '/incidencias', name: 'incidencias', component: IncidenciasView },
     { path: '/mi-cuenta', name: 'mi-cuenta', component: MiCuentaView },
     { path: '/error-404', name: 'error-404', component: Error404View },
-
-    // Ruta comodín para redirigir a 404 cuando la URL no existe
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
 
-// Verifica si el usuario está autenticado
+// Función para validar si el usuario está autenticado
 function isAuthenticated() {
   const token = localStorage.getItem('token');
-  console.log('Token en localStorage:', token);
-  return !!token;
+  if (!token) return false;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1])); // Decodifica el JWT
+    const exp = payload.exp * 1000; // Convierte a milisegundos
+    if (Date.now() > exp) {
+      console.warn('Token expirado, eliminando y redirigiendo a login');
+      localStorage.removeItem('token'); // Elimina el token expirado
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('Error al procesar el token:', err);
+    localStorage.removeItem('token');
+    return false;
+  }
 }
 
+// Guardia de navegación para proteger rutas privadas
 router.beforeEach((to, from, next) => {
   if (to.name === 'login' || to.name === 'error-404') {
-    next();
+    next(); // Permitir acceso libre a estas rutas
   } else if (!isAuthenticated()) {
-    console.log('Usuario no autenticado, redirigiendo a /login');
-    next({ name: 'login' });
+    console.warn('Acceso denegado: Usuario no autenticado');
+    next({ name: 'login' }); // Redirigir a login si no está autenticado
   } else {
     next();
   }
