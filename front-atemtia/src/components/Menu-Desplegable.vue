@@ -147,6 +147,17 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     }
   }
 }
+@media (min-width: 1024px) {
+  .desplegable-izquierda {
+    .nav-izquierda {
+      left: -33%;
+      width: 30%;
+    }
+
+  }
+}
+
+
 
 
 </style> 
