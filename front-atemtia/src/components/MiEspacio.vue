@@ -116,4 +116,41 @@
     }
   }
 }
+@media (min-width: 1024px) { // Empieza la medy query
+  .div-mi-espacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    text-align: center;
+
+
+    .mi-espacio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); // Distribuye en 3 columnas
+      gap: 2rem; // Más espacio entre elementos
+
+    }
+
+    .espacio-item {
+      width: 120px; // Un poco más grande en pantallas grandes
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
+
 </style>
