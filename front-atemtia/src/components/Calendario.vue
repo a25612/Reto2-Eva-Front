@@ -193,4 +193,34 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
 
   100% {}
 }
+@media (min-width: 1024px) {
+  .calendario-desplegable {
+    .btn-calendario {
+      display: none; 
+    }
+
+    .nav-calendario {
+      position: fixed;
+      top: 10%; // Ajusta la posición vertical
+      right: 10px; // Separa un poco del borde derecho
+      width: 15%; // Reduce el ancho
+      height: 100vh; // Reduce la altura al 80% de la pantalla
+      margin-top: 0;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+      transition: none; 
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem; // Reduce el padding
+      border-radius: 10px; 
+    }
+
+    &.active {
+      .btn-calendario {
+        display: none;
+      }
+    }
+  }
+}
+
 </style> 
