@@ -19,17 +19,17 @@
     </div>
 
     <div class="mi-espacio-grid">
-      <router-link class="espacio-item reservas" to="/Reservas">
+      <router-link class="espacio-item reservas" to="/home-app-atemtia/Reservas">
         <div class="icono"></div>
         <p>Reservas</p>
       </router-link>
 
-      <router-link class="espacio-item incidencias" to="/incidencias">
+      <router-link class="espacio-item incidencias" to="/home-app-atemtia/incidencias">
         <div class="icono"></div>
         <p>Incidencias</p>
       </router-link>
 
-      <router-link class="espacio-item mi-cuenta" to="/mi-cuenta">
+      <router-link class="espacio-item mi-cuenta" to="/home-app-atemtia/mi-cuenta">
         <div class="icono"></div>
         <p>Mi cuenta</p>
       </router-link>

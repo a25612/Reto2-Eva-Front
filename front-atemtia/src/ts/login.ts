@@ -8,7 +8,7 @@ export function useLogin() {
   const router = useRouter();
 
   async function login() {
-    error.value = '';
+    error.value = ''; // Resetear error antes de realizar la solicitud
 
     try {
       const response = await fetch('http://localhost:5248/api/auth/login', {
@@ -28,14 +28,17 @@ export function useLogin() {
         throw new Error(errorMessage);
       }
 
+      // Obtener los datos del usuario y el token
       const data = await response.json();
       console.log('Datos recibidos del servidor:', data);
 
+      // Guardar el token y el rol en localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
 
       console.log('Token guardado en localStorage:', localStorage.getItem('token'));
 
+      // Redirigir según el rol del usuario
       if (data.rol === 'Empleado') {
         router.push('/');
       } else {
@@ -43,6 +46,7 @@ export function useLogin() {
       }
 
     } catch (err: any) {
+      // Mostrar mensaje de error si algo falla
       error.value = err.message || 'Error al iniciar sesión';
     }
   }
