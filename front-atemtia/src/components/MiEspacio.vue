@@ -146,7 +146,7 @@
       transition: all 0.3s ease;
 
       &:hover {
-        transform: scale(1.1);
+        transform: scale(1.05);
         box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.25);
       }
     }
