@@ -123,7 +123,9 @@ onMounted(() => {
 
   @media (min-width: 768px) { //Iniciamos la media query para pantallas de 768px 
   .carrusel-container {
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 30px; 
     justify-content: center; 
     align-items: center; 
     overflow-x: visible;
@@ -132,9 +134,9 @@ onMounted(() => {
 
   .carrusel-tarjeta {
     flex: initial;
-    width: 22%;
+    width: 100%;
     height: auto; 
-   ; 
+    margin: 0 auto; 
   }
 
   .carrusel-scroll {
