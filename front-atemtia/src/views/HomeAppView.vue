@@ -20,8 +20,19 @@
 
     <!-- ANUNCIOS -->
     <div class="div-mi-espacio">
-      <h2>Anuncios</h2>
-    </div>
+  <div class="separador-abajo"> </div>
+
+  <router-link to="/pagina-anuncios" class="btn-anuncios">
+    <button>Anuncios</button>
+  </router-link>
+
+  <div class="separador-abajo"></div>
+</div>
+
+
+
+
+
 
     <!-- SEPARADOR -->
     <div class="separador-abajo">
@@ -42,6 +53,57 @@
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
+
+.div-mi-espacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  h2 {
+    margin: 17px 15px 40px 40px;
+    color: $color-secundario;
+    font-size: 22px;
+  }
+
+  .btn-anuncios {
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    color: $color-secundario;
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.3s ease, transform 0.2s ease;
+
+    
+  }
+
+  .separador-abajo {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    .bar-separador {
+      margin-bottom: 25px;
+      width: 350px;
+      height: 1px;
+      
+    }
+  }
+
+  .mi-espacio-grid {
+    display: grid;
+    justify-items: center;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+}
+
 .titulo-anuncios {
   margin-top: 40px;
 }
@@ -73,27 +135,8 @@
   }
 }
 
-.div-mi-espacio {
-  h2 {
-    margin-top: 10px;
-    margin-bottom: 30px;
-    margin-left: 40px;
-    color: $color-secundario;
-    font-size: 22px;
-  }
-
-  .mi-espacio-grid {
-    display: grid;
-    justify-items: center;
-    gap: 1.5rem;
-    justify-content: center;
-    align-items: center;
-    max-width: 350px;
-    margin: 0 auto;
-  }
-}
 @media (min-width: 768px) { 
-  .titulo-anuncios{
+  .titulo-anuncios {
     margin-right: 32px;
   }
 }

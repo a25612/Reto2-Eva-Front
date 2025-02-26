@@ -42,7 +42,7 @@
 
 .div-mi-espacio {
   h2 {
-    margin: 0 0 40px 40px;
+    margin: 0px 0px 40px 40px;
     color: $color-titulos;
     font-size: 22px;
 
