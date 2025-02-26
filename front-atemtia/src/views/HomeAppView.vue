@@ -93,4 +93,9 @@
     margin: 0 auto;
   }
 }
+@media (min-width: 768px) { 
+  .titulo-anuncios{
+    margin-right: 882px;
+  }
+}
 </style>
