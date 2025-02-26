@@ -121,10 +121,11 @@ onMounted(() => {
     border-radius: 4px;
   }
 
-  @media (min-width: 768px) { 
+  @media (min-width: 768px) {
   .carrusel-container {
+   
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 30px; 
+   
     justify-content: center; 
     align-items: center; 
     overflow-x: visible;
@@ -133,9 +134,9 @@ onMounted(() => {
 
   .carrusel-tarjeta {
     flex: initial;
-    width: 100%;
+    width: 22%;
     height: auto; 
-    margin: 0 auto; 
+   
   }
 
   .carrusel-scroll {
