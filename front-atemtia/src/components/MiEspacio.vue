@@ -116,7 +116,7 @@
     }
   }
 }
-@media (min-width: 1024px) { // Empieza la medy query
+@media (min-width: 768px) { // Empieza la medy query
   .div-mi-espacio {
     display: flex;
     flex-direction: column;

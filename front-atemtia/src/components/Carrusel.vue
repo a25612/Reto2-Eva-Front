@@ -37,23 +37,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="carrusel-tarjeta">
-        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
-        <div class="carrusel-content">
-          <h3 class="carrusel-titulo">Curso 4</h3>
-          <p class="carrusel-fecha">13 de febrero de 2025</p>
-          <p class="carrusel-autor">Javier Plo</p>
-        </div>
-      </div>
-
-      <div class="carrusel-tarjeta">
-        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
-        <div class="carrusel-content">
-          <h3 class="carrusel-titulo">Curso 5</h3>
-          <p class="carrusel-fecha">14 de febrero de 2025</p>
-          <p class="carrusel-autor">Ruben Arnadillo</p>
-        </div>
-      </div>
+      
+     
     </div>
 
     <!-- SCROLL PARA EL CARRUSEL -->
@@ -136,7 +121,7 @@ onMounted(() => {
     border-radius: 4px;
   }
 
-  @media (min-width: 1024px) { //Iniciamos la media query para pantallas de 1024px 
+  @media (min-width: 768px) { //Iniciamos la media query para pantallas de 768px 
   .carrusel-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 

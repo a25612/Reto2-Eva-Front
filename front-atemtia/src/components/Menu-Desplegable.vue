@@ -147,7 +147,7 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     }
   }
 }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .desplegable-izquierda {
     .nav-izquierda {
       left: -33%;

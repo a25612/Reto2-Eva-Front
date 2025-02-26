@@ -193,7 +193,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
 
   100% {}
 }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .calendario-desplegable {
     .btn-calendario {
       display: none; 
