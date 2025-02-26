@@ -202,7 +202,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
     .nav-calendario {
       position: fixed;
       top: 10%; 
-      right: 10px; 
+      right: 0; 
       width: 15%; 
       height: 100vh; 
       margin-top: 0;

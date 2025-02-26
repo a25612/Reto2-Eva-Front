@@ -4,7 +4,7 @@
   import MenuDesplegable from '../components/Menu-Desplegable.vue';
   import Calendario from '../components/Calendario.vue';
   import MiEspacio from '../components/MiEspacio.vue';
-
+  
 </script>
 <template>
 
@@ -95,7 +95,7 @@
 }
 @media (min-width: 768px) { 
   .titulo-anuncios{
-    margin-right: 882px;
+    margin-right: 32px;
   }
 }
 </style>
