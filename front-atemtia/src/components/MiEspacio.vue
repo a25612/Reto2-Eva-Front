@@ -124,30 +124,30 @@
     justify-content: center;
     text-align: center;
 
-
     .mi-espacio-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr); 
-      gap: 2rem; 
-
+      gap: 1.5rem; 
+      max-width: 400px;
+      margin: 0 auto;
     }
 
     .espacio-item {
-      width: 120px; 
-      height: 120px;
+      width: 100px; 
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      border-radius: 12px;
-      font-size: 16px;
+      border-radius: 10px;
+      font-size: 14px;
       font-weight: bold;
-      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
 
       &:hover {
-        transform: scale(1.1);
-        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.25);
+        transform: scale(1.05);
+        box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.25);
       }
     }
   }
