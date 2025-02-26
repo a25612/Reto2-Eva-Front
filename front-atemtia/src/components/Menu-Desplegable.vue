@@ -150,12 +150,26 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
 @media (min-width: 768px) {
   .desplegable-izquierda {
     .nav-izquierda {
-      left: -33%;
-      width: 30%;
+      width: 8%;
+      left: 0;
+      position: fixed;
+      margin-top: 80px;
     }
 
+    &.active {
+      .btn-menudesplegable {
+        left: 19%;
+      }
+    }
+  }
+
+  .btn-menudesplegable {
+    display: flex;
+    left: 1rem;
+    margin-top: 60px;
   }
 }
+
 
 
 
