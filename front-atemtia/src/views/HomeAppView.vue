@@ -84,7 +84,6 @@
 
   .mi-espacio-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
     justify-items: center;
     gap: 1.5rem;
     justify-content: center;
