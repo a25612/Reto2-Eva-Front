@@ -121,9 +121,8 @@ onMounted(() => {
     border-radius: 4px;
   }
 
-  @media (min-width: 768px) { //Iniciamos la media query para pantallas de 768px 
+  @media (min-width: 768px) { 
   .carrusel-container {
-    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
     gap: 30px; 
     justify-content: center; 
