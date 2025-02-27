@@ -18,10 +18,10 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
           </a>
         </li>
         <li>
-          <a href="#" class="menu-izquierda-link">
+          <router-link to="/home-app-atemtia/servicios" class="menu-izquierda-link">
             <i class="fas fa-cogs"></i> 
             Servicios
-          </a>
+          </router-link>
         </li>
       </ul>
     </nav>
