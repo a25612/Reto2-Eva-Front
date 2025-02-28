@@ -18,10 +18,10 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
           </a>
         </li>
         <li>
-          <a href="#" class="menu-izquierda-link">
+          <router-link to="/home-app-atemtia/servicios" class="menu-izquierda-link">
             <i class="fas fa-cogs"></i> 
             Servicios
-          </a>
+          </router-link>
         </li>
       </ul>
     </nav>
@@ -147,6 +147,31 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     }
   }
 }
+@media (min-width: 768px) {
+  .desplegable-izquierda {
+    .nav-izquierda {
+      width: 8%;
+      left: 0;
+      position: fixed;
+      margin-top: 80px;
+    }
+
+    &.active {
+      .btn-menudesplegable {
+        left: 19%;
+      }
+    }
+  }
+
+  .btn-menudesplegable {
+    display: flex;
+    left: 1rem;
+    margin-top: 60px;
+  }
+}
+
+
+
 
 
 </style> 

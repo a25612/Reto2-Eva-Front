@@ -11,7 +11,7 @@ export function useLogin() {
     error.value = ''; // Resetear error antes de realizar la solicitud
 
     try {
-      const response = await fetch('http://localhost:5248/api/auth/login', {
+      const response = await fetch('https://localhost:7163/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.value, password: password.value })
@@ -36,6 +36,10 @@ export function useLogin() {
       localStorage.setItem('tutorId', data.id);
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
+      localStorage.setItem('userId', data.iduser);
+
+      console.log('Token guardado en localStorage:', localStorage.getItem('token'));
+      console.log('Id de usuario guardado en localStorage:', localStorage.getItem('userId'));
 
       // Redirigir según el rol del usuario
       if (data.rol === 'Empleado') {

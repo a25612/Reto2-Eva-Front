@@ -42,21 +42,22 @@
 
 .div-mi-espacio {
   h2 {
-    margin: 0 0 40px 40px;
+    margin: 0px 0px 40px 40px;
     color: $color-titulos;
     font-size: 22px;
-    font-family: $fuente-principal;
+
   }
 
   .separador-abajo {
     display: flex;
     justify-content: center;
+    
 
     .bar-separador {
       margin-bottom: 25px;
       width: 350px;
       height: 1px;
-      background: rgba($color-secundario, 0.6);
+
     }
   }
 
@@ -80,7 +81,6 @@
     height: 93px;
     border-radius: 16px;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
-    font-family: "Raleway", sans-serif;
     font-weight: 600;
     color: #FFFFFF;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -116,4 +116,41 @@
     }
   }
 }
+@media (min-width: 768px) { 
+  .div-mi-espacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    text-align: center;
+
+
+    .mi-espacio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 2rem; 
+
+    }
+
+    .espacio-item {
+      width: 120px; 
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
+
 </style>
