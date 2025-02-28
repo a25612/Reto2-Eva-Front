@@ -35,8 +35,10 @@ export function useLogin() {
       // Guardar el token y el rol en localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
+      localStorage.setItem('userId', data.iduser);
 
       console.log('Token guardado en localStorage:', localStorage.getItem('token'));
+      console.log('Id de usuario guardado en localStorage:', localStorage.getItem('userId'));
 
       // Redirigir según el rol del usuario
       if (data.rol === 'Empleado') {
