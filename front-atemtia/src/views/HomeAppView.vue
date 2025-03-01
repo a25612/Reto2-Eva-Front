@@ -22,7 +22,7 @@
     <div class="div-mi-espacio">
   <div class="separador-abajo"> </div>
 
-  <router-link to="/pagina-anuncios" class="btn-anuncios">
+  <router-link to="/home-app-atemtia/anuncios" class="btn-anuncios">
     <button>Anuncios</button>
   </router-link>
 
