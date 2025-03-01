@@ -89,7 +89,7 @@ onMounted(fetchAnuncios);
 .anuncios-grid {
   display: grid;
   grid-template-columns: 1fr; 
-  gap: 20px;
+  gap: 96px;
   padding: 20px;
 }
 
