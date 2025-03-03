@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { abrirMenuIzquierda } from '../ts/menu-desplegable';
 
 const userRole = ref('');
 
-onMounted(() => {
-  userRole.value = localStorage.getItem('rol') || '';
+watchEffect(() => {
+  userRole.value = (localStorage.getItem('rol') || '').toUpperCase();
 });
-
-console.log('Error al cargar usuarios:', userRole.value);
 </script>
 
 <template>
@@ -42,6 +40,7 @@ console.log('Error al cargar usuarios:', userRole.value);
     </nav>
   </div>
 </template>
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
