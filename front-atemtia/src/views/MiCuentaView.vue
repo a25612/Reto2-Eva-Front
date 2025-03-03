@@ -1,34 +1,50 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { useMiCuenta } from '../ts/micuenta';
+import { onMounted } from 'vue';
 
 const router = useRouter();
+const { tutor, usuarios, cargandoTutor, cargandoUsuarios, error, cargarTodosDatos, cerrarSesion: cerrarSesionComposable } = useMiCuenta();
+
+onMounted(async () => {
+  await cargarTodosDatos();
+});
 
 const cerrarSesion = () => {
-
-  router.push('/login'); 
+  cerrarSesionComposable();
+  router.push('/login');
 };
 </script>
+
 
 <template>
   <div class="mi-cuenta">
     <h2 class="mi-cuentatitulo">Mi Cuenta</h2>
 
-    <div class="mi-cuentainfo">
-      <p class="mi-cuentadato"><strong>Nombre:</strong> </p>
-      <p class="mi-cuentadato"><strong>Email:</strong> </p>
-      <p class="mi-cuentadato"><strong>Rol:</strong> </p>
+    <p v-if="error" class="error">{{ error }}</p>
+
+    <div v-if="cargandoTutor || cargandoUsuarios" class="loading">
+      Cargando...
+    </div>
+
+    <div v-else-if="tutor" class="mi-cuentainfo">
+      <p class="mi-cuentadato"><strong>Nombre:</strong> {{ tutor.nombre }}</p>
+      <p class="mi-cuentadato"><strong>Email:</strong> {{ tutor.email }}</p>
+      <p class="mi-cuentadato"><strong>Rol:</strong> {{ tutor.rol }}</p>
     </div>
 
     <h2 class="mi-cuentausuarios">Mis Usuarios</h2>
 
-    <div class="mi-cuenta-info-usuarios">
-      <p class="mi-cuentadato-usuario"><strong>Nombre:</strong> </p>
+    <div v-if="usuarios.length > 0" class="mi-cuenta-info-usuarios">
+      <p v-for="usuario in usuarios" :key="usuario.nombre" class="mi-cuentadato-usuario">
+        <strong>Nombre:</strong> {{ usuario.nombre }}
+      </p>
     </div>
+    <p v-else class="mi-cuentadato-usuario">No hay usuarios asignados.</p>
 
     <button class="mi-cuentaboton" @click="cerrarSesion">Cerrar Sesión</button>
   </div>
 </template>
-
 
 
 <style lang="scss">
