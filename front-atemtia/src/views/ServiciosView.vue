@@ -167,7 +167,7 @@ function formatDuracion(minutos: number | null): string {
 
 .no-servicios {
   padding: 30px;
-  background-color: #f5f5f5;
+  background-color: $color-fondo;
   border-radius: 8px;
   text-align: center;
   color: #757575;
