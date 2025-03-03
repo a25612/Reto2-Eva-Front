@@ -22,7 +22,6 @@ export function useMiCuenta() {
   // Obtener información del tutor
   async function cargarDatosTutor() {
     const userId = localStorage.getItem('userId') || localStorage.getItem('userId') || localStorage.getItem('id');
-    console.log('ID del tutor obtenido del localStorage:', userId);
 
     if (!userId) {
       error.value = 'No se encontró ID del tutor';
@@ -34,7 +33,6 @@ export function useMiCuenta() {
 
     try {
       const token = localStorage.getItem('token');
-      console.log('Token:', token);
       
       const response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
         headers: {
@@ -48,10 +46,9 @@ export function useMiCuenta() {
       }
 
       tutor.value = await response.json();
-      console.log('Datos del tutor cargados:', tutor.value);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido al cargar datos del tutor';
-      console.error('Error al cargar datos del tutor:', err);
+      console.error('Error al cargar datos del tutor:');
     } finally {
       cargandoTutor.value = false;
     }
@@ -60,7 +57,6 @@ export function useMiCuenta() {
   // Obtener usuarios asignados al tutor
   async function cargarUsuariosAsignados() {
     const userId = localStorage.getItem('userId') || localStorage.getItem('userId') || localStorage.getItem('id');
-    console.log('ID del tutor obtenido del localStorage (usuarios):', userId);
 
     if (!userId) {
       error.value = 'No se encontró ID del tutor';
@@ -73,7 +69,6 @@ export function useMiCuenta() {
     try {
       const token = localStorage.getItem('token');
       const url = `https://localhost:7163/api/Tutor/${userId}/usuarios`;
-      console.log('Haciendo petición a:', url);
       
       const response = await fetch(url, {
         headers: {
@@ -87,10 +82,9 @@ export function useMiCuenta() {
       }
 
       usuarios.value = await response.json();
-      console.log('Usuarios cargados:', usuarios.value);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios';
-      console.error('Error al cargar usuarios:', err);
+      console.error('Error al cargar usuarios:');
     } finally {
       cargandoUsuarios.value = false;
     }
