@@ -78,20 +78,15 @@ function handleCentroChange(event: Event) {
           <h3>{{ servicio.nombre }}</h3>
           <p class="descripcion">{{ servicio.descripcion }}</p>
           <p class="precio">{{ formatPrecio(servicio.precio) }}</p>
+          <p class="duracion">{{ servicio.duracion }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-// Variables
-$fuente-principal: 'Raleway', sans-serif;
-$color-secundario: #76b82a;
-$color-boton: #0094ca;
-$color-titulos: #41add8;
-$color-principal: #63bde1;
-$color-fondo: #FFFFFF;
+<style lang="scss">
+@import '../assets/styles/variables.scss';
 
 .servicios-container {
   max-width: 1200px;
@@ -213,9 +208,14 @@ $color-fondo: #FFFFFF;
   
   .descripcion {
     color: #555;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     line-height: 1.6;
     flex-grow: 1;
+  }
+  .duracion{
+    color: #555;
+    margin-top: -30px;
+
   }
   
   .precio {
