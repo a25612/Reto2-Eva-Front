@@ -21,7 +21,7 @@ export function useMiCuenta() {
 
   // Obtener información del tutor
   async function cargarDatosTutor() {
-    const userId = localStorage.getItem('userId') || localStorage.getItem('userId') || localStorage.getItem('id');
+    const userId = localStorage.getItem('userId');
 
     if (!userId) {
       error.value = 'No se encontró ID del tutor';

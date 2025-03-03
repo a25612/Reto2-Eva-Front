@@ -1,15 +1,24 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { abrirMenuIzquierda } from '../ts/menu-desplegable';
+
+const userRole = ref('');
+
+onMounted(() => {
+  userRole.value = localStorage.getItem('rol') || '';
+});
+
+console.log('Error al cargar usuarios:', userRole.value);
 </script>
 
 <template>
-    <div class="desplegable-izquierda">
-      <button class="btn-menudesplegable" @click="abrirMenuIzquierda">
+  <div class="desplegable-izquierda">
+    <button class="btn-menudesplegable" @click="abrirMenuIzquierda">
       <span class="bar-izquierda"></span>
       <span class="bar-izquierda"></span>
       <span class="bar-izquierda"></span>
     </button>
-    <nav class="nav-izquierda">
+    <nav class="nav-izquierda" :class="{ 'nav-tutor': userRole === 'TUTOR', 'nav-empleado': userRole === 'EMPLEADO' }">
       <ul class="nav-izquierda-menu">
         <li>
           <a href="#" class="menu-izquierda-link">
@@ -23,10 +32,15 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
             Servicios
           </router-link>
         </li>
+        <li v-if="userRole === 'EMPLEADO'">
+          <router-link to="/home-app-atemtia/admin" class="menu-izquierda-link">
+            <i class="fa-solid fa-shield"></i>
+            Administración
+          </router-link>
+        </li>
       </ul>
     </nav>
   </div>
-
 </template>
 
 <style lang="scss">
@@ -76,7 +90,7 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
 .desplegable-izquierda {
   position: relative;
 
-  .nav-izquierda {
+  .nav-tutor {
     position: fixed;
     top: 1px;
     left: -36%;
@@ -90,7 +104,25 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     display: flex;
     flex-direction: column;
     padding: 1rem;
+  }
 
+  .nav-empleado {
+    position: fixed;
+    top: 1px;
+    left: -42%;
+    width: 41%;
+    height: 100%;
+    margin-top: 101px;
+    background: $color-secundario;
+    box-shadow: 2px 0 8px $color-principal;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .nav-izquierda {
     &-menu {
       list-style: none;
       padding: 0;
@@ -147,6 +179,7 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     }
   }
 }
+
 @media (min-width: 768px) {
   .desplegable-izquierda {
     .nav-izquierda {
@@ -169,9 +202,4 @@ import { abrirMenuIzquierda } from '../ts/menu-desplegable';
     margin-top: 60px;
   }
 }
-
-
-
-
-
-</style> 
+</style>

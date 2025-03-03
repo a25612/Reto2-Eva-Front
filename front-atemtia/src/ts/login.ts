@@ -41,7 +41,7 @@ export function useLogin() {
       console.log('Id de usuario guardado en localStorage:', localStorage.getItem('userId'));
 
       // Redirigir según el rol del usuario
-      if (data.rol === 'Empleado') {
+      if (data.rol === '') {
         router.push('/');
       } else {
         router.push('/home-app-atemtia');

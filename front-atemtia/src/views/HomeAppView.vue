@@ -28,12 +28,6 @@
 
   <div class="separador-abajo"></div>
 </div>
-
-
-
-
-
-
     <!-- SEPARADOR -->
     <div class="separador-abajo">
       <span class="bar-separador"></span>
@@ -43,11 +37,8 @@
   <Carrusel />
 
   <BotonScrolltop />
-
   
   <MiEspacio />
-
-
 
 </template>
 
