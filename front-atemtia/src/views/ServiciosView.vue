@@ -11,21 +11,26 @@ const {
   cargandoServicios,
   error,
   cargarCentros,
-  cargarServiciosPorCentro,
-  formatPrecio
+  cargarServiciosPorCentro
 } = useServicios();
 
-// Cargar los centros cuando se monta el componente
 onMounted(() => {
   cargarCentros();
 });
 
-// Función para manejar el cambio de centro con tipado correcto
 function handleCentroChange(event: Event) {
   const select = event.target as HTMLSelectElement;
   if (select && select.value) {
     cargarServiciosPorCentro(Number(select.value));
   }
+}
+
+function formatPrecio(precio: number): string {
+  return precio.toFixed(2) + ' €';
+}
+
+function formatDuracion(minutos: number | null): string {
+  return minutos ? `${minutos} min` : '';
 }
 </script>
 
@@ -34,12 +39,10 @@ function handleCentroChange(event: Event) {
   <div class="servicios-container">
     <h1>Nuestros Servicios</h1>
     
-    <!-- Mensaje de error -->
     <div v-if="error" class="error-message">
       <p>{{ error }}</p>
     </div>
     
-    <!-- Selector de centros -->
     <div class="selector-centro">
       <label for="centro">Selecciona tu centro:</label>
       
@@ -47,11 +50,7 @@ function handleCentroChange(event: Event) {
         <p>Cargando centros...</p>
       </div>
       
-      <select 
-        v-else
-        id="centro" 
-        @change="handleCentroChange"
-      >
+      <select v-else id="centro" @change="handleCentroChange">
         <option value="">Selecciona un centro</option>
         <option v-for="centro in centros" :key="centro.id" :value="centro.id">
           {{ centro.nombre }}
@@ -59,34 +58,37 @@ function handleCentroChange(event: Event) {
       </select>
     </div>
     
-    <!-- Sección de servicios -->
     <div v-if="centroSeleccionado" class="servicios-seccion">
       <h2>Servicios disponibles en {{ nombreCentroSeleccionado }}</h2>
       
-      <!-- Indicador de carga -->
       <div v-if="cargandoServicios" class="loading">
         <p>Cargando servicios...</p>
       </div>
       
-      <!-- Mensaje cuando no hay servicios -->
       <div v-else-if="servicios.length === 0" class="no-servicios">
         <p>No hay servicios disponibles para este centro.</p>
       </div>
       
-      <!-- Grid de servicios -->
       <div v-else class="servicios-grid">
         <div v-for="servicio in servicios" :key="servicio.id" class="servicio-card">
           <h3>{{ servicio.nombre }}</h3>
           <p class="descripcion">{{ servicio.descripcion }}</p>
-          <p class="precio">{{ formatPrecio(servicio.precio) }}</p>
-          <p class="duracion">{{ servicio.duracion }}</p>
+          <div v-for="opcion in servicio.opciones" :key="opcion.id" class="opcion-servicio">
+            <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
+            <p v-if="opcion.sesionesPorSemana" class="sesiones">
+              {{ opcion.sesionesPorSemana }}
+              {{ opcion.sesionesPorSemana === 1 ? 'sesión por semana' : 'sesiones por semana' }}
+            </p>
+            <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
+            <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" >
+<style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .servicios-container {
@@ -213,24 +215,33 @@ function handleCentroChange(event: Event) {
     line-height: 1.6;
     flex-grow: 1;
   }
-  .duracion{
-    color: #555;
-    margin-top: -30px;
 
-  }
-  
-  .precio {
-    color: $color-secundario;
-    font-weight: 700;
-    font-size: 1.4rem;
-    margin: 0;
-    text-align: right;
-    background-color: rgba($color-secundario, 0.1);
-    padding: 8px 15px;
+  .opcion-servicio {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba($color-secundario, 0.05);
     border-radius: 5px;
-    align-self: flex-end;
+
+    .opcion-descripcion {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .sesiones, .duracion {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 2px 0;
+    }
+
+    .precio {
+      color: $color-secundario;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 5px;
+    }
   }
 }
+
 .volver-atras {
   margin-left: 10px;
   margin-top: 10px;
@@ -250,7 +261,6 @@ function handleCentroChange(event: Event) {
   z-index: 1000;
 }
 
-// Responsive
 @media (max-width: 768px) {
   .servicios-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
