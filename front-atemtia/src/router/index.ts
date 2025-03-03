@@ -7,6 +7,7 @@ import IncidenciasView from '../views/IncidenciasView.vue';
 import MiCuentaView from '../views/MiCuentaView.vue';
 import Error404View from '../views/Error404View.vue';
 import ServiciosView from '../views/ServiciosView.vue';
+import AnunciosView from '../views/AnunciosView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,7 @@ const router = createRouter({
     { path: '/home-app-atemtia/mi-cuenta', name: 'mi-cuenta', component: MiCuentaView },
     { path: '/error-404', name: 'error-404', component: Error404View },
     {path: '/home-app-atemtia/servicios', name: 'servicios', component: ServiciosView},
+    {path: '/home-app-atemtia/anuncios', name: 'anuncios', component: AnunciosView},
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
