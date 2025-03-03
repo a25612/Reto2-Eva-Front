@@ -14,6 +14,7 @@ const enviarIncidencia = () => {
 
 <template>
     <div class="incidencias">
+      <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
       <h2 class="incidencias__titulo">Reporte de Incidencias</h2>
   
       <form class="incidencias__form" @submit.prevent="enviarIncidencia">
@@ -127,6 +128,23 @@ const enviarIncidencia = () => {
   &__texto {
     display: block;
   }
+}
+.volver-atras {
+  margin-right: 310px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
 
