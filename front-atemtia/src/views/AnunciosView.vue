@@ -58,6 +58,7 @@ onMounted(fetchAnuncios);
 
 <template>
   <div class="contenedor-anuncios">
+    <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
     <h1 class="titulo">Últimos Anuncios</h1>
     <div class="anuncios-grid">
       <div v-for="anuncio in anuncios" :key="anuncio.id" class="anuncio">
@@ -129,6 +130,23 @@ onMounted(fetchAnuncios);
   display: block;
   font-size: 0.9rem;
   color: gray;
+}
+.volver-atras {
+  margin-right: 310px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
 
