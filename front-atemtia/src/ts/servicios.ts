@@ -12,6 +12,7 @@ interface Servicio {
   nombre: string;
   descripcion: string;
   precio: number;
+  duracion: string;
 }
 
 export function useServicios() {
