@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useServicios } from '../ts/servicios';
 
 const {
@@ -32,24 +32,40 @@ function formatPrecio(precio: number): string {
 function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
 }
+
+// Estado para manejar la confirmación de reserva
+const servicioSeleccionado = ref<string | null>(null);
+
+function mostrarConfirmacion(servicio: string) {
+  servicioSeleccionado.value = servicio;
+}
+
+function cerrarConfirmacion() {
+  servicioSeleccionado.value = null;
+}
+
+function confirmarReserva() {
+  alert(`Has reservado el servicio: ${servicioSeleccionado.value}`);
+  cerrarConfirmacion();
+}
 </script>
 
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="servicios-container">
     <h1>Nuestros Servicios</h1>
-    
+
     <div v-if="error" class="error-message">
       <p>{{ error }}</p>
     </div>
-    
+
     <div class="selector-centro">
       <label for="centro">Selecciona tu centro:</label>
-      
+
       <div v-if="cargandoCentros" class="loading">
         <p>Cargando centros...</p>
       </div>
-      
+
       <select v-else id="centro" @change="handleCentroChange">
         <option value="">Selecciona un centro</option>
         <option v-for="centro in centros" :key="centro.id" :value="centro.id">
@@ -57,18 +73,18 @@ function formatDuracion(minutos: number | null): string {
         </option>
       </select>
     </div>
-    
+
     <div v-if="centroSeleccionado" class="servicios-seccion">
       <h2>Servicios disponibles en {{ nombreCentroSeleccionado }}</h2>
-      
+
       <div v-if="cargandoServicios" class="loading">
         <p>Cargando servicios...</p>
       </div>
-      
+
       <div v-else-if="servicios.length === 0" class="no-servicios">
         <p>No hay servicios disponibles para este centro.</p>
       </div>
-      
+
       <div v-else class="servicios-grid">
         <div v-for="servicio in servicios" :key="servicio.id" class="servicio-card">
           <h3>{{ servicio.nombre }}</h3>
@@ -80,9 +96,25 @@ function formatDuracion(minutos: number | null): string {
               {{ opcion.sesionesPorSemana === 1 ? 'sesión por semana' : 'sesiones por semana' }}
             </p>
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
-            <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
+            <div class="precio-container">
+              <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
+              <div class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre)">
+                RESERVAR 
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div v-if="servicioSeleccionado" class="modal">
+    <div class="modal-content">
+      <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
+      <div class="modal-buttons">
+        <button class="boton-si" @click="confirmarReserva">SI</button>
+        <button class="boton-no" @click="cerrarConfirmacion">NO</button>
       </div>
     </div>
   </div>
@@ -260,6 +292,32 @@ function formatDuracion(minutos: number | null): string {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
+.btn--reservar {
+  background-color: $color-secundario;
+  color: $color-fondo;
+  border: none;
+  padding: 6px 10px; 
+  font-size: 0.8rem; 
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  text-align: right;
+  margin-left: 190px;
+  
+  &:hover {
+    background-color: $color-fondo;
+    color: $color-secundario;
+  }
+}
+
+.btn--reservar-container {
+  display: flex;
+
+  margin-top: 10px;
+}
+
 
 @media (max-width: 768px) {
   .servicios-grid {
@@ -270,6 +328,98 @@ function formatDuracion(minutos: number | null): string {
     padding: 20px;
   }
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 300px;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.boton-si {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+
+  &:hover {
+    background-color: darken($color-secundario, 10%);
+  }
+}
+
+.boton-no {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+
+  &:hover {
+    background-color: darken($color-boton, 10%);
+  }
+  .servicio-card {
+  .precio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  }
+  .btn--reservar {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  font-size: 0.8rem;
+ 
+
+  &:hover {
+    background-color: darkred;
+  }
+}
+
+.btn--pequeno {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+
+.opcion__precio-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+  
+
 
 @media (max-width: 480px) {
   .servicios-grid {
@@ -279,5 +429,6 @@ function formatDuracion(minutos: number | null): string {
   .selector-centro select {
     max-width: 100%;
   }
+}
 }
 </style>
