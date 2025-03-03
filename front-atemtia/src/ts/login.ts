@@ -32,7 +32,7 @@ export function useLogin() {
       const data = await response.json();
       console.log('Datos recibidos del servidor:', data);
 
-      // Guardar el token y el rol en localStorage
+      // Guardar el token , el rol y el id en localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
       localStorage.setItem('userId', data.iduser);

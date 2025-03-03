@@ -30,6 +30,7 @@ function handleCentroChange(event: Event) {
 </script>
 
 <template>
+  <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="servicios-container">
     <h1>Nuestros Servicios</h1>
     
@@ -84,14 +85,8 @@ function handleCentroChange(event: Event) {
   </div>
 </template>
 
-<style lang="scss" scoped>
-// Variables
-$fuente-principal: 'Raleway', sans-serif;
-$color-secundario: #76b82a;
-$color-boton: #0094ca;
-$color-titulos: #41add8;
-$color-principal: #63bde1;
-$color-fondo: #FFFFFF;
+<style lang="scss" >
+@import '../assets/styles/variables.scss';
 
 .servicios-container {
   max-width: 1200px;
@@ -229,6 +224,24 @@ $color-fondo: #FFFFFF;
     border-radius: 5px;
     align-self: flex-end;
   }
+}
+.volver-atras {
+  margin-left: 10px;
+  margin-top: 10px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
 // Responsive
