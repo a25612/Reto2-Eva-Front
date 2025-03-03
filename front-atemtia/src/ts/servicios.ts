@@ -60,7 +60,7 @@ export function useServicios() {
     }
     
     try {
-      const response = await fetch(`https://localhost:7163/api/Servicios/porCentro/${centroId}`);
+      const response = await fetch(`https://localhost:7163/api/Servicios/centros/${centroId}`);
       if (!response.ok) {
         throw new Error(`Error al cargar los servicios: ${response.status}`);
       }
