@@ -19,7 +19,7 @@ const router = createRouter({
     { path: '/home-app-atemtia/reservas', name: 'reservas', component: ReservasView },
     { path: '/home-app-atemtia/incidencias', name: 'incidencias', component: IncidenciasView },
     { path: '/home-app-atemtia/mi-cuenta', name: 'mi-cuenta', component: MiCuentaView },
-    { path: '/error-404', name: 'error-404', component: Error404View },
+    { path: '/home-app-atemtia/error-404', name: 'error-404', component: Error404View },
     { path: '/home-app-atemtia/servicios', name: 'servicios', component: ServiciosView },
     { path: '/home-app-atemtia/anuncios', name: 'anuncios', component: AnunciosView },
     { path: '/home-app-atemtia/zona-privada', name: 'zona-privada', component: ZonaPrivada },
