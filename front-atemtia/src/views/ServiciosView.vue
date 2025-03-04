@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useServicios } from '../ts/servicios';
 
 const {
@@ -11,21 +11,42 @@ const {
   cargandoServicios,
   error,
   cargarCentros,
-  cargarServiciosPorCentro,
-  formatPrecio
+  cargarServiciosPorCentro
 } = useServicios();
 
-// Cargar los centros cuando se monta el componente
 onMounted(() => {
   cargarCentros();
 });
 
-// Función para manejar el cambio de centro con tipado correcto
 function handleCentroChange(event: Event) {
   const select = event.target as HTMLSelectElement;
   if (select && select.value) {
     cargarServiciosPorCentro(Number(select.value));
   }
+}
+
+function formatPrecio(precio: number): string {
+  return precio.toFixed(2) + ' €';
+}
+
+function formatDuracion(minutos: number | null): string {
+  return minutos ? `${minutos} min` : '';
+}
+
+// Estado para manejar la confirmación de reserva
+const servicioSeleccionado = ref<string | null>(null);
+
+function mostrarConfirmacion(servicio: string) {
+  servicioSeleccionado.value = servicio;
+}
+
+function cerrarConfirmacion() {
+  servicioSeleccionado.value = null;
+}
+
+function confirmarReserva() {
+  alert(`Has reservado el servicio: ${servicioSeleccionado.value}`);
+  cerrarConfirmacion();
 }
 </script>
 
@@ -33,59 +54,73 @@ function handleCentroChange(event: Event) {
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="servicios-container">
     <h1>Nuestros Servicios</h1>
-    
-    <!-- Mensaje de error -->
+
     <div v-if="error" class="error-message">
       <p>{{ error }}</p>
     </div>
-    
-    <!-- Selector de centros -->
+
     <div class="selector-centro">
       <label for="centro">Selecciona tu centro:</label>
-      
+
       <div v-if="cargandoCentros" class="loading">
         <p>Cargando centros...</p>
       </div>
-      
-      <select 
-        v-else
-        id="centro" 
-        @change="handleCentroChange"
-      >
+
+      <select v-else id="centro" @change="handleCentroChange">
         <option value="">Selecciona un centro</option>
         <option v-for="centro in centros" :key="centro.id" :value="centro.id">
           {{ centro.nombre }}
         </option>
       </select>
     </div>
-    
-    <!-- Sección de servicios -->
+
     <div v-if="centroSeleccionado" class="servicios-seccion">
       <h2>Servicios disponibles en {{ nombreCentroSeleccionado }}</h2>
-      
-      <!-- Indicador de carga -->
+
       <div v-if="cargandoServicios" class="loading">
         <p>Cargando servicios...</p>
       </div>
-      
-      <!-- Mensaje cuando no hay servicios -->
+
       <div v-else-if="servicios.length === 0" class="no-servicios">
         <p>No hay servicios disponibles para este centro.</p>
       </div>
-      
-      <!-- Grid de servicios -->
+
       <div v-else class="servicios-grid">
         <div v-for="servicio in servicios" :key="servicio.id" class="servicio-card">
           <h3>{{ servicio.nombre }}</h3>
           <p class="descripcion">{{ servicio.descripcion }}</p>
-          <p class="precio">{{ formatPrecio(servicio.precio) }}</p>
+          <div v-for="opcion in servicio.opciones" :key="opcion.id" class="opcion-servicio">
+            <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
+            <p v-if="opcion.sesionesPorSemana" class="sesiones">
+              {{ opcion.sesionesPorSemana }}
+              {{ opcion.sesionesPorSemana === 1 ? 'sesión por semana' : 'sesiones por semana' }}
+            </p>
+            <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
+            <div class="precio-container">
+              <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
+              <div class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre)">
+                RESERVAR 
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div v-if="servicioSeleccionado" class="modal">
+    <div class="modal-content">
+      <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
+      <div class="modal-buttons">
+        <button class="boton-si" @click="confirmarReserva">SI</button>
+        <button class="boton-no" @click="cerrarConfirmacion">NO</button>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" >
+<style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .servicios-container {
@@ -164,7 +199,7 @@ function handleCentroChange(event: Event) {
 
 .no-servicios {
   padding: 30px;
-  background-color: #f5f5f5;
+  background-color: $color-fondo;
   border-radius: 8px;
   text-align: center;
   color: #757575;
@@ -208,23 +243,37 @@ function handleCentroChange(event: Event) {
   
   .descripcion {
     color: #555;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     line-height: 1.6;
     flex-grow: 1;
   }
-  
-  .precio {
-    color: $color-secundario;
-    font-weight: 700;
-    font-size: 1.4rem;
-    margin: 0;
-    text-align: right;
-    background-color: rgba($color-secundario, 0.1);
-    padding: 8px 15px;
+
+  .opcion-servicio {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba($color-secundario, 0.05);
     border-radius: 5px;
-    align-self: flex-end;
+
+    .opcion-descripcion {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .sesiones, .duracion {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 2px 0;
+    }
+
+    .precio {
+      color: $color-secundario;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 5px;
+    }
   }
 }
+
 .volver-atras {
   margin-left: 10px;
   margin-top: 10px;
@@ -243,8 +292,33 @@ function handleCentroChange(event: Event) {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
+.btn--reservar {
+  background-color: $color-secundario;
+  color: $color-fondo;
+  border: none;
+  padding: 6px 10px; 
+  font-size: 0.8rem; 
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  text-align: right;
+  margin-left: 190px;
+  
+  &:hover {
+    background-color: $color-fondo;
+    color: $color-secundario;
+  }
+}
 
-// Responsive
+.btn--reservar-container {
+  display: flex;
+
+  margin-top: 10px;
+}
+
+
 @media (max-width: 768px) {
   .servicios-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -254,6 +328,98 @@ function handleCentroChange(event: Event) {
     padding: 20px;
   }
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 300px;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.boton-si {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+
+  &:hover {
+    background-color: darken($color-secundario, 10%);
+  }
+}
+
+.boton-no {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+
+  &:hover {
+    background-color: darken($color-boton, 10%);
+  }
+  .servicio-card {
+  .precio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  }
+  .btn--reservar {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  font-size: 0.8rem;
+ 
+
+  &:hover {
+    background-color: darkred;
+  }
+}
+
+.btn--pequeno {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+
+.opcion__precio-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+  
+
 
 @media (max-width: 480px) {
   .servicios-grid {
@@ -263,5 +429,6 @@ function handleCentroChange(event: Event) {
   .selector-centro select {
     max-width: 100%;
   }
+}
 }
 </style>

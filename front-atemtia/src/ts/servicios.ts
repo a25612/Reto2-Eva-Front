@@ -7,14 +7,23 @@ interface Centro {
   direccion: string;
 }
 
+interface OpcionServicio {
+  id: number;
+  sesionesPorSemana: number | null;
+  duracionMinutos: number | null;
+  precio: number;
+  descripcion: string;
+}
+
 interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
-  precio: number;
+  activo: boolean;
+  opciones: OpcionServicio[];
 }
 
-export function useServicios() {
+export function useServicios() {  
   const centros: Ref<Centro[]> = ref([]);
   const servicios: Ref<Servicio[]> = ref([]);
   const centroSeleccionado: Ref<number | null> = ref(null);
@@ -23,7 +32,6 @@ export function useServicios() {
   const cargandoServicios: Ref<boolean> = ref(false);
   const error: Ref<string> = ref('');
 
-  // Cargar todos los centros
   async function cargarCentros() {
     cargandoCentros.value = true;
     error.value = '';
@@ -43,7 +51,6 @@ export function useServicios() {
     }
   }
 
-  // Cargar servicios por centro
   async function cargarServiciosPorCentro(centroId: number) {
     if (!centroId) return;
     
@@ -52,14 +59,13 @@ export function useServicios() {
     servicios.value = [];
     error.value = '';
     
-    // Guardar el nombre del centro seleccionado
     const centroSeleccionadoObj = centros.value.find(c => c.id === centroId);
     if (centroSeleccionadoObj) {
       nombreCentroSeleccionado.value = centroSeleccionadoObj.nombre;
     }
     
     try {
-      const response = await fetch(`https://localhost:7163/api/Servicios/porCentro/${centroId}`);
+      const response = await fetch(`https://localhost:7163/api/Servicios/centros/${centroId}`);
       if (!response.ok) {
         throw new Error(`Error al cargar los servicios: ${response.status}`);
       }
@@ -73,11 +79,6 @@ export function useServicios() {
     }
   }
 
-  // Formatear precio como moneda
-  function formatPrecio(precio: number): string {
-    return precio.toFixed(2) + ' €';
-  }
-
   return {
     centros,
     servicios,
@@ -87,7 +88,6 @@ export function useServicios() {
     cargandoServicios,
     error,
     cargarCentros,
-    cargarServiciosPorCentro,
-    formatPrecio
+    cargarServiciosPorCentro
   };
 }

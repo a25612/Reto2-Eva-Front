@@ -118,39 +118,23 @@
 }
 @media (min-width: 768px) { 
   .div-mi-espacio {
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    justify-content: center;
     text-align: center;
 
-
     .mi-espacio-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 2rem; 
-
+      grid-template-columns: repeat(3, 1fr);  
     }
 
     .espacio-item {
       width: 120px; 
       height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      border-radius: 12px;
       font-size: 16px;
-      font-weight: bold;
-      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
 
       &:hover {
-        transform: scale(1.05);
         box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.25);
       }
     }
   }
 }
+
 
 </style>
