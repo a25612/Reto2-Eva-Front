@@ -95,7 +95,7 @@
     &.mi-cuenta {
       background: linear-gradient(
         135deg,
-        lighten($color-boton, 10%) 0%,
+        $color-boton,
         $color-principal 50%,
         $color-boton 70%
       );
