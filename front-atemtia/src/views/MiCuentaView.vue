@@ -1,29 +1,39 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useMiCuenta } from '../ts/micuenta';
-import { onMounted, watch } from 'vue';
+import { onMounted } from 'vue';
 
 const router = useRouter();
-const { tutor, usuarios, cargandoTutor, cargandoUsuarios, error, cargarTodosDatos, cerrarSesion: cerrarSesionComposable, usuarioSeleccionadoId, seleccionarUsuario, cargarUltimoUsuarioSeleccionado } = useMiCuenta();
+const { 
+  tutor, 
+  usuarios, 
+  cargandoTutor, 
+  cargandoUsuarios, 
+  error, 
+  cargarTodosDatos, 
+  cerrarSesion: cerrarSesionComposable, 
+  usuarioSeleccionadoId, 
+  seleccionarUsuario, 
+  cargarUltimoUsuarioSeleccionado 
+} = useMiCuenta();
 
 onMounted(async () => {
   await cargarTodosDatos();
-  cargarUltimoUsuarioSeleccionado();
-  
-  if (!usuarioSeleccionadoId.value && usuarios.value.length > 0) {
-    seleccionarUsuario(usuarios.value[0].id);
-  }
-});
 
-watch(usuarios, () => {
-  if (usuarioSeleccionadoId.value && !usuarios.value.some(u => u.id === usuarioSeleccionadoId.value)) {
-    if (usuarios.value.length > 0) {
+  // Cargar el último usuario seleccionado desde localStorage
+  cargarUltimoUsuarioSeleccionado();
+
+  // Si no hay un usuario seleccionado en localStorage
+  if (!usuarioSeleccionadoId.value) {
+    if (usuarios.value.length === 1) {
+      // Si solo hay un usuario, seleccionarlo automáticamente
       seleccionarUsuario(usuarios.value[0].id);
-    } else {
-      usuarioSeleccionadoId.value = '';
+    } else if (usuarios.value.length > 1) {
+      // Si hay más de un usuario, seleccionar el primero por defecto
+      seleccionarUsuario(usuarios.value[0].id);
     }
   }
-}, { immediate: true });
+});
 
 const cerrarSesion = () => {
   cerrarSesionComposable();
@@ -51,9 +61,15 @@ const cerrarSesion = () => {
     
     <h2 class="mi-cuentausuarios">Mis Usuarios</h2>
 
-    <div v-if="usuarios.length > 0" class="mi-cuenta-info-usuarios">
+    <!-- Mostrar directamente si solo hay un usuario -->
+    <div v-if="usuarios.length === 1" class="mi-cuenta-info-usuarios">
+      <p><strong>Usuario Seleccionado:</strong> {{ usuarios[0].nombre }}</p>
+    </div>
+
+    <!-- Mostrar desplegable si hay más de un usuario -->
+    <div v-else-if="usuarios.length > 1" class="mi-cuenta-info-usuarios">
       <label for="seleccionar-usuario"><strong>Seleccionar Usuario:</strong></label>
-      <select id="seleccionar-usuario" v-model="usuarioSeleccionadoId" @change="seleccionarUsuario($event.target.value)" class="custom-select">
+      <select id="seleccionar-usuario" v-model="usuarioSeleccionadoId" @change="seleccionarUsuario(($event.target as HTMLSelectElement).value)" class="custom-select">
         <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
           {{ usuario.nombre }}
         </option>
