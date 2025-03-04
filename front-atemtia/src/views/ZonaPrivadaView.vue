@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
+const mostrarConfirmacion = ref(false);
+
+const eliminarElemento = () => {
+  // Aquí iría la lógica para eliminar el elemento
+  console.log('Elemento eliminado');
+  mostrarConfirmacion.value = false; // Cerrar el modal después de la acción
+};
+
+const cancelarEliminacion = () => {
+  mostrarConfirmacion.value = false; // Solo cierra el modal sin eliminar
+};
 </script>
 
 <template>
@@ -15,12 +28,14 @@
     </div>
 
     <div class="botones">
-      <!-- Corregir todas las rutas de los router-link -->
       <router-link to="/home-app-atemtia/zona-privada/usuarios" class="btn-accion">Usuarios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/tutores" class="btn-accion">Tutores</router-link>
       <router-link to="/home-app-atemtia/zona-privada/servicios" class="btn-accion">Servicios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/anuncios" class="btn-accion">Anuncios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/incidencias" class="btn-accion">Incidencias</router-link>
+
+      <!-- Botón para mostrar la confirmación -->
+      <button @click="mostrarConfirmacion = true" class="btn-accion">Eliminar</button>
     </div>
   </div>
 </template>
@@ -72,7 +87,7 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
-      text-decoration: none; // Asegurar que los enlaces no tengan subrayado
+      text-decoration: none;
 
       &:hover {
         background-color: darken($color-boton, 10%);
@@ -100,10 +115,59 @@
   }
 }
 
-@media (min-width: 768px) {
-  .botones {
-    flex-direction: row;
-    justify-content: space-between;
+// Modal de confirmación
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-contenido {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+
+  h3 {
+    margin-bottom: 20px;
+  }
+
+  .modal-botones {
+    display: flex;
+    justify-content: space-around;
+
+    .btn-confirmar, .btn-cancelar {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-confirmar {
+      background-color: green;
+      color: white;
+    }
+
+    .btn-cancelar {
+      background-color: red;
+      color: white;
+    }
+
+    .btn-confirmar:hover {
+      background-color: darkgreen;
+    }
+
+    .btn-cancelar:hover {
+      background-color: darkred;
+    }
   }
 }
 </style>
