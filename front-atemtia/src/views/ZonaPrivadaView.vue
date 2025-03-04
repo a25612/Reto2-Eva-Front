@@ -3,16 +3,18 @@
 </script>
 
 <template>
-  <div class="zona-privada" v-if="usuarioRol === 'EMPLEADO'">
+  <div class="zona-privada">
     <h1 class="titulo">Zona Privada</h1>
     <!-- Separador abajo -->
     <div class="separador-abajo">
       <span class="bar-separador"></span>
     </div>
-    <p>Esta es tu zona privada.</p>
     <div class="botones">
-      <button class="btn-accion">Añadir Usuarios</button>
-      <button class="btn-accion">Añadir Servicios</button>
+      <button class="btn-accion">Usuarios</button>
+      <button class="btn-accion">Tutores</button>
+      <button class="btn-accion">Servicios</button>
+      <button class="btn-accion">Anuncios</button>
+      <button class="btn-accion">Incidencias</button>
     </div>
   </div>
 </template>
@@ -22,12 +24,12 @@
 
 .zona-privada {
   font-family: $fuente-principal;
-  background-color: $color-fondo;
+  background-color: $color-fondo; 
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-width: 300px;
-  margin: auto;
+  margin: 20px auto;
   text-align: center;
 
   .titulo {
@@ -40,8 +42,8 @@
     margin: 10px auto;
     .bar-separador {
       display: block;
-      width: 50px;
-      height: 4px;
+      width: 160px;
+      height: 2px;
       background-color: $color-principal;
       margin: auto;
     }
