@@ -5,6 +5,7 @@ const showFormCreate = ref(false); // Variable para mostrar el formulario de cre
 const showFormUpdate = ref(false); // Variable para mostrar el formulario de actualización de usuario
 const showFormDelete = ref(false); // Variable para mostrar el formulario de eliminación de usuario
 const userSearch = ref(''); // Variable para el valor de búsqueda del usuario
+const userToDelete = ref<number | null>(null); // Almacena el ID del usuario a eliminar
 
 // Lista de usuarios simulada (puedes agregar más usuarios aquí para probar)
 const users = ref([
@@ -42,8 +43,19 @@ const toggleFormDelete = () => {
 
 // Filtrar usuarios según el texto de búsqueda
 const filteredUsers = computed(() => {
+  if (userSearch.value === '') {
+    return [];
+  }
   return users.value.filter(user => user.name.toLowerCase().includes(userSearch.value.toLowerCase()) || user.email.toLowerCase().includes(userSearch.value.toLowerCase()));
 });
+
+// Función para confirmar la eliminación del usuario
+const confirmDelete = (userId: number) => {
+  const confirmed = confirm('¿Estás seguro de que deseas eliminar este usuario?');
+  if (confirmed) {
+    deleteUser(userId);
+  }
+};
 
 // Función para eliminar el usuario
 const deleteUser = (userId: number) => {
@@ -136,7 +148,7 @@ const deleteUser = (userId: number) => {
             <div>{{ user.name }} - {{ user.email }}</div>
             <button 
               class="usuarios__eliminar-boton" 
-              @click="deleteUser(user.id)">
+              @click="confirmDelete(user.id)">
               Eliminar
             </button>
           </li>
@@ -248,8 +260,8 @@ const deleteUser = (userId: number) => {
       color: white;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
       font-size: 16px;
+      cursor: pointer;
 
       &:hover {
         background-color: darken($color-principal, 10%);
@@ -257,43 +269,32 @@ const deleteUser = (userId: number) => {
     }
   }
 
+  &__usuarios-encontrados {
+    margin-top: 20px;
+
+    & ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    & li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+  }
+
   &__eliminar-boton {
+    padding: 5px 10px;
     background-color: red;
     color: white;
     border: none;
-    padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
 
     &:hover {
       background-color: darkred;
-    }
-  }
-
-  &__usuarios-encontrados {
-    list-style-type: none;
-    padding: 0;
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border-radius: 5px;
-
-      button {
-        background-color: red;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        cursor: pointer;
-
-        &:hover {
-          background-color: darkred;
-        }
-      }
     }
   }
 }
