@@ -31,7 +31,7 @@ watchEffect(() => {
           </router-link>
         </li>
         <li v-if="userRole === 'EMPLEADO'">
-          <router-link to="/home-app-atemtia/admin" class="menu-izquierda-link">
+          <router-link to="/home-app-atemtia/zona-privada" class="menu-izquierda-link">
             <i class="fa-solid fa-shield"></i>
             Administración
           </router-link>

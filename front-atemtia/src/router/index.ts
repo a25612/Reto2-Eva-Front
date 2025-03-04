@@ -8,6 +8,7 @@ import MiCuentaView from '../views/MiCuentaView.vue';
 import Error404View from '../views/Error404View.vue';
 import ServiciosView from '../views/ServiciosView.vue';
 import AnunciosView from '../views/AnunciosView.vue';
+import ZonaPrivada from '../views/ZonaPrivada.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,7 @@ const router = createRouter({
     { path: '/error-404', name: 'error-404', component: Error404View },
     {path: '/home-app-atemtia/servicios', name: 'servicios', component: ServiciosView},
     {path: '/home-app-atemtia/anuncios', name: 'anuncios', component: AnunciosView},
+    {path: '/home-app-atemtia/zona-privada', name: 'zona-privada', component: ZonaPrivada},
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
