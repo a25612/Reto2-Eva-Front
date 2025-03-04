@@ -175,7 +175,7 @@ const cerrarSesion = () => {
 
 @media (min-width:768px) { 
    .mi-cuenta{
-       margin-top:20px; 
+     
        max-width:500px; 
    }
 }
