@@ -33,10 +33,8 @@ const cancelarEliminacion = () => {
       <router-link to="/home-app-atemtia/zona-privada/servicios" class="btn-accion">Servicios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/anuncios" class="btn-accion">Anuncios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/incidencias" class="btn-accion">Incidencias</router-link>
-
-      <!-- Botón para mostrar la confirmación -->
-      <button @click="mostrarConfirmacion = true" class="btn-accion">Eliminar</button>
     </div>
+
   </div>
 </template>
 
