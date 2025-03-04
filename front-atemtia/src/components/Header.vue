@@ -17,7 +17,7 @@ const irAHome = () => {
   <header class="header">
     <div class="header-container">
       <div class="header-logo">
-        <a href="" class="header-titulo-link">
+        <a @click.prevent="irAHome" class="header-titulo-link">
           <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png"
             alt="Servicios ATEMTIA" class="logo-atemtia">
         </a>
@@ -25,6 +25,7 @@ const irAHome = () => {
     </div>
   </header>
 </template>
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';

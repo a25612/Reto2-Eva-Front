@@ -3,7 +3,9 @@
 </script>
 
 <template>
+   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="zona-privada">
+   
     <h1 class="titulo">Zona Privada</h1>
     <!-- Separador abajo -->
     <div class="separador-abajo">
@@ -69,6 +71,24 @@
       }
     }
   }
+  .volver-atras {
+  margin-left: 10px;
+  margin-top: 10px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
 }
 
 @media (min-width: 768px) {
