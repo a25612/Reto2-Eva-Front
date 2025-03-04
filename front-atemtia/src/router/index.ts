@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
+// Importación de las vistas
 import Home from '../views/HomeView.vue';
 import Login from '../views/LoginView.vue';
 import HomeAppView from '../views/HomeAppView.vue';
@@ -9,7 +11,9 @@ import Error404View from '../views/Error404View.vue';
 import ServiciosView from '../views/ServiciosView.vue';
 import AnunciosView from '../views/AnunciosView.vue';
 import ZonaPrivada from '../views/ZonaPrivadaView.vue';
+import ZonaPrivadaUsr from '../views/ZonaPrivadaUsr.vue';
 
+// Creación del router
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -23,6 +27,8 @@ const router = createRouter({
     { path: '/home-app-atemtia/servicios', name: 'servicios', component: ServiciosView },
     { path: '/home-app-atemtia/anuncios', name: 'anuncios', component: AnunciosView },
     { path: '/home-app-atemtia/zona-privada', name: 'zona-privada', component: ZonaPrivada },
+    { path: '/home-app-atemtia/zona-privada/usuarios', name: 'zona-privadaUsr', component: ZonaPrivadaUsr },
+    // Ruta para páginas no encontradas
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
@@ -54,7 +60,21 @@ function getUserRole() {
 
 // Guardia de navegación para proteger rutas privadas
 router.beforeEach((to, from, next) => {
-  if (to.name === 'login' || to.name === 'home' || to.name === 'error-404') {
+  // Prevenir redirección infinita si ya estamos en login
+  if (to.name === 'login' && isAuthenticated()) {
+    console.warn('Ya estás autenticado, redirigiendo al home');
+    next({ name: 'home' });  // Redirige al home si ya está autenticado
+    return;
+  }
+
+  // Prevenir redirección infinita si ya estamos en la página de error 404
+  if (to.name === 'error-404' && !isAuthenticated()) {
+    console.warn('No estás autenticado, redirigiendo a login');
+    next({ name: 'login' });  // Si no está autenticado, redirige a login
+    return;
+  }
+
+  if (to.name === 'home' || to.name === 'error-404') {
     next();
   } else if (!isAuthenticated()) {
     console.warn('Acceso denegado: Usuario no autenticado');
