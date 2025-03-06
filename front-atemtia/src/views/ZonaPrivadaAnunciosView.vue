@@ -1,180 +1,111 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { useAnunciosStore } from '../stores/anuncios';
+import { onMounted } from 'vue';
 
-const showFormCreate = ref(false);
-const showFormUpdate = ref(false);
-const showFormDelete = ref(false);
-const showModalDelete = ref(false); 
-const anuncioSearch = ref('');
-const anuncioToDelete = ref<number | null>(null);
+const anunciosStore = useAnunciosStore();
 
-const anuncios = ref([
-  { id: 1, title: 'Anuncio 1', description: 'Descripción del anuncio 1', publicationDate: '2025-01-01' },
-  { id: 2, title: 'Anuncio 2', description: 'Descripción del anuncio 2', publicationDate: '2025-02-01' },
-  { id: 3, title: 'Anuncio 3', description: 'Descripción del anuncio 3', publicationDate: '2025-03-01' },
-]);
-
-const toggleFormCreate = () => {
-  showFormCreate.value = !showFormCreate.value;
-  if (showFormCreate.value) {
-    showFormUpdate.value = false;
-    showFormDelete.value = false;
-  }
-};
-
-const toggleFormUpdate = () => {
-  showFormUpdate.value = !showFormUpdate.value;
-  if (showFormUpdate.value) {
-    showFormCreate.value = false;
-    showFormDelete.value = false;
-  }
-};
-
-const toggleFormDelete = () => {
-  showFormDelete.value = !showFormDelete.value;
-  if (showFormDelete.value) {
-    showFormCreate.value = false;
-    showFormUpdate.value = false;
-  }
-};
-
-const filteredAnuncios = computed(() => {
-  if (anuncioSearch.value === '') {
-    return [];
-  }
-  return anuncios.value.filter(anuncio => anuncio.title.toLowerCase().includes(anuncioSearch.value.toLowerCase()) || anuncio.description.toLowerCase().includes(anuncioSearch.value.toLowerCase()));
+// Llamar al método fetchAnuncios cuando el componente se monta
+onMounted(() => {
+  anunciosStore.fetchAnuncios();
 });
-
-
-const openModalDelete = (anuncioId: number) => {
-  anuncioToDelete.value = anuncioId;
-  showModalDelete.value = true;
-};
-
-
-const confirmDelete = () => {
-  if (anuncioToDelete.value !== null) {
-    anuncios.value = anuncios.value.filter(anuncio => anuncio.id !== anuncioToDelete.value);
-    anuncioSearch.value = '';
-    showModalDelete.value = false;
-    showFormDelete.value = false;
-  }
-};
-
-
-const cancelDelete = () => {
-  showModalDelete.value = false;
-  anuncioToDelete.value = null;
-};
 </script>
 
 
 <template>
-    <div class="anuncios">
-      <router-link to="/home-app-atemtia/zona-privada" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
-      <h1 class="anuncios__titulo">ANUNCIOS</h1>
-  
-      <div class="anuncios__separador-abajo">
-        <span class="anuncios__bar-separador"></span>
-      </div>
-  
-      <div class="anuncios__botones">
-        <button class="anuncios__boton" @click="toggleFormCreate">
-          Añadir Anuncio
-        </button>
-        <button class="anuncios__boton" @click="toggleFormUpdate">
-          Actualizar Anuncio
-        </button>
-        <button class="anuncios__boton" @click="toggleFormDelete">
-          Eliminar Anuncio
-        </button>
-      </div>
-  
-      <!-- Formulario para crear anuncio -->
-      <div v-if="showFormCreate" class="anuncios__formulario">
-        <h2 class="anuncios__formulario-titulo">Crear Anuncio</h2>
-        <form class="anuncios__formulario-contenido">
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="titulo">Título:</label>
-            <input class="anuncios__formulario-input" type="text" id="titulo" placeholder="Título del anuncio" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="descripcion">Descripción:</label>
-            <input class="anuncios__formulario-input" type="text" id="descripcion" placeholder="Descripción del anuncio" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="fecha-publicacion">Fecha de publicación:</label>
-            <input class="anuncios__formulario-input" type="date" id="fecha-publicacion" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <button class="anuncios__formulario-boton" type="submit">Crear Anuncio</button>
-          </div>
-        </form>
-      </div>
-  
-      <!-- Formulario para actualizar anuncio -->
-      <div v-if="showFormUpdate" class="anuncios__formulario">
-        <h2 class="anuncios__formulario-titulo">Actualizar Anuncio</h2>
-        <form class="anuncios__formulario-contenido">
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="titulo-update">Título:</label>
-            <input class="anuncios__formulario-input" type="text" id="titulo-update" placeholder="Título del anuncio" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="descripcion-update">Descripción:</label>
-            <input class="anuncios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del anuncio" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <label class="anuncios__formulario-label" for="fecha-publicacion-update">Fecha de publicación:</label>
-            <input class="anuncios__formulario-input" type="date" id="fecha-publicacion-update" required />
-          </div>
-          <div class="anuncios__formulario-grupo">
-            <button class="anuncios__formulario-boton" type="submit">Actualizar Anuncio</button>
-          </div>
-        </form>
-      </div>
-  
-      <!-- Formulario para eliminar anuncio -->
-      <div v-if="showFormDelete" class="anuncios__formulario">
-        <h2 class="anuncios__formulario-titulo">Eliminar Anuncio</h2>
+  <div class="anuncios">
+    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
+    <h1 class="anuncios__titulo">ANUNCIOS</h1>
+
+    <div class="anuncios__separador-abajo">
+      <span class="anuncios__bar-separador"></span>
+    </div>
+
+    <div class="anuncios__botones">
+      <button class="anuncios__boton" @click="anunciosStore.toggleFormCreate">
+        Añadir Anuncio
+      </button>
+      <button class="anuncios__boton" @click="anunciosStore.toggleFormUpdate" :disabled="!anunciosStore.updatedAnuncio.id">
+        Actualizar Anuncio
+      </button>
+      <button class="anuncios__boton" @click="anunciosStore.toggleFormDelete">
+        Eliminar Anuncio
+      </button>
+    </div>
+
+    <!-- Formulario para crear anuncio -->
+    <div v-if="anunciosStore.showFormCreate" class="anuncios__formulario">
+      <h2 class="anuncios__formulario-titulo">Crear Anuncio</h2>
+      <form class="anuncios__formulario-contenido" @submit.prevent="anunciosStore.addAnuncio">
         <div class="anuncios__formulario-grupo">
-          <input 
-            class="anuncios__formulario-input" 
-            v-model="anuncioSearch" 
-            type="text" 
-            placeholder="Buscar por título o descripción" 
-          />
+          <label class="anuncios__formulario-label" for="titulo">Título:</label>
+          <input v-model="anunciosStore.newAnuncio.title" class="anuncios__formulario-input" type="text" id="titulo" placeholder="Título del anuncio" required />
         </div>
-  
-        <div v-if="filteredAnuncios.length > 0" class="anuncios__anuncios-encontrados">
-          <ul>
-            <li v-for="anuncio in filteredAnuncios" :key="anuncio.id">
-              <div>{{ anuncio.title }} - {{ anuncio.description }}</div>
-              <button 
-                class="anuncios__eliminar-boton" 
-                @click="openModalDelete(anuncio.id)">
-                Eliminar
-              </button>
-            </li>
-          </ul>
+        <div class="anuncios__formulario-grupo">
+          <label class="anuncios__formulario-label" for="descripcion">Descripción:</label>
+          <input v-model="anunciosStore.newAnuncio.description" class="anuncios__formulario-input" type="text" id="descripcion" placeholder="Descripción del anuncio" required />
         </div>
-        <div v-else>
-          <p>No se encontraron anuncios</p>
+       
+        <div class="anuncios__formulario-grupo">
+          <button class="anuncios__formulario-boton" type="submit">Crear Anuncio</button>
         </div>
+      </form>
+    </div>
+
+    <!-- Formulario para actualizar anuncio -->
+    <div v-if="anunciosStore.showFormUpdate && anunciosStore.updatedAnuncio.id" class="anuncios__formulario">
+      <h2 class="anuncios__formulario-titulo">Actualizar Anuncio</h2>
+      <form class="anuncios__formulario-contenido" @submit.prevent="anunciosStore.updateAnuncio">
+        <div class="anuncios__formulario-grupo">
+          <label class="anuncios__formulario-label" for="titulo-update">Título:</label>
+          <input v-model="anunciosStore.updatedAnuncio.title" class="anuncios__formulario-input" type="text" id="titulo-update" placeholder="Título del anuncio" required />
+        </div>
+        <div class="anuncios__formulario-grupo">
+          <label class="anuncios__formulario-label" for="descripcion-update">Descripción:</label>
+          <input v-model="anunciosStore.updatedAnuncio.description" class="anuncios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del anuncio" required />
+        </div>
+        
+        <div class="anuncios__formulario-grupo">
+          <button class="anuncios__formulario-boton" type="submit">Actualizar Anuncio</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Formulario para eliminar anuncio -->
+    <div v-if="anunciosStore.showFormDelete" class="anuncios__formulario">
+      <h2 class="anuncios__formulario-titulo">Eliminar Anuncio</h2>
+      <div class="anuncios__formulario-grupo">
+        <input class="anuncios__formulario-input" v-model="anunciosStore.anuncioSearch" type="text" placeholder="Buscar por título o descripción" />
       </div>
-  
-      <!-- Modal de confirmación para eliminar anuncio -->
-      <div v-if="showModalDelete" class="anuncios__modal">
-        <div class="anuncios__modal-contenido">
-          <p>¿Estás seguro de que deseas eliminar este anuncio?</p>
-          <div class="anuncios__modal-botones">
-            <button class="anuncios__btn-confirmar" @click="confirmDelete">Confirmar</button>
-            <button class="anuncios__btn-cancelar" @click="cancelDelete">Cancelar</button>
-          </div>
+
+      <div v-if="anunciosStore.filteredAnuncios.length > 0" class="anuncios__anuncios-encontrados">
+        <ul>
+          <li v-for="anuncio in anunciosStore.filteredAnuncios" :key="anuncio.id">
+            <div>{{ anuncio.title }} - {{ anuncio.description }}</div>
+            <button class="anuncios__eliminar-boton" @click="anunciosStore.openModalDelete(anuncio.id)">
+              Eliminar
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No se encontraron anuncios</p>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar anuncio -->
+    <div v-if="anunciosStore.showModalDelete" class="anuncios__modal">
+      <div class="anuncios__modal-contenido">
+        <p>¿Estás seguro de que deseas eliminar este anuncio?</p>
+        <div class="anuncios__modal-botones">
+          <button class="anuncios__btn-confirmar" @click="anunciosStore.confirmDelete">Confirmar</button>
+          <button class="anuncios__btn-cancelar" @click="anunciosStore.cancelDelete">Cancelar</button>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
 
 <style lang="scss">
