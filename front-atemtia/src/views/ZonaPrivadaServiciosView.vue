@@ -5,13 +5,13 @@ const showFormCreate = ref(false);
 const showFormUpdate = ref(false);
 const showFormDelete = ref(false);
 const showModalDelete = ref(false); // Variable para controlar la visibilidad del modal de eliminación
-const userSearch = ref('');
-const userToDelete = ref<number | null>(null);
+const serviceSearch = ref('');
+const serviceToDelete = ref<number | null>(null);
 
-const users = ref([
-  { id: 1, name: 'Juan Pérez', email: 'juan@example.com' },
-  { id: 2, name: 'Ana García', email: 'ana@example.com' },
-  { id: 3, name: 'Carlos López', email: 'carlos@example.com' },
+const services = ref([
+  { id: 1, name: 'Servicio 1', description: 'Descripción del servicio 1' },
+  { id: 2, name: 'Servicio 2', description: 'Descripción del servicio 2' },
+  { id: 3, name: 'Servicio 3', description: 'Descripción del servicio 3' },
 ]);
 
 const toggleFormCreate = () => {
@@ -38,24 +38,24 @@ const toggleFormDelete = () => {
   }
 };
 
-const filteredUsers = computed(() => {
-  if (userSearch.value === '') {
+const filteredServices = computed(() => {
+  if (serviceSearch.value === '') {
     return [];
   }
-  return users.value.filter(user => user.name.toLowerCase().includes(userSearch.value.toLowerCase()) || user.email.toLowerCase().includes(userSearch.value.toLowerCase()));
+  return services.value.filter(service => service.name.toLowerCase().includes(serviceSearch.value.toLowerCase()) || service.description.toLowerCase().includes(serviceSearch.value.toLowerCase()));
 });
 
 // Función para abrir el modal de eliminación
-const openModalDelete = (userId: number) => {
-  userToDelete.value = userId;
+const openModalDelete = (serviceId: number) => {
+  serviceToDelete.value = serviceId;
   showModalDelete.value = true;
 };
 
-// Función para confirmar la eliminación del usuario
+// Función para confirmar la eliminación del servicio
 const confirmDelete = () => {
-  if (userToDelete.value !== null) {
-    users.value = users.value.filter(user => user.id !== userToDelete.value);
-    userSearch.value = '';
+  if (serviceToDelete.value !== null) {
+    services.value = services.value.filter(service => service.id !== serviceToDelete.value);
+    serviceSearch.value = '';
     showModalDelete.value = false;
     showFormDelete.value = false;
   }
@@ -64,112 +64,104 @@ const confirmDelete = () => {
 // Función para cancelar la eliminación
 const cancelDelete = () => {
   showModalDelete.value = false;
-  userToDelete.value = null;
+  serviceToDelete.value = null;
 };
 </script>
 
 
 <template>
-    <div class="usuarios">
+    <div class="servicios">
       <router-link to="/home-app-atemtia/zona-privada" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
-      <h1 class="usuarios__titulo">USUARIOS</h1>
+      <h1 class="servicios__titulo">SERVICIOS</h1>
   
-      <div class="usuarios__separador-abajo">
-        <span class="usuarios__bar-separador"></span>
+      <div class="servicios__separador-abajo">
+        <span class="servicios__bar-separador"></span>
       </div>
   
-      <div class="usuarios__botones">
-        <button class="usuarios__boton" @click="toggleFormCreate">
-          Añadir Usuario
+      <div class="servicios__botones">
+        <button class="servicios__boton" @click="toggleFormCreate">
+          Añadir Servicio
         </button>
-        <button class="usuarios__boton" @click="toggleFormUpdate">
-          Actualizar Usuario
+        <button class="servicios__boton" @click="toggleFormUpdate">
+          Actualizar Servicio
         </button>
-        <button class="usuarios__boton" @click="toggleFormDelete">
-          Eliminar Usuario
+        <button class="servicios__boton" @click="toggleFormDelete">
+          Eliminar Servicio
         </button>
       </div>
   
-      <!-- Formulario para crear usuario -->
-      <div v-if="showFormCreate" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Crear Usuario</h2>
-        <form class="usuarios__formulario-contenido">
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="nombre">Nombre:</label>
-            <input class="usuarios__formulario-input" type="text" id="nombre" placeholder="Nombre del usuario" required />
+      <!-- Formulario para crear servicio -->
+      <div v-if="showFormCreate" class="servicios__formulario">
+        <h2 class="servicios__formulario-titulo">Crear Servicio</h2>
+        <form class="servicios__formulario-contenido">
+          <div class="servicios__formulario-grupo">
+            <label class="servicios__formulario-label" for="nombre">Nombre:</label>
+            <input class="servicios__formulario-input" type="text" id="nombre" placeholder="Nombre del servicio" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="email">Email:</label>
-            <input class="usuarios__formulario-input" type="email" id="email" placeholder="Email del usuario" required />
+          <div class="servicios__formulario-grupo">
+            <label class="servicios__formulario-label" for="descripcion">Descripción:</label>
+            <input class="servicios__formulario-input" type="text" id="descripcion" placeholder="Descripción del servicio" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="contraseña">Contraseña:</label>
-            <input class="usuarios__formulario-input" type="password" id="contraseña" placeholder="Contraseña" required />
-          </div>
-          <div class="usuarios__formulario-grupo">
-            <button class="usuarios__formulario-boton" type="submit">Crear Usuario</button>
+          <div class="servicios__formulario-grupo">
+            <button class="servicios__formulario-boton" type="submit">Crear Servicio</button>
           </div>
         </form>
       </div>
   
-      <!-- Formulario para actualizar usuario -->
-      <div v-if="showFormUpdate" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Actualizar Usuario</h2>
-        <form class="usuarios__formulario-contenido">
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="nombre-update">Nombre:</label>
-            <input class="usuarios__formulario-input" type="text" id="nombre-update" placeholder="Nombre del usuario" required />
+      <!-- Formulario para actualizar servicio -->
+      <div v-if="showFormUpdate" class="servicios__formulario">
+        <h2 class="servicios__formulario-titulo">Actualizar Servicio</h2>
+        <form class="servicios__formulario-contenido">
+          <div class="servicios__formulario-grupo">
+            <label class="servicios__formulario-label" for="nombre-update">Nombre:</label>
+            <input class="servicios__formulario-input" type="text" id="nombre-update" placeholder="Nombre del servicio" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="email-update">Email:</label>
-            <input class="usuarios__formulario-input" type="email" id="email-update" placeholder="Email del usuario" required />
+          <div class="servicios__formulario-grupo">
+            <label class="servicios__formulario-label" for="descripcion-update">Descripción:</label>
+            <input class="servicios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del servicio" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="contraseña-update">Contraseña:</label>
-            <input class="usuarios__formulario-input" type="password" id="contraseña-update" placeholder="Contraseña" />
-          </div>
-          <div class="usuarios__formulario-grupo">
-            <button class="usuarios__formulario-boton" type="submit">Actualizar Usuario</button>
+          <div class="servicios__formulario-grupo">
+            <button class="servicios__formulario-boton" type="submit">Actualizar Servicio</button>
           </div>
         </form>
       </div>
   
-      <!-- Formulario para eliminar usuario -->
-      <div v-if="showFormDelete" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Eliminar Usuario</h2>
-        <div class="usuarios__formulario-grupo">
+      <!-- Formulario para eliminar servicio -->
+      <div v-if="showFormDelete" class="servicios__formulario">
+        <h2 class="servicios__formulario-titulo">Eliminar Servicio</h2>
+        <div class="servicios__formulario-grupo">
           <input 
-            class="usuarios__formulario-input" 
-            v-model="userSearch" 
+            class="servicios__formulario-input" 
+            v-model="serviceSearch" 
             type="text" 
-            placeholder="Buscar por nombre o email" 
+            placeholder="Buscar por nombre o descripción" 
           />
         </div>
   
-        <div v-if="filteredUsers.length > 0" class="usuarios__usuarios-encontrados">
+        <div v-if="filteredServices.length > 0" class="servicios__servicios-encontrados">
           <ul>
-            <li v-for="user in filteredUsers" :key="user.id">
-              <div>{{ user.name }} - {{ user.email }}</div>
+            <li v-for="service in filteredServices" :key="service.id">
+              <div>{{ service.name }} - {{ service.description }}</div>
               <button 
-                class="usuarios__eliminar-boton" 
-                @click="openModalDelete(user.id)">
+                class="servicios__eliminar-boton" 
+                @click="openModalDelete(service.id)">
                 Eliminar
               </button>
             </li>
           </ul>
         </div>
         <div v-else>
-          <p>No se encontraron usuarios</p>
+          <p>No se encontraron servicios</p>
         </div>
       </div>
   
-      <!-- Modal de confirmación para eliminar usuario -->
-      <div v-if="showModalDelete" class="usuarios__modal">
-        <div class="usuarios__modal-contenido">
-          <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-          <div class="usuarios__modal-botones">
-            <button class="usuarios__btn-confirmar" @click="confirmDelete">Confirmar</button>
-            <button class="usuarios__btn-cancelar" @click="cancelDelete">Cancelar</button>
+      <!-- Modal de confirmación para eliminar servicio -->
+      <div v-if="showModalDelete" class="servicios__modal">
+        <div class="servicios__modal-contenido">
+          <p>¿Estás seguro de que deseas eliminar este servicio?</p>
+          <div class="servicios__modal-botones">
+            <button class="servicios__btn-confirmar" @click="confirmDelete">Confirmar</button>
+            <button class="servicios__btn-cancelar" @click="cancelDelete">Cancelar</button>
           </div>
         </div>
       </div>
@@ -180,7 +172,7 @@ const cancelDelete = () => {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
-.usuarios {
+.servicios {
   font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
@@ -199,7 +191,7 @@ const cancelDelete = () => {
   &__separador-abajo {
     margin: 10px auto;
 
-    & .usuarios__bar-separador {
+    & .servicios__bar-separador {
       display: block;
       width: 160px;
       height: 2px;
@@ -214,7 +206,7 @@ const cancelDelete = () => {
     gap: 10px;
     margin-top: 15px;
 
-    & .usuarios__boton {
+    & .servicios__boton {
       display: inline-block;
       text-align: center;
       background-color: $color-boton;
@@ -292,7 +284,7 @@ const cancelDelete = () => {
     }
   }
 
-  &__usuarios-encontrados {
+  &__servicios-encontrados {
     margin-top: 20px;
 
     & ul {
@@ -395,6 +387,5 @@ const cancelDelete = () => {
      text-decoration:none; 
      box-shadow:0 4px 8px rgba(0,0,0,.2);
    }
-
 
 </style>

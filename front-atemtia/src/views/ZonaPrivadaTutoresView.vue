@@ -4,11 +4,11 @@ import { ref, computed } from 'vue';
 const showFormCreate = ref(false);
 const showFormUpdate = ref(false);
 const showFormDelete = ref(false);
-const showModalDelete = ref(false); // Variable para controlar la visibilidad del modal de eliminación
-const userSearch = ref('');
-const userToDelete = ref<number | null>(null);
+const showModalDelete = ref(false); 
+const tutorSearch = ref('');
+const tutorToDelete = ref<number | null>(null);
 
-const users = ref([
+const tutors = ref([
   { id: 1, name: 'Juan Pérez', email: 'juan@example.com' },
   { id: 2, name: 'Ana García', email: 'ana@example.com' },
   { id: 3, name: 'Carlos López', email: 'carlos@example.com' },
@@ -38,138 +38,138 @@ const toggleFormDelete = () => {
   }
 };
 
-const filteredUsers = computed(() => {
-  if (userSearch.value === '') {
+const filteredTutors = computed(() => {
+  if (tutorSearch.value === '') {
     return [];
   }
-  return users.value.filter(user => user.name.toLowerCase().includes(userSearch.value.toLowerCase()) || user.email.toLowerCase().includes(userSearch.value.toLowerCase()));
+  return tutors.value.filter(tutor => tutor.name.toLowerCase().includes(tutorSearch.value.toLowerCase()) || tutor.email.toLowerCase().includes(tutorSearch.value.toLowerCase()));
 });
 
-// Función para abrir el modal de eliminación
-const openModalDelete = (userId: number) => {
-  userToDelete.value = userId;
+
+const openModalDelete = (tutorId: number) => {
+  tutorToDelete.value = tutorId;
   showModalDelete.value = true;
 };
 
-// Función para confirmar la eliminación del usuario
+
 const confirmDelete = () => {
-  if (userToDelete.value !== null) {
-    users.value = users.value.filter(user => user.id !== userToDelete.value);
-    userSearch.value = '';
+  if (tutorToDelete.value !== null) {
+    tutors.value = tutors.value.filter(tutor => tutor.id !== tutorToDelete.value);
+    tutorSearch.value = '';
     showModalDelete.value = false;
     showFormDelete.value = false;
   }
 };
 
-// Función para cancelar la eliminación
+
 const cancelDelete = () => {
   showModalDelete.value = false;
-  userToDelete.value = null;
+  tutorToDelete.value = null;
 };
 </script>
 
 
 <template>
-    <div class="usuarios">
+    <div class="tutores">
       <router-link to="/home-app-atemtia/zona-privada" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
-      <h1 class="usuarios__titulo">USUARIOS</h1>
+      <h1 class="tutores__titulo">TUTORES</h1>
   
-      <div class="usuarios__separador-abajo">
-        <span class="usuarios__bar-separador"></span>
+      <div class="tutores__separador-abajo">
+        <span class="tutores__bar-separador"></span>
       </div>
   
-      <div class="usuarios__botones">
-        <button class="usuarios__boton" @click="toggleFormCreate">
-          Añadir Usuario
+      <div class="tutores__botones">
+        <button class="tutores__boton" @click="toggleFormCreate">
+          Añadir Tutor
         </button>
-        <button class="usuarios__boton" @click="toggleFormUpdate">
-          Actualizar Usuario
+        <button class="tutores__boton" @click="toggleFormUpdate">
+          Actualizar Tutor
         </button>
-        <button class="usuarios__boton" @click="toggleFormDelete">
-          Eliminar Usuario
+        <button class="tutores__boton" @click="toggleFormDelete">
+          Eliminar Tutor
         </button>
       </div>
   
-      <!-- Formulario para crear usuario -->
-      <div v-if="showFormCreate" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Crear Usuario</h2>
-        <form class="usuarios__formulario-contenido">
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="nombre">Nombre:</label>
-            <input class="usuarios__formulario-input" type="text" id="nombre" placeholder="Nombre del usuario" required />
+      <!-- Formulario para crear tutor -->
+      <div v-if="showFormCreate" class="tutores__formulario">
+        <h2 class="tutores__formulario-titulo">Crear Tutor</h2>
+        <form class="tutores__formulario-contenido">
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="nombre">Nombre:</label>
+            <input class="tutores__formulario-input" type="text" id="nombre" placeholder="Nombre del tutor" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="email">Email:</label>
-            <input class="usuarios__formulario-input" type="email" id="email" placeholder="Email del usuario" required />
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="email">Email:</label>
+            <input class="tutores__formulario-input" type="email" id="email" placeholder="Email del tutor" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="contraseña">Contraseña:</label>
-            <input class="usuarios__formulario-input" type="password" id="contraseña" placeholder="Contraseña" required />
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="contraseña">Contraseña:</label>
+            <input class="tutores__formulario-input" type="password" id="contraseña" placeholder="Contraseña" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <button class="usuarios__formulario-boton" type="submit">Crear Usuario</button>
+          <div class="tutores__formulario-grupo">
+            <button class="tutores__formulario-boton" type="submit">Crear Tutor</button>
           </div>
         </form>
       </div>
   
-      <!-- Formulario para actualizar usuario -->
-      <div v-if="showFormUpdate" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Actualizar Usuario</h2>
-        <form class="usuarios__formulario-contenido">
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="nombre-update">Nombre:</label>
-            <input class="usuarios__formulario-input" type="text" id="nombre-update" placeholder="Nombre del usuario" required />
+      <!-- Formulario para actualizar tutor -->
+      <div v-if="showFormUpdate" class="tutores__formulario">
+        <h2 class="tutores__formulario-titulo">Actualizar Tutor</h2>
+        <form class="tutores__formulario-contenido">
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="nombre-update">Nombre:</label>
+            <input class="tutores__formulario-input" type="text" id="nombre-update" placeholder="Nombre del tutor" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="email-update">Email:</label>
-            <input class="usuarios__formulario-input" type="email" id="email-update" placeholder="Email del usuario" required />
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="email-update">Email:</label>
+            <input class="tutores__formulario-input" type="email" id="email-update" placeholder="Email del tutor" required />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <label class="usuarios__formulario-label" for="contraseña-update">Contraseña:</label>
-            <input class="usuarios__formulario-input" type="password" id="contraseña-update" placeholder="Contraseña" />
+          <div class="tutores__formulario-grupo">
+            <label class="tutores__formulario-label" for="contraseña-update">Contraseña:</label>
+            <input class="tutores__formulario-input" type="password" id="contraseña-update" placeholder="Contraseña" />
           </div>
-          <div class="usuarios__formulario-grupo">
-            <button class="usuarios__formulario-boton" type="submit">Actualizar Usuario</button>
+          <div class="tutores__formulario-grupo">
+            <button class="tutores__formulario-boton" type="submit">Actualizar Tutor</button>
           </div>
         </form>
       </div>
   
-      <!-- Formulario para eliminar usuario -->
-      <div v-if="showFormDelete" class="usuarios__formulario">
-        <h2 class="usuarios__formulario-titulo">Eliminar Usuario</h2>
-        <div class="usuarios__formulario-grupo">
+      <!-- Formulario para eliminar tutor -->
+      <div v-if="showFormDelete" class="tutores__formulario">
+        <h2 class="tutores__formulario-titulo">Eliminar Tutor</h2>
+        <div class="tutores__formulario-grupo">
           <input 
-            class="usuarios__formulario-input" 
-            v-model="userSearch" 
+            class="tutores__formulario-input" 
+            v-model="tutorSearch" 
             type="text" 
             placeholder="Buscar por nombre o email" 
           />
         </div>
   
-        <div v-if="filteredUsers.length > 0" class="usuarios__usuarios-encontrados">
+        <div v-if="filteredTutors.length > 0" class="tutores__tutores-encontrados">
           <ul>
-            <li v-for="user in filteredUsers" :key="user.id">
-              <div>{{ user.name }} - {{ user.email }}</div>
+            <li v-for="tutor in filteredTutors" :key="tutor.id">
+              <div>{{ tutor.name }} - {{ tutor.email }}</div>
               <button 
-                class="usuarios__eliminar-boton" 
-                @click="openModalDelete(user.id)">
+                class="tutores__eliminar-boton" 
+                @click="openModalDelete(tutor.id)">
                 Eliminar
               </button>
             </li>
           </ul>
         </div>
         <div v-else>
-          <p>No se encontraron usuarios</p>
+          <p>No se encontraron tutores</p>
         </div>
       </div>
   
-      <!-- Modal de confirmación para eliminar usuario -->
-      <div v-if="showModalDelete" class="usuarios__modal">
-        <div class="usuarios__modal-contenido">
-          <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-          <div class="usuarios__modal-botones">
-            <button class="usuarios__btn-confirmar" @click="confirmDelete">Confirmar</button>
-            <button class="usuarios__btn-cancelar" @click="cancelDelete">Cancelar</button>
+      <!-- Modal de confirmación para eliminar tutor -->
+      <div v-if="showModalDelete" class="tutores__modal">
+        <div class="tutores__modal-contenido">
+          <p>¿Estás seguro de que deseas eliminar este tutor?</p>
+          <div class="tutores__modal-botones">
+            <button class="tutores__btn-confirmar" @click="confirmDelete">Confirmar</button>
+            <button class="tutores__btn-cancelar" @click="cancelDelete">Cancelar</button>
           </div>
         </div>
       </div>
@@ -180,7 +180,7 @@ const cancelDelete = () => {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
-.usuarios {
+.tutores {
   font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
@@ -199,7 +199,7 @@ const cancelDelete = () => {
   &__separador-abajo {
     margin: 10px auto;
 
-    & .usuarios__bar-separador {
+    & .tutores__bar-separador {
       display: block;
       width: 160px;
       height: 2px;
@@ -214,7 +214,7 @@ const cancelDelete = () => {
     gap: 10px;
     margin-top: 15px;
 
-    & .usuarios__boton {
+    & .tutores__boton {
       display: inline-block;
       text-align: center;
       background-color: $color-boton;
@@ -292,7 +292,7 @@ const cancelDelete = () => {
     }
   }
 
-  &__usuarios-encontrados {
+  &__tutores-encontrados {
     margin-top: 20px;
 
     & ul {
@@ -395,6 +395,5 @@ const cancelDelete = () => {
      text-decoration:none; 
      box-shadow:0 4px 8px rgba(0,0,0,.2);
    }
-
 
 </style>

@@ -12,6 +12,9 @@ import ServiciosView from '../views/ServiciosView.vue';
 import AnunciosView from '../views/AnunciosView.vue';
 import ZonaPrivada from '../views/ZonaPrivadaView.vue';
 import ZonaPrivadaUsr from '../views/ZonaPrivadaUsr.vue';
+import TutoresView from '@/views/ZonaPrivadaTutoresView.vue';
+import ZonaPrivadaServiciosView from '@/views/ZonaPrivadaServiciosView.vue';
+import ZonaPrivadaAnunciosView from '@/views/ZonaPrivadaAnunciosView.vue';
 
 // Creación del router
 const router = createRouter({
@@ -28,7 +31,10 @@ const router = createRouter({
     { path: '/home-app-atemtia/anuncios', name: 'anuncios', component: AnunciosView },
     { path: '/home-app-atemtia/zona-privada', name: 'zona-privada', component: ZonaPrivada },
     { path: '/home-app-atemtia/zona-privada/usuarios', name: 'zona-privadaUsr', component: ZonaPrivadaUsr },
-    // Ruta para páginas no encontradas
+    { path: '/home-app-atemtia/zona-privada/tutores', name: 'zona-privadaTutors', component: TutoresView },
+    { path: '/home-app-atemtia/zona-privada/servicios', name: 'zona-privadaServicios', component: ZonaPrivadaServiciosView },
+    { path: '/home-app-atemtia/zona-privada/anuncios', name: 'zona-privadaAnuncios', component: ZonaPrivadaAnunciosView },
+  
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
