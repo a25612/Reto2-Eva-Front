@@ -1,3 +1,4 @@
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Ref } from 'vue';
 
@@ -23,7 +24,7 @@ interface Servicio {
   opciones: OpcionServicio[];
 }
 
-export function useServicios() {  
+export const useServiciosStore = defineStore('servicios', () => {
   const centros: Ref<Centro[]> = ref([]);
   const servicios: Ref<Servicio[]> = ref([]);
   const centroSeleccionado: Ref<number | null> = ref(null);
@@ -90,4 +91,4 @@ export function useServicios() {
     cargarCentros,
     cargarServiciosPorCentro
   };
-}
+});
