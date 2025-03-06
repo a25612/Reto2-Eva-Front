@@ -5,6 +5,7 @@ interface Anuncio {
   id: number;
   titulo: string;
   descripcion: string;
+  activo: boolean; // Agregado el campo "activo"
 }
 
 export const useAnunciosStore = defineStore('anuncios', () => {
@@ -18,15 +19,18 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   const anuncioToDelete = ref<number | null>(null);
   const newAnuncio = ref<Omit<Anuncio, 'id'>>({
     titulo: '',
-    descripcion: ''
+    descripcion: '',
+    activo: false // Inicializar el campo "activo"
   });
-  
+
   const updatedAnuncio = ref<Anuncio>({
     id: 0,
     titulo: '',
-    descripcion: ''
+    descripcion: '',
+    activo: false // Incluir el campo "activo" en la actualización
   });
 
+  // Función para obtener anuncios
   const fetchAnuncios = async () => {
     try {
       const response = await fetch('https://localhost:7163/api/Anuncio');
@@ -39,6 +43,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Función para crear un nuevo anuncio
   const addAnuncio = async () => {
     try {
       const response = await fetch('https://localhost:7163/api/Anuncio', {
@@ -46,19 +51,20 @@ export const useAnunciosStore = defineStore('anuncios', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAnuncio.value)
       });
-  
+
       if (!response.ok) {
         throw new Error('Error al crear el anuncio');
       }
-  
+
       await fetchAnuncios();
       showFormCreate.value = false;
-      newAnuncio.value = { titulo: '', descripcion: '' };
+      newAnuncio.value = { titulo: '', descripcion: '', activo: false }; // Reiniciar el formulario
     } catch (err: any) {
       error.value = err.message || 'Error al crear el anuncio';
     }
   };
 
+  // Función para actualizar un anuncio
   const updateAnuncio = async () => {
     try {
       const response = await fetch(`https://localhost:7163/api/Anuncio/${updatedAnuncio.value.id}`, {
@@ -68,6 +74,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
       });
 
       if (!response.ok) {
+        console.log(updateAnuncio);
         throw new Error('Error al actualizar el anuncio');
       }
 
@@ -78,6 +85,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Función para eliminar un anuncio
   const deleteAnuncio = async () => {
     try {
       if (anuncioToDelete.value === null) return;
@@ -98,16 +106,18 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Computada para filtrar anuncios por búsqueda
   const filteredAnuncios = computed(() => {
     if (anuncioSearch.value === '') {
       return anuncios.value;
     }
-    return anuncios.value.filter(anuncio => 
-      anuncio.titulo.toLowerCase().includes(anuncioSearch.value.toLowerCase()) || 
+    return anuncios.value.filter(anuncio =>
+      anuncio.titulo.toLowerCase().includes(anuncioSearch.value.toLowerCase()) ||
       anuncio.descripcion.toLowerCase().includes(anuncioSearch.value.toLowerCase())
     );
   });
 
+  // Función para mostrar/ocultar el formulario de creación
   const toggleFormCreate = () => {
     showFormCreate.value = !showFormCreate.value;
     if (showFormCreate.value) {
@@ -116,6 +126,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Función para mostrar/ocultar el formulario de actualización
   const toggleFormUpdate = () => {
     showFormUpdate.value = !showFormUpdate.value;
     if (showFormUpdate.value) {
@@ -124,6 +135,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Función para mostrar/ocultar el formulario de eliminación
   const toggleFormDelete = () => {
     showFormDelete.value = !showFormDelete.value;
     if (showFormDelete.value) {
@@ -132,19 +144,28 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     }
   };
 
+  // Función para abrir el modal de eliminación
   const openModalDelete = (anuncioId: number) => {
     anuncioToDelete.value = anuncioId;
     showModalDelete.value = true;
   };
 
+  // Confirmar eliminación de un anuncio
   const confirmDelete = () => {
     deleteAnuncio();
     anuncioToDelete.value = null;
   };
 
+  // Cancelar eliminación de un anuncio
   const cancelDelete = () => {
     showModalDelete.value = false;
     anuncioToDelete.value = null;
+  };
+
+  // Función para seleccionar un anuncio a actualizar
+  const selectAnuncioToUpdate = (anuncio: Anuncio) => {
+    updatedAnuncio.value = { ...anuncio }; // Copiar los datos del anuncio seleccionado al objeto de actualización
+    showFormUpdate.value = true; // Mostrar el formulario de actualización
   };
 
   return {
@@ -168,6 +189,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     toggleFormDelete,
     openModalDelete,
     confirmDelete,
-    cancelDelete
+    cancelDelete,
+    selectAnuncioToUpdate, 
   };
 });

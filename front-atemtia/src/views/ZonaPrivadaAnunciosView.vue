@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { useAnunciosStore } from '../stores/anuncios';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const anunciosStore = useAnunciosStore();
+const searchTerm = ref('');
+
+const handleSearch = () => {
+  anunciosStore.filterAnunciosByTerm(searchTerm.value);
+};
 
 onMounted(() => {
   anunciosStore.fetchAnuncios();
@@ -19,19 +24,29 @@ onMounted(() => {
     <div class="anuncios__separador-abajo">
       <span class="anuncios__bar-separador"></span>
     </div>
-
     <div class="anuncios__botones">
       <button class="anuncios__boton" @click="anunciosStore.toggleFormCreate">
         Añadir Anuncio
       </button>
-      <button class="anuncios__boton" @click="anunciosStore.toggleFormUpdate" :disabled="!anunciosStore.updatedAnuncio.id">
-        Actualizar Anuncio
-      </button>
-      <button class="anuncios__boton" @click="anunciosStore.toggleFormDelete">
-        Eliminar Anuncio
-      </button>
+      
+      
     </div>
 
+    <!-- Barra de búsqueda -->
+    <div class="anuncios__buscador">
+      <div class="anuncios__buscador-contenedor">
+        <input 
+          v-model="searchTerm" 
+          class="anuncios__buscador-input" 
+          type="text" 
+          placeholder="Buscar anuncios..." 
+          @input="handleSearch"
+        />
+        <button class="anuncios__buscador-boton" @click="handleSearch">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </div>
+    </div>
     <div v-if="anunciosStore.showFormCreate" class="anuncios__formulario">
       <h2 class="anuncios__formulario-titulo">Crear Anuncio</h2>
       <form class="anuncios__formulario-contenido" @submit.prevent="anunciosStore.addAnuncio">
@@ -61,31 +76,40 @@ onMounted(() => {
           <input v-model="anunciosStore.updatedAnuncio.descripcion" class="anuncios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del anuncio" required />
         </div>
         <div class="anuncios__formulario-grupo">
+          <label class="anuncios__formulario-label" for="activo-update">Estado:</label>
+          <div class="anuncios__formulario-checkbox-container">
+            <input v-model="anunciosStore.updatedAnuncio.activo" class="anuncios__formulario-checkbox" type="checkbox" id="activo-update" />
+            <label class="anuncios__formulario-checkbox-label" for="activo-update">Anuncio activo</label>
+          </div>
+        </div>
+        <div class="anuncios__formulario-grupo">
           <button class="anuncios__formulario-boton" type="submit">Actualizar Anuncio</button>
         </div>
       </form>
     </div>
 
-    <div v-if="anunciosStore.showFormDelete" class="anuncios__formulario">
-      <h2 class="anuncios__formulario-titulo">Eliminar Anuncio</h2>
-      <div class="anuncios__formulario-grupo">
-        <input class="anuncios__formulario-input" v-model="anunciosStore.anuncioSearch" type="text" placeholder="Buscar por título o descripción" />
-      </div>
-
-      <div v-if="anunciosStore.filteredAnuncios.length > 0" class="anuncios__anuncios-encontrados">
-        <ul>
-          <li v-for="anuncio in anunciosStore.filteredAnuncios" :key="anuncio.id">
-            <div>{{ anuncio.titulo }} - {{ anuncio.descripcion }}</div>
-            <button class="anuncios__eliminar-boton" @click="anunciosStore.openModalDelete(anuncio.id)">
-              Eliminar
-            </button>
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <p>No se encontraron anuncios</p>
+    <!-- Lista de anuncios filtrados -->
+    <div v-if="anunciosStore.filteredAnuncios.length > 0" class="anuncios__lista">
+      <div v-for="anuncio in anunciosStore.filteredAnuncios" :key="anuncio.id" class="anuncios__item">
+        <div class="anuncios__item-contenido">
+          <h3 class="anuncios__item-titulo">{{ anuncio.titulo }}</h3>
+          <p class="anuncios__item-descripcion">{{ anuncio.descripcion }}</p>
+        </div>
+        <div class="anuncios__item-acciones">
+          <button class="anuncios__item-boton anuncios__item-boton--editar" @click="anunciosStore.selectAnuncioToUpdate(anuncio)">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+          <button class="anuncios__item-boton anuncios__item-boton--eliminar" @click="anunciosStore.openModalDelete(anuncio.id)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>
+    <div v-else class="anuncios__no-resultados">
+      <p>No se encontraron anuncios</p>
+    </div>
+
+  
 
     <div v-if="anunciosStore.showModalDelete" class="anuncios__modal">
       <div class="anuncios__modal-contenido">
@@ -128,6 +152,115 @@ onMounted(() => {
       background-color: $color-principal;
       margin: auto;
     }
+  }
+
+  // Estilos para la barra de búsqueda
+  &__buscador {
+    margin: 15px 0;
+
+    &-contenedor {
+      display: flex;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    &-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    &-boton {
+      width: 40px;
+      background-color: $color-principal;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken($color-principal, 10%);
+      }
+    }
+  }
+
+  // Estilos para la lista de anuncios
+  &__lista {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left;
+
+    &-contenido {
+      flex: 1;
+    }
+
+    &-titulo {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+      color: $color-titulos;
+    }
+
+    &-descripcion {
+      font-size: 14px;
+      margin: 0;
+      color: #666;
+    }
+
+    &-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    &-boton {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: background-color 0.3s ease;
+
+      &--editar {
+        background-color: $color-principal;
+
+        &:hover {
+          background-color: darken($color-principal, 10%);
+        }
+      }
+
+      &--eliminar {
+        background-color: red;
+
+        &:hover {
+          background-color: darkred;
+        }
+      }
+    }
+  }
+
+  &__no-resultados {
+    margin: 15px 0;
+    font-style: italic;
+    color: #666;
   }
 
   &__botones {
