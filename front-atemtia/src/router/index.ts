@@ -69,7 +69,7 @@ router.beforeEach((to, from, next) => {
   // Prevenir redirección infinita si ya estamos en login
   if (to.name === 'login' && isAuthenticated()) {
     console.warn('Ya estás autenticado, redirigiendo al home');
-    next({ name: 'home' });  // Redirige al home si ya está autenticado
+    next({ name: 'home-app-atemtia' });  // Redirige al home si ya está autenticado
     return;
   }
 
