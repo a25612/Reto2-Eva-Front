@@ -33,7 +33,6 @@ function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
 }
 
-// Estado para manejar la confirmación de reserva
 const servicioSeleccionado = ref<string | null>(null);
 
 function mostrarConfirmacion(servicio: string) {
@@ -49,7 +48,6 @@ function confirmarReserva() {
   cerrarConfirmacion();
 }
 </script>
-
 
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
@@ -109,7 +107,6 @@ function confirmarReserva() {
     </div>
   </div>
 
-  <!-- Modal de confirmación -->
   <div v-if="servicioSeleccionado" class="modal">
     <div class="modal-content">
       <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
@@ -273,6 +270,13 @@ function confirmarReserva() {
       margin-top: 5px;
     }
   }
+
+  .precio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
 }
 
 .volver-atras {
@@ -293,42 +297,23 @@ function confirmarReserva() {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
+
 .btn--reservar {
-  background-color: $color-secundario;
-  color: $color-fondo;
+  background-color: red;
+  color: white;
   border: none;
-  padding: 6px 10px; 
-  font-size: 0.8rem; 
+  padding: 6px 10px;
   cursor: pointer;
   border-radius: 5px;
   font-weight: bold;
   transition: background-color 0.3s ease;
-  display: inline-block;
-  text-align: right;
-  margin-left: 190px;
-  
+  font-size: 0.8rem;
+
   &:hover {
-    background-color: $color-fondo;
-    color: $color-secundario;
+    background-color: darkred;
   }
 }
 
-.btn--reservar-container {
-  display: flex;
-
-  margin-top: 10px;
-}
-
-
-@media (max-width: 768px) {
-  .servicios-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-  
-  .servicio-card {
-    padding: 20px;
-  }
-}
 .modal {
   position: fixed;
   top: 0;
@@ -368,7 +353,7 @@ function confirmarReserva() {
   font-weight: bold;
 
   &:hover {
-    background-color: darken($color-secundario, 10%);
+    background-color: $color-secundario;
   }
 }
 
@@ -382,45 +367,19 @@ function confirmarReserva() {
   font-weight: bold;
 
   &:hover {
-    background-color: darken($color-boton, 10%);
-  }
-  .servicio-card {
-  .precio-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  }
-  .btn--reservar {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  font-size: 0.8rem;
- 
-
-  &:hover {
-    background-color: darkred;
+    background-color: $color-boton;
   }
 }
 
-.btn--pequeno {
-  font-size: 0.8rem;
-  padding: 6px 10px;
-}
-
-.opcion__precio-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+@media (max-width: 768px) {
+  .servicios-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
   
-
+  .servicio-card {
+    padding: 20px;
+  }
+}
 
 @media (max-width: 480px) {
   .servicios-grid {
@@ -430,6 +389,5 @@ function confirmarReserva() {
   .selector-centro select {
     max-width: 100%;
   }
-}
 }
 </style>

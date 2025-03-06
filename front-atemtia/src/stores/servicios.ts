@@ -24,6 +24,11 @@ interface Servicio {
   opciones: OpcionServicio[];
 }
 
+interface Usuario {
+  id: number;
+  nombre: string;
+}
+
 export const useServiciosStore = defineStore('servicios', () => {
   const centros: Ref<Centro[]> = ref([]);
   const servicios: Ref<Servicio[]> = ref([]);
@@ -32,6 +37,11 @@ export const useServiciosStore = defineStore('servicios', () => {
   const cargandoCentros: Ref<boolean> = ref(true);
   const cargandoServicios: Ref<boolean> = ref(false);
   const error: Ref<string> = ref('');
+  const tutorId: Ref<string | null> = ref(localStorage.getItem('userId'));
+  const usuariosAsignados: Ref<Usuario[]> = ref([]);
+  const usuarioSeleccionado: Ref<number | null> = ref(null);
+  const servicioSeleccionado: Ref<number | null> = ref(null);
+  const opcionSeleccionada: Ref<number | null> = ref(null);
 
   async function cargarCentros() {
     cargandoCentros.value = true;
@@ -80,6 +90,90 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   }
 
+  async function cargarUsuariosAsignados() {
+    if (!tutorId.value) {
+      error.value = 'No se encontró ID del tutor';
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://localhost:7163/api/Tutor/${tutorId.value}/usuarios`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al cargar usuarios asignados: ${response.status}`);
+      }
+
+      usuariosAsignados.value = await response.json();
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios asignados';
+      console.error('Error al cargar usuarios asignados:', err);
+    }
+  }
+
+  function seleccionarUsuario(userId: number) {
+    usuarioSeleccionado.value = userId;
+  }
+
+  function seleccionarServicio(servicioId: number) {
+    servicioSeleccionado.value = servicioId;
+  }
+
+  function seleccionarOpcion(opcionId: number) {
+    opcionSeleccionada.value = opcionId;
+  }
+
+  async function realizarReserva() {
+    if (!centroSeleccionado.value || !servicioSeleccionado.value || 
+        !opcionSeleccionada.value || !usuarioSeleccionado.value || !tutorId.value) {
+      error.value = 'Por favor, complete todos los campos para realizar la reserva.';
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const reservaData = {
+        centroId: centroSeleccionado.value,
+        servicioId: servicioSeleccionado.value,
+        opcionServicioId: opcionSeleccionada.value,
+        usuarioId: usuarioSeleccionado.value,
+        tutorId: tutorId.value
+      };
+
+      const response = await fetch('https://localhost:7163/api/Reservas', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(reservaData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al realizar la reserva: ${response.status}`);
+      }
+
+      const reservaConfirmada = await response.json();
+      console.log('Reserva confirmada:', reservaConfirmada);
+      
+      // Reset selections
+      centroSeleccionado.value = null;
+      servicioSeleccionado.value = null;
+      opcionSeleccionada.value = null;
+      usuarioSeleccionado.value = null;
+
+      return reservaConfirmada;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error desconocido al realizar la reserva';
+      console.error('Error al realizar la reserva:', err);
+    }
+  }
+
   return {
     centros,
     servicios,
@@ -88,7 +182,17 @@ export const useServiciosStore = defineStore('servicios', () => {
     cargandoCentros,
     cargandoServicios,
     error,
+    tutorId,
+    usuariosAsignados,
+    usuarioSeleccionado,
+    servicioSeleccionado,
+    opcionSeleccionada,
     cargarCentros,
-    cargarServiciosPorCentro
+    cargarServiciosPorCentro,
+    cargarUsuariosAsignados,
+    seleccionarUsuario,
+    seleccionarServicio,
+    seleccionarOpcion,
+    realizarReserva
   };
 });
