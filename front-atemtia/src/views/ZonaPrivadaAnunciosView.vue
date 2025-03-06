@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAnunciosStore } from '../stores/anuncios';
+import { useAnunciosStore } from '../stores/anunciosprivate';
 import { onMounted, ref } from 'vue';
 
 const anunciosStore = useAnunciosStore();

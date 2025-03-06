@@ -1,66 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
+import { useAnunciosStore } from "../stores/anuncioshome";
 
+const store = useAnunciosStore();
 
-interface Anuncio {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  fecha_Publicacion: string; 
-  activo: boolean;
-}
-
-
-const anuncios = ref<Anuncio[]>([]);
-
-
-(window as any).anuncios = anuncios;
-
-
-const formatFecha = (fecha: string): string => {
-  if (!fecha) return "Fecha no disponible";
-  const dateObj = new Date(fecha);
-  if (isNaN(dateObj.getTime())) return "Fecha inválida";
-  return dateObj.toLocaleString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-// Obtener los anuncios desde el backend
-const fetchAnuncios = async () => {
-  try {
-    const response = await fetch("https://localhost:7163/api/Anuncio");
-    if (!response.ok) throw new Error("Error al obtener anuncios");
-
-    const data = await response.json();
-    console.log("Datos recibidos del backend:", data);
-
-    // Convertir fechas correctamente
-    anuncios.value = data.map((anuncio: any) => ({
-      ...anuncio,
-      fechaPublicacion: formatFecha(anuncio.fecha_Publicacion),
-    }));
-
-    console.log("Anuncios procesados:", anuncios.value);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
-
-
-onMounted(fetchAnuncios);
+onMounted(() => {
+  store.fetchAnuncios();
+});
 </script>
 
 <template>
   <div class="contenedor-anuncios">
-    <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
+    <router-link to="/home-app-atemtia" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
     <h1 class="titulo">Últimos Anuncios</h1>
     <div class="anuncios-grid">
-      <div v-for="anuncio in anuncios" :key="anuncio.id" class="anuncio">
+      <div v-for="anuncio in store.anuncios" :key="anuncio.id" class="anuncio">
         <h2 class="titulo-anuncio">{{ anuncio.titulo }}</h2>
         <p class="descripcion">{{ anuncio.descripcion }}</p>
         <span class="fecha">📅 {{ anuncio.fecha_Publicacion }}</span>
