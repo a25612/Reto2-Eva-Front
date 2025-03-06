@@ -66,38 +66,25 @@ function getUserRole() {
 
 // Guardia de navegación para proteger rutas privadas
 router.beforeEach((to, from, next) => {
-  // Prevenir redirección infinita si ya estamos en login
-  if (to.name === 'login' && isAuthenticated()) {
-    console.warn('Ya estás autenticado, redirigiendo al home');
-    next({ name: 'home-app-atemtia' });  // Redirige al home si ya está autenticado
-    return;
+  if (to.name === 'home' || to.name === 'error-404' || to.name === 'login') {
+    return next();
   }
 
-  // Prevenir redirección infinita si ya estamos en la página de error 404
-  if (to.name === 'error-404' && !isAuthenticated()) {
-    console.warn('No estás autenticado, redirigiendo a login');
-    next({ name: 'login' });  // Si no está autenticado, redirige a login
-    return;
+  // Si no está autenticado, enviarlo al login
+  if (!isAuthenticated()) {
+    console.warn('Usuario no autenticado, redirigiendo a login');
+    return next({ name: 'login' });
   }
 
-  if (to.name === 'home' || to.name === 'error-404') {
-    next();
-  } else if (!isAuthenticated()) {
-    console.warn('Acceso denegado: Usuario no autenticado');
-    next({ name: 'login' });
-  } else {
-    const userRole = getUserRole();
-    if (to.name === 'zona-privada') {
-      if (userRole === 'Tutor') {
-        console.warn('Acceso denegado: Los tutores no pueden acceder a la zona privada');
-        next({ name: 'error-404' });
-      } else {
-        next();
-      }
-    } else {
-      next();
-    }
+  // Verificar acceso a la zona privada
+  const userRole = getUserRole();
+  if (to.name === 'zona-privada' && userRole === 'Tutor') {
+    console.warn('Acceso denegado: Los tutores no pueden acceder a la zona privada');
+    return next({ name: 'error-404' });
   }
+
+  next(); // Si pasa todas las validaciones, continuar con la navegación
 });
+
 
 export default router;
