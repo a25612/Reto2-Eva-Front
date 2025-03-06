@@ -6,7 +6,6 @@ interface Anuncio {
   id: number;
   titulo: string;
   descripcion: string;
-  imagenUrl: string;
   fecha_Publicacion: string; 
   activo: boolean;
 }
@@ -62,7 +61,6 @@ onMounted(fetchAnuncios);
     <h1 class="titulo">Últimos Anuncios</h1>
     <div class="anuncios-grid">
       <div v-for="anuncio in anuncios" :key="anuncio.id" class="anuncio">
-        <img :src="anuncio.imagenUrl" :alt="anuncio.titulo" class="imagen" />
         <h2 class="titulo-anuncio">{{ anuncio.titulo }}</h2>
         <p class="descripcion">{{ anuncio.descripcion }}</p>
         <span class="fecha">📅 {{ anuncio.fecha_Publicacion }}</span>
@@ -86,7 +84,6 @@ onMounted(fetchAnuncios);
   margin-bottom: 20px;
 }
 
-
 .anuncios-grid {
   display: grid;
   grid-template-columns: 1fr; 
@@ -105,13 +102,6 @@ onMounted(fetchAnuncios);
   &:hover {
     transform: scale(1.05);
   }
-}
-
-.imagen {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
 }
 
 .titulo-anuncio {

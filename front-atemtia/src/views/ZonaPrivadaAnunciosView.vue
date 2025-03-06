@@ -4,12 +4,10 @@ import { onMounted } from 'vue';
 
 const anunciosStore = useAnunciosStore();
 
-// Llamar al método fetchAnuncios cuando el componente se monta
 onMounted(() => {
   anunciosStore.fetchAnuncios();
 });
 </script>
-
 
 <template>
   <div class="anuncios">
@@ -34,45 +32,40 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Formulario para crear anuncio -->
     <div v-if="anunciosStore.showFormCreate" class="anuncios__formulario">
       <h2 class="anuncios__formulario-titulo">Crear Anuncio</h2>
       <form class="anuncios__formulario-contenido" @submit.prevent="anunciosStore.addAnuncio">
         <div class="anuncios__formulario-grupo">
           <label class="anuncios__formulario-label" for="titulo">Título:</label>
-          <input v-model="anunciosStore.newAnuncio.title" class="anuncios__formulario-input" type="text" id="titulo" placeholder="Título del anuncio" required />
+          <input v-model="anunciosStore.newAnuncio.titulo" class="anuncios__formulario-input" type="text" id="titulo" placeholder="Título del anuncio" required />
         </div>
         <div class="anuncios__formulario-grupo">
           <label class="anuncios__formulario-label" for="descripcion">Descripción:</label>
-          <input v-model="anunciosStore.newAnuncio.description" class="anuncios__formulario-input" type="text" id="descripcion" placeholder="Descripción del anuncio" required />
+          <input v-model="anunciosStore.newAnuncio.descripcion" class="anuncios__formulario-input" type="text" id="descripcion" placeholder="Descripción del anuncio" required />
         </div>
-       
         <div class="anuncios__formulario-grupo">
           <button class="anuncios__formulario-boton" type="submit">Crear Anuncio</button>
         </div>
       </form>
     </div>
 
-    <!-- Formulario para actualizar anuncio -->
     <div v-if="anunciosStore.showFormUpdate && anunciosStore.updatedAnuncio.id" class="anuncios__formulario">
       <h2 class="anuncios__formulario-titulo">Actualizar Anuncio</h2>
       <form class="anuncios__formulario-contenido" @submit.prevent="anunciosStore.updateAnuncio">
         <div class="anuncios__formulario-grupo">
           <label class="anuncios__formulario-label" for="titulo-update">Título:</label>
-          <input v-model="anunciosStore.updatedAnuncio.title" class="anuncios__formulario-input" type="text" id="titulo-update" placeholder="Título del anuncio" required />
+          <input v-model="anunciosStore.updatedAnuncio.titulo" class="anuncios__formulario-input" type="text" id="titulo-update" placeholder="Título del anuncio" required />
         </div>
         <div class="anuncios__formulario-grupo">
           <label class="anuncios__formulario-label" for="descripcion-update">Descripción:</label>
-          <input v-model="anunciosStore.updatedAnuncio.description" class="anuncios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del anuncio" required />
+          <input v-model="anunciosStore.updatedAnuncio.descripcion" class="anuncios__formulario-input" type="text" id="descripcion-update" placeholder="Descripción del anuncio" required />
         </div>
-        
         <div class="anuncios__formulario-grupo">
           <button class="anuncios__formulario-boton" type="submit">Actualizar Anuncio</button>
         </div>
       </form>
     </div>
 
-    <!-- Formulario para eliminar anuncio -->
     <div v-if="anunciosStore.showFormDelete" class="anuncios__formulario">
       <h2 class="anuncios__formulario-titulo">Eliminar Anuncio</h2>
       <div class="anuncios__formulario-grupo">
@@ -82,7 +75,7 @@ onMounted(() => {
       <div v-if="anunciosStore.filteredAnuncios.length > 0" class="anuncios__anuncios-encontrados">
         <ul>
           <li v-for="anuncio in anunciosStore.filteredAnuncios" :key="anuncio.id">
-            <div>{{ anuncio.title }} - {{ anuncio.description }}</div>
+            <div>{{ anuncio.titulo }} - {{ anuncio.descripcion }}</div>
             <button class="anuncios__eliminar-boton" @click="anunciosStore.openModalDelete(anuncio.id)">
               Eliminar
             </button>
@@ -94,7 +87,6 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar anuncio -->
     <div v-if="anunciosStore.showModalDelete" class="anuncios__modal">
       <div class="anuncios__modal-contenido">
         <p>¿Estás seguro de que deseas eliminar este anuncio?</p>
@@ -106,7 +98,6 @@ onMounted(() => {
     </div>
   </div>
 </template>
-  
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -309,22 +300,21 @@ onMounted(() => {
     background-color: darkgray;
   }
 }
+
 .volver-atras {
-     margin-right:310px;
-     background-color:$color-boton;
-     color:$color-fondo;
-     border:none;
-     border-radius:50%;
-     width:45px;
-     height:45px;
-     font-size:20px;
-     cursor:pointer;
-
-     display:flex; 
-     align-items:center; 
-     justify-content:center; 
-     text-decoration:none; 
-     box-shadow:0 4px 8px rgba(0,0,0,.2);
-   }
-
+  margin-right: 310px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+}
 </style>

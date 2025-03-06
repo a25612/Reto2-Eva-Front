@@ -1,17 +1,14 @@
-// src/stores/anuncios.ts
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-// Definimos un tipo para los anuncios
 interface Anuncio {
   id: number;
-  title: string;
-  description: string;
-  publicationDate: string;
+  titulo: string;
+  descripcion: string;
 }
 
 export const useAnunciosStore = defineStore('anuncios', () => {
-  const anuncios = ref<Anuncio[]>([]); // Estado de los anuncios
+  const anuncios = ref<Anuncio[]>([]);
   const error = ref<string>('');
   const showFormCreate = ref(false);
   const showFormUpdate = ref(false);
@@ -19,23 +16,20 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   const showModalDelete = ref(false);
   const anuncioSearch = ref('');
   const anuncioToDelete = ref<number | null>(null);
-const newAnuncio = ref<Anuncio>({
-    id: 0, 
-    title: '',
-    description: '',
-    publicationDate: new Date().toISOString()
-});
+  const newAnuncio = ref<Omit<Anuncio, 'id'>>({
+    titulo: '',
+    descripcion: ''
+  });
+  
   const updatedAnuncio = ref<Anuncio>({
     id: 0,
-    title: '',
-    description: '',
-    publicationDate: ''
+    titulo: '',
+    descripcion: ''
   });
 
-  // Función para obtener los anuncios desde el backend
   const fetchAnuncios = async () => {
     try {
-      const response = await fetch('https://localhost:7163/api/Anuncios');
+      const response = await fetch('https://localhost:7163/api/Anuncio');
       if (!response.ok) {
         throw new Error('Error al obtener los anuncios');
       }
@@ -45,30 +39,29 @@ const newAnuncio = ref<Anuncio>({
     }
   };
 
-  // Función para crear un nuevo anuncio
   const addAnuncio = async () => {
     try {
-      const response = await fetch('https://localhost:7163/api/Anuncios', {
+      const response = await fetch('https://localhost:7163/api/Anuncio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAnuncio.value)
       });
-
+  
       if (!response.ok) {
-        console.log(newAnuncio.value);
+        throw new Error('Error al crear el anuncio');
       }
-
-      await fetchAnuncios(); // Refrescar la lista de anuncios
-      showFormCreate.value = false; // Cerrar el formulario
+  
+      await fetchAnuncios();
+      showFormCreate.value = false;
+      newAnuncio.value = { titulo: '', descripcion: '' };
     } catch (err: any) {
       error.value = err.message || 'Error al crear el anuncio';
     }
   };
 
-  // Función para actualizar un anuncio
   const updateAnuncio = async () => {
     try {
-      const response = await fetch(`https://localhost:7163/api/Anuncios/${updatedAnuncio.value.id}`, {
+      const response = await fetch(`https://localhost:7163/api/Anuncio/${updatedAnuncio.value.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedAnuncio.value)
@@ -78,19 +71,18 @@ const newAnuncio = ref<Anuncio>({
         throw new Error('Error al actualizar el anuncio');
       }
 
-      await fetchAnuncios(); // Refrescar la lista de anuncios
-      showFormUpdate.value = false; // Cerrar el formulario
+      await fetchAnuncios();
+      showFormUpdate.value = false;
     } catch (err: any) {
       error.value = err.message || 'Error al actualizar el anuncio';
     }
   };
 
-  // Función para eliminar un anuncio
   const deleteAnuncio = async () => {
     try {
       if (anuncioToDelete.value === null) return;
 
-      const response = await fetch(`https://localhost:7163/api/Anuncios/${anuncioToDelete.value}`, {
+      const response = await fetch(`https://localhost:7163/api/Anuncio/${anuncioToDelete.value}`, {
         method: 'DELETE'
       });
 
@@ -98,26 +90,24 @@ const newAnuncio = ref<Anuncio>({
         throw new Error('Error al eliminar el anuncio');
       }
 
-      await fetchAnuncios(); // Refrescar la lista de anuncios
-      showModalDelete.value = false; // Cerrar el modal de confirmación
-      showFormDelete.value = false; // Cerrar el formulario
+      await fetchAnuncios();
+      showModalDelete.value = false;
+      showFormDelete.value = false;
     } catch (err: any) {
       error.value = err.message || 'Error al eliminar el anuncio';
     }
   };
 
-  // Filtrar los anuncios por título o descripción
   const filteredAnuncios = computed(() => {
     if (anuncioSearch.value === '') {
       return anuncios.value;
     }
     return anuncios.value.filter(anuncio => 
-      anuncio.title.toLowerCase().includes(anuncioSearch.value.toLowerCase()) || 
-      anuncio.description.toLowerCase().includes(anuncioSearch.value.toLowerCase())
+      anuncio.titulo.toLowerCase().includes(anuncioSearch.value.toLowerCase()) || 
+      anuncio.descripcion.toLowerCase().includes(anuncioSearch.value.toLowerCase())
     );
   });
 
-  // Toggle para mostrar los formularios
   const toggleFormCreate = () => {
     showFormCreate.value = !showFormCreate.value;
     if (showFormCreate.value) {
@@ -142,19 +132,16 @@ const newAnuncio = ref<Anuncio>({
     }
   };
 
-  // Abrir modal para eliminar un anuncio
   const openModalDelete = (anuncioId: number) => {
     anuncioToDelete.value = anuncioId;
     showModalDelete.value = true;
   };
 
-  // Confirmar la eliminación
   const confirmDelete = () => {
     deleteAnuncio();
     anuncioToDelete.value = null;
   };
 
-  // Cancelar la eliminación
   const cancelDelete = () => {
     showModalDelete.value = false;
     anuncioToDelete.value = null;
