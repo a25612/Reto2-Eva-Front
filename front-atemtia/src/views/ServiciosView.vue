@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useServicios } from '../ts/servicios';
+import { useServiciosStore } from '../stores/servicios';
+import { storeToRefs } from 'pinia';
 
+const serviciosStore = useServiciosStore();
 const {
   centros,
   servicios,
@@ -9,19 +11,17 @@ const {
   nombreCentroSeleccionado,
   cargandoCentros,
   cargandoServicios,
-  error,
-  cargarCentros,
-  cargarServiciosPorCentro
-} = useServicios();
+  error
+} = storeToRefs(serviciosStore);
 
 onMounted(() => {
-  cargarCentros();
+  serviciosStore.cargarCentros();
 });
 
 function handleCentroChange(event: Event) {
   const select = event.target as HTMLSelectElement;
   if (select && select.value) {
-    cargarServiciosPorCentro(Number(select.value));
+    serviciosStore.cargarServiciosPorCentro(Number(select.value));
   }
 }
 
@@ -49,6 +49,7 @@ function confirmarReserva() {
   cerrarConfirmacion();
 }
 </script>
+
 
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
