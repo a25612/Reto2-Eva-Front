@@ -8,64 +8,53 @@ export const useSesionStore = defineStore('sesiones', () => {
     opcionServicioId: number | null;
     usuarioId: number | null;
     tutorId: number | null;
+    fechaHora: string | null; // Fecha y hora seleccionadas
   }>({
     centroId: null,
     servicioId: null,
     opcionServicioId: null,
     usuarioId: null,
-    tutorId: null
+    tutorId: null,
+    fechaHora: null,
   });
 
-  const error = ref('');
+  const error = ref<string>('');
 
-  function iniciarSesion(centroId: number, servicioId: number, opcionServicioId: number, usuarioId: number, tutorId: number) {
-    sesionEnProceso.value = { centroId, servicioId, opcionServicioId, usuarioId, tutorId };
+  function seleccionarFechaHora(fechaHora: string) {
+    sesionEnProceso.value.fechaHora = fechaHora;
   }
 
   async function confirmarSesion() {
-    if (!sesionEnProceso.value.centroId || !sesionEnProceso.value.servicioId || 
-        !sesionEnProceso.value.opcionServicioId || !sesionEnProceso.value.usuarioId || 
-        !sesionEnProceso.value.tutorId) {
-      error.value = 'Faltan datos para la sesión';
-      return;
+    if (!sesionEnProceso.value.fechaHora) {
+      throw new Error('Faltan datos para confirmar la sesión.');
     }
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://localhost:7163/api/Sesiones', {
+      const response = await fetch('https://localhost:7163/api/Sesiones/Reservar', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sesionEnProceso.value)
+        body: JSON.stringify(sesionEnProceso.value),
       });
 
-      if (!response.ok) throw new Error('Error al confirmar la sesión');
+      if (!response.ok) throw new Error('Error al confirmar la sesión.');
 
-      const sesionConfirmada = await response.json();
-      console.log('Sesión confirmada:', sesionConfirmada);
-      
-      // Reset sesión en proceso
-      sesionEnProceso.value = {
-        centroId: null,
-        servicioId: null,
-        opcionServicioId: null,
-        usuarioId: null,
-        tutorId: null
-      };
-
-      return sesionConfirmada;
+      const data = await response.json();
+      console.log('Sesión confirmada:', data);
+      return data;
     } catch (err) {
-      console.error('Error al confirmar la sesión:', err);
-      error.value = 'Error al confirmar la sesión';
+      console.error(err);
+      throw err;
     }
   }
 
   return {
     sesionEnProceso,
     error,
-    iniciarSesion,
-    confirmarSesion
+    seleccionarFechaHora,
+    confirmarSesion,
   };
 });
