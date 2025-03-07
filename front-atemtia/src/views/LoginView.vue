@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { useLogin } from '../ts/login';
+import { useAuthStore } from '../stores/login.ts';
+import { ref } from 'vue';
 
-const { username, password, error, login } = useLogin();
+const authStore = useAuthStore();
+const username = ref('');
+const password = ref(''); 
+
+const login = async () => {
+  await authStore.login(username.value, password.value);
+};
 </script>
+
 
 <template>
   <div class="login-container">
@@ -20,7 +28,7 @@ const { username, password, error, login } = useLogin();
       </div>
       <button type="submit" class="btn-submit">INICIAR SESIÓN →</button>
     </form>
-    <p v-if="error" class="error-message">{{ error }}</p>
+    <p v-if="authStore.error" class="error-message">{{ authStore.error }}</p>
   </div>
 </template>
 
