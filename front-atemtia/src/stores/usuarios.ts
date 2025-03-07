@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 interface Usuario {
@@ -9,27 +9,26 @@ interface Usuario {
   codigoFacturacion: string;
 }
 
+const API_URL = 'https://localhost:7163/api/Usuarios';
+
 export const useUsuariosStore = defineStore('usuarios', () => {
   const usuarios: Ref<Usuario[]> = ref([]);
   const cargandoUsuarios: Ref<boolean> = ref(false);
   const error: Ref<string> = ref('');
-  const usuariosFiltrados: Ref<Usuario[]> = ref([]);  // Aquí agregamos un array para los usuarios filtrados
+  const terminoBusqueda: Ref<string> = ref('');
+  const usuarioParaActualizar: Ref<Usuario | null> = ref(null);
 
   async function cargarUsuarios() {
     cargandoUsuarios.value = true;
     error.value = '';
 
     try {
-      const response = await fetch('https://localhost:7163/api/Usuarios');
-      if (!response.ok) {
-        throw new Error(`Error al cargar los usuarios: ${response.status}`);
-      }
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error(`Error al cargar los usuarios: ${response.status}`);
 
       usuarios.value = await response.json();
-      usuariosFiltrados.value = usuarios.value;  // Inicializamos los usuarios filtrados con todos los usuarios
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios';
-      console.error('Error al cargar usuarios:', err);
+      handleError(err, 'Error al cargar usuarios');
     } finally {
       cargandoUsuarios.value = false;
     }
@@ -37,89 +36,85 @@ export const useUsuariosStore = defineStore('usuarios', () => {
 
   async function addUsuario(usuario: Usuario) {
     try {
-      const response = await fetch('https://localhost:7163/api/Usuarios', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(usuario),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error al agregar el usuario: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Error al agregar el usuario: ${response.status}`);
 
       const nuevoUsuario = await response.json();
       usuarios.value.push(nuevoUsuario);
-      usuariosFiltrados.value.push(nuevoUsuario); // Agregamos el nuevo usuario a los filtrados también
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al agregar el usuario';
-      console.error('Error al agregar usuario:', err);
+      handleError(err, 'Error al agregar el usuario');
     }
   }
 
   async function updateUsuario(usuario: Usuario) {
     try {
-      const response = await fetch(`https://localhost:7163/api/Usuarios/${usuario.id}`, {
+      const response = await fetch(`${API_URL}/${usuario.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(usuario),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error al actualizar el usuario: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Error al actualizar el usuario: ${response.status}`);
 
       const usuarioActualizado = await response.json();
-      const index = usuarios.value.findIndex(u => u.id === usuario.id);
-      if (index !== -1) {
-        usuarios.value[index] = usuarioActualizado;
-        usuariosFiltrados.value[index] = usuarioActualizado; // Actualizamos los usuarios filtrados también
-      }
+      usuarios.value = usuarios.value.map(u => (u.id === usuario.id ? usuarioActualizado : u));
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al actualizar el usuario';
-      console.error('Error al actualizar usuario:', err);
+      handleError(err, 'Error al actualizar el usuario');
     }
   }
 
   async function deleteUsuario(usuarioId: number) {
     try {
-      const response = await fetch(`https://localhost:7163/api/Usuarios/${usuarioId}`, {
+      const response = await fetch(`${API_URL}/${usuarioId}`, { 
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (!response.ok) {
-        throw new Error(`Error al eliminar el usuario: ${response.status}`);
+        const errorMessage = await response.text(); // Obtiene el mensaje de error de la API
+        throw new Error(`Error al eliminar el usuario: ${response.status} - ${errorMessage}`);
       }
 
       usuarios.value = usuarios.value.filter(u => u.id !== usuarioId);
-      usuariosFiltrados.value = usuariosFiltrados.value.filter(u => u.id !== usuarioId); // Eliminamos de los filtrados también
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al eliminar el usuario';
-      console.error('Error al eliminar usuario:', err);
+      handleError(err, 'Error al eliminar el usuario');
     }
   }
 
-  // Función para filtrar usuarios por el término de búsqueda
-  function filterUsuariosByTerm(term: string) {
-    if (!term) {
-      usuariosFiltrados.value = usuarios.value;  // Si no hay término de búsqueda, mostramos todos
-    } else {
-      usuariosFiltrados.value = usuarios.value.filter(usuario =>
-        usuario.nombre.toLowerCase().includes(term.toLowerCase()) ||
-        usuario.dni.includes(term) ||
-        usuario.codigoFacturacion.includes(term)
-      );
-    }
+  function selectUsuarioToUpdate(usuario: Usuario) {
+    usuarioParaActualizar.value = usuario;
   }
+
+  function handleError(err: unknown, message: string) {
+    error.value = err instanceof Error ? err.message : message;
+    console.error(message, err);
+  }
+
+  const usuariosFiltrados = computed(() => {
+    if (!terminoBusqueda.value) return usuarios.value;
+    return usuarios.value.filter(usuario =>
+      usuario.nombre.toLowerCase().includes(terminoBusqueda.value.toLowerCase()) ||
+      usuario.dni.includes(terminoBusqueda.value) ||
+      usuario.codigoFacturacion.includes(terminoBusqueda.value)
+    );
+  });
 
   return {
     usuarios,
-    usuariosFiltrados,  // Exponemos los usuarios filtrados
+    usuariosFiltrados,
     cargandoUsuarios,
     error,
+    terminoBusqueda,
+    usuarioParaActualizar,
     cargarUsuarios,
     addUsuario,
     updateUsuario,
     deleteUsuario,
-    filterUsuariosByTerm,  // Exponemos la función de filtrado
+    selectUsuarioToUpdate,
   };
 });

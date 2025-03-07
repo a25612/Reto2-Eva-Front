@@ -1,4 +1,32 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useUsuariosStore } from '@/stores/usuarios';
 
+const usuariosStore = useUsuariosStore();
+const searchTerm = ref('');
+
+// Cargar usuarios al montar el componente
+onMounted(() => {
+  usuariosStore.cargarUsuarios();
+});
+
+// Función para manejar la búsqueda
+const handleSearch = () => {
+  usuariosStore.terminoBusqueda = searchTerm.value; // Actualiza el término de búsqueda directamente en el store
+};
+
+// Función para eliminar un usuario
+const eliminarUsuario = (id: number) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+    usuariosStore.deleteUsuario(id);
+  }
+};
+
+// Función para actualizar un usuario
+const editarUsuario = (usuario: any) => {
+  usuariosStore.selectUsuarioToUpdate(usuario); // Se actualiza el usuario desde el store
+};
+</script>
 
 <template>
   <div class="usuarios">
@@ -9,6 +37,12 @@
 
     <div class="usuarios__separador-abajo">
       <span class="usuarios__bar-separador"></span>
+    </div>
+
+    <div class="usuarios__botones">
+      <button class="usuarios__boton" @click="usuariosStore.toggleFormCreate">
+        Añadir Usuario
+      </button>
     </div>
 
     <!-- Barra de búsqueda -->
@@ -35,27 +69,22 @@
           <p class="usuarios__item-dni">DNI: {{ usuario.dni }}</p>
           <p class="usuarios__item-codigo">Código de Facturación: {{ usuario.codigoFacturacion }}</p>
         </div>
+        <div class="usuarios__item-acciones">
+          <button class="usuarios__item-boton usuarios__item-boton--editar" @click="editarUsuario(usuario)">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+          <button class="usuarios__item-boton usuarios__item-boton--eliminar" @click="eliminarUsuario(usuario.id)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>
+
     <div v-else class="usuarios__no-resultados">
       <p>No se encontraron usuarios</p>
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import { useUsuariosStore } from '@/stores/usuarios'; // Asegúrate de que la ruta sea correcta
-
-const usuariosStore = useUsuariosStore();
-const searchTerm = ref('');
-
-// Función para manejar la búsqueda
-const handleSearch = () => {
-  usuariosStore.filterUsuariosByTerm(searchTerm.value);
-};
-</script>
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -88,7 +117,6 @@ const handleSearch = () => {
     }
   }
 
-  // Estilos para la barra de búsqueda
   &__buscador {
     margin: 15px 0;
 
@@ -121,7 +149,24 @@ const handleSearch = () => {
     }
   }
 
-  // Estilos para la lista de usuarios
+  &__boton {
+    display: inline-block;
+    text-align: center;
+    background-color: $color-boton;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($color-boton, 10%);
+    }
+  }
+
   &__lista {
     margin: 15px 0;
     display: flex;
@@ -150,123 +195,7 @@ const handleSearch = () => {
       color: $color-titulos;
     }
 
-    &-dni,
-    &-codigo {
-      font-size: 14px;
-      margin: 0;
-      color: #666;
-    }
-  }
-
-  &__no-resultados {
-    margin: 15px 0;
-    font-style: italic;
-    color: #666;
-  }
-}
-</style>
-
-
-
-
-
-
-
-
-<style lang="scss">
-@import '../assets/styles/variables.scss';
-
-.usuarios {
-  font-family: $fuente-principal;
-  background-color: $color-fondo;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  margin: 20px auto;
-  text-align: center;
-
-  &__titulo {
-    font-size: 24px;
-    font-weight: bold;
-    color: $color-titulos;
-  }
-
-  &__separador-abajo {
-    margin: 10px auto;
-
-    & .usuarios__bar-separador {
-      display: block;
-      width: 160px;
-      height: 2px;
-      background-color: $color-principal;
-      margin: auto;
-    }
-  }
-
-  // Estilos para la barra de búsqueda
-  &__buscador {
-    margin: 15px 0;
-
-    &-contenedor {
-      display: flex;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    &-input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-    }
-
-    &-boton {
-      width: 40px;
-      background-color: $color-principal;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-
-      &:hover {
-        background-color: darken($color-principal, 10%);
-      }
-    }
-  }
-
-  // Estilos para la lista de usuarios
-  &__lista {
-    margin: 15px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  &__item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: white;
-    padding: 12px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: left;
-
-    &-contenido {
-      flex: 1;
-    }
-
-    &-titulo {
-      font-size: 16px;
-      font-weight: bold;
-      margin: 0 0 5px 0;
-      color: $color-titulos;
-    }
-
-    &-email {
+    &-dni, &-codigo {
       font-size: 14px;
       margin: 0;
       color: #666;
@@ -274,34 +203,34 @@ const handleSearch = () => {
 
     &-acciones {
       display: flex;
-      gap: 8px;
-    }
+      gap: 10px;
 
-    &-boton {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      transition: background-color 0.3s ease;
+      &-boton {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: background-color 0.3s ease;
 
-      &--editar {
-        background-color: $color-principal;
+        &--editar {
+          background-color: #4CAF50;
 
-        &:hover {
-          background-color: darken($color-principal, 10%);
+          &:hover {
+            background-color: darkgreen;
+          }
         }
-      }
 
-      &--eliminar {
-        background-color: red;
+        &--eliminar {
+          background-color: red;
 
-        &:hover {
-          background-color: darkred;
+          &:hover {
+            background-color: darkred;
+          }
         }
       }
     }
@@ -311,59 +240,6 @@ const handleSearch = () => {
     margin: 15px 0;
     font-style: italic;
     color: #666;
-  }
-
-  &__modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &-contenido {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-
-      p {
-        margin-bottom: 20px;
-      }
-
-      .usuarios__modal-botones {
-        display: flex;
-        justify-content: space-between;
-
-        .usuarios__btn-confirmar,
-        .usuarios__btn-cancelar {
-          background-color: $color-principal;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-
-          &:hover {
-            background-color: darken($color-principal, 10%);
-          }
-        }
-
-        .usuarios__btn-cancelar {
-          background-color: #ccc;
-
-          &:hover {
-            background-color: #999;
-          }
-        }
-      }
-    }
   }
 }
 </style>
