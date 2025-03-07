@@ -10,6 +10,7 @@ const router = useRouter();
 const serviciosStore = useServiciosStore();
 const sesionStore = useSesionStore();
 
+// Referencias de datos del store de servicios
 const {
   centros,
   servicios,
@@ -20,10 +21,24 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
+// Referencias del store de sesiones
+const { fechaHoraSeleccionada } = storeToRefs(sesionStore);
+const { confirmarSesion, seleccionarFechaHora } = sesionStore;
+
+// Variables locales
+const servicioSeleccionado = ref<string | null>(null);
+const servicioSeleccionadoId = ref<number | null>(null);
+const mostrarCalendario = ref<boolean>(false);
+const reservaConfirmada = ref<boolean>(false);
+const fechaReserva = ref<string | null>(null);
+const horaReserva = ref<string | null>(null);
+
+// Cargar los centros al montar el componente
 onMounted(() => {
   serviciosStore.cargarCentros();
 });
 
+// Manejar el cambio de centro en el desplegable
 function handleCentroChange(event: Event) {
   const select = event.target as HTMLSelectElement;
   if (select && select.value) {
@@ -31,6 +46,7 @@ function handleCentroChange(event: Event) {
   }
 }
 
+// Formatear precio y duración para mostrar en la interfaz
 function formatPrecio(precio: number): string {
   return precio.toFixed(2) + ' €';
 }
@@ -39,55 +55,55 @@ function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
 }
 
-const servicioSeleccionado = ref<string | null>(null);
-const mostrarCalendario = ref<boolean>(false);
-const reservaConfirmada = ref<boolean>(false);
-const fechaReserva = ref<string | null>(null);
-const horaReserva = ref<string | null>(null);
-
-function mostrarConfirmacion(servicio: string) {
+// Mostrar confirmación para reservar un servicio
+function mostrarConfirmacion(servicio: string, servicioId: number) {
   servicioSeleccionado.value = servicio;
+  servicioSeleccionadoId.value = servicioId;
 }
 
+// Cerrar la confirmación del modal
 function cerrarConfirmacion() {
   servicioSeleccionado.value = null;
 }
 
+// Abrir el calendario para seleccionar fecha y hora
 function abrirCalendario() {
-  mostrarCalendario.value = true;
-}
-
-function cerrarCalendario() {
-  mostrarCalendario.value = false;
-}
-
-function confirmarFechaHora({ fecha, hora }: { fecha: string; hora: string }) {
-  try {
-    fechaReserva.value = fecha;
-    horaReserva.value = hora;
-
-    // Seleccionar la fecha y hora en el store
-    sesionStore.seleccionarFechaHora(`${fecha}T${hora}`);
-
-    // Confirmar la sesión llamando al backend
-    sesionStore.confirmarSesion()
-      .then(() => {
-        reservaConfirmada.value = true;
-        mostrarCalendario.value = false;
-      })
-      .catch((err) => {
-        error.value = err.message || 'Error al confirmar la reserva';
-      });
-  } catch (err) {
-    console.error('Error en confirmarFechaHora:', err);
-    error.value = 'Ocurrió un error al procesar la reserva.';
+  if (servicioSeleccionadoId.value) {
+    serviciosStore.seleccionarServicio(servicioSeleccionadoId.value);
+    mostrarCalendario.value = true;
+  } else {
+    console.error('No se ha seleccionado un servicio.');
   }
+}
+
+function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
+  const fechaHoraISO = `${fechaHora.fecha}T${fechaHora.hora}:00.000Z`;
+
+  seleccionarFechaHora(fechaHoraISO);
+
+  confirmarSesion()
+    .then(() => {
+      reservaConfirmada.value = true;
+      fechaReserva.value = fechaHora.fecha;
+      horaReserva.value = fechaHora.hora;
+      mostrarCalendario.value = false;
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+}
+
+function handleCancelarFechaHora() {
+  console.log('Cancelar Fecha Hora - mostrarCalendario antes:', mostrarCalendario.value);
+  mostrarCalendario.value = false; 
+  console.log('Cancelar Fecha Hora - mostrarCalendario después:', mostrarCalendario.value);
 }
 
 function irHome() {
   router.push('/home-app-atemtia');
 }
 </script>
+
 
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
@@ -137,7 +153,7 @@ function irHome() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre)">
+              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id)">
                 RESERVAR
               </button>
             </div>
@@ -158,10 +174,15 @@ function irHome() {
     </div>
   </div>
 
-  <!-- Modal del calendario -->
-  <div v-if="mostrarCalendario && !reservaConfirmada" class="modal" @click.self="cerrarCalendario">
-    <CalendarioReservas @confirmarFechaHora="confirmarFechaHora" />
-</div>
+  <!-- Modal del Calendario -->
+  <div v-if="mostrarCalendario" class="modal">
+    <div class="modal-content">
+      <CalendarioReservas
+        @confirmarFechaHora="handleFechaHoraSeleccionada"
+        @cancelarFechaHora="handleCancelarFechaHora"
+      />
+    </div>
+  </div>
 
   <!-- Modal de reserva confirmada -->
   <div v-if="reservaConfirmada" class="modal" @click.self="">
@@ -177,7 +198,6 @@ function irHome() {
     </div>
   </div>
 </template>
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';

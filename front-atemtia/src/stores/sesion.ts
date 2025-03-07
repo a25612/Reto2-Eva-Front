@@ -1,60 +1,99 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useServiciosStore } from './servicios';
 
-export const useSesionStore = defineStore('sesiones', () => {
-  const sesionEnProceso = ref<{
-    centroId: number | null;
-    servicioId: number | null;
-    opcionServicioId: number | null;
-    usuarioId: number | null;
-    tutorId: number | null;
-    fechaHora: string | null; // Fecha y hora seleccionadas
-  }>({
-    centroId: null,
-    servicioId: null,
-    opcionServicioId: null,
-    usuarioId: null,
-    tutorId: null,
-    fechaHora: null,
-  });
+interface ReservaData {
+  fechaHora: string | null;
+  idCentro: number | null;
+  idServicio: number | null;
+  idOpcionServicio: number | null;
+  idUsuario: number | null;
+  idTutor: string | undefined;
+}
 
-  const error = ref<string>('');
+export const useSesionStore = defineStore('sesion', () => {
+  const fechaHoraSeleccionada = ref<string | null>(null);
+  const error = ref<string | null>(null);
+
+  // Utiliza refs para los IDs que necesitas
+  const idCentro = ref<number | null>(null);
+  const idServicio = ref<number | null>(null);
+  const idOpcionServicio = ref<number | null>(null);
+  const idUsuario = ref<number | null>(null);
+  const idTutor = ref<string | undefined>(
+    localStorage.getItem('userId') === null ? undefined : localStorage.getItem('userId')!
+  );
 
   function seleccionarFechaHora(fechaHora: string) {
-    sesionEnProceso.value.fechaHora = fechaHora;
+    fechaHoraSeleccionada.value = fechaHora;
   }
 
   async function confirmarSesion() {
-    if (!sesionEnProceso.value.fechaHora) {
-      throw new Error('Faltan datos para confirmar la sesión.');
+    error.value = null;
+
+    // Recoge los datos de los stores necesarios
+    const serviciosStore = useServiciosStore();
+    idCentro.value = serviciosStore.centroSeleccionado;
+    idServicio.value = serviciosStore.servicioSeleccionado;
+    idOpcionServicio.value = serviciosStore.opcionSeleccionada;
+    idUsuario.value = serviciosStore.usuarioSeleccionado;
+
+    if (
+      !fechaHoraSeleccionada.value ||
+      !idCentro.value ||
+      !idServicio.value ||
+      !idOpcionServicio.value ||
+      !idUsuario.value ||
+      !idTutor.value
+    ) {
+      error.value = 'Faltan datos para realizar la reserva.';
+      return Promise.reject(new Error(error.value));
     }
+
+    const reservaData: ReservaData = {
+      fechaHora: fechaHoraSeleccionada.value,
+      idCentro: idCentro.value,
+      idServicio: idServicio.value,
+      idOpcionServicio: idOpcionServicio.value,
+      idUsuario: idUsuario.value,
+      idTutor: idTutor.value, 
+    };
+
+    // Imprime el objeto JSON para depuración
+    console.log('Objeto reservaData antes de enviar a la API:', JSON.stringify(reservaData, null, 2));
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://localhost:7163/api/Sesiones/Reservar', {
+      const response = await fetch('https://localhost:7163/api/Sesion', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sesionEnProceso.value),
+        body: JSON.stringify(reservaData),
       });
 
-      if (!response.ok) throw new Error('Error al confirmar la sesión.');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al confirmar la sesión: ${response.status} - ${errorText}`);
+      }
 
-      const data = await response.json();
-      console.log('Sesión confirmada:', data);
-      return data;
-    } catch (err) {
-      console.error(err);
-      throw err;
+      return await response.json();
+    } catch (err: any) {
+      error.value = err.message || 'Error desconocido al confirmar la sesión.';
+      console.error('Error al confirmar la sesión:', err);
     }
   }
 
   return {
-    sesionEnProceso,
+    fechaHoraSeleccionada,
     error,
     seleccionarFechaHora,
     confirmarSesion,
+    idCentro,
+    idServicio,
+    idOpcionServicio,
+    idUsuario,
+    idTutor,
   };
 });
