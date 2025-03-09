@@ -1,24 +1,39 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useMiCuenta } from '../ts/micuenta';
-import { onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const router = useRouter();
 const { 
   tutor, 
   usuarios, 
+  empleados, // Agregamos empleados
   cargandoTutor, 
   cargandoUsuarios, 
+  cargandoEmpleados, // Agregamos cargandoEmpleados
   error, 
   cargarTodosDatos, 
+  cargarEmpleados, // Agregamos cargarEmpleados
   cerrarSesion: cerrarSesionComposable, 
   usuarioSeleccionadoId, 
   seleccionarUsuario, 
   cargarUltimoUsuarioSeleccionado 
 } = useMiCuenta();
 
+// Declarar la variable `rol` como reactiva y obtener el valor de localStorage
+const rol = ref(localStorage.getItem('rol') || '');
+
+// Watch para reaccionar cuando el rol cambie
+watch(rol, async (newRol) => {
+  if (newRol === 'empleado') {
+    // Si el rol cambia a "empleado", cargamos los empleados
+    await cargarEmpleados();
+  }
+});
+
+// Cargar todos los datos al montar el componente
 onMounted(async () => {
-  await cargarTodosDatos();
+  await cargarTodosDatos(); // Cargar todos los datos
 
   // Cargar el último usuario seleccionado desde localStorage
   cargarUltimoUsuarioSeleccionado();
@@ -32,6 +47,11 @@ onMounted(async () => {
       // Si hay más de un usuario, seleccionar el primero por defecto
       seleccionarUsuario(usuarios.value[0].id);
     }
+  }
+
+  // Si el rol es "empleado", cargamos también los empleados si no se han cargado
+  if (rol.value === 'empleado' && empleados.value.length === 0) {
+    await cargarEmpleados();
   }
 });
 
@@ -49,10 +69,11 @@ const cerrarSesion = () => {
     
     <p v-if="error" class="error">{{ error }}</p>
     
-    <div v-if="cargandoTutor || cargandoUsuarios" class="loading">
+    <div v-if="cargandoTutor || cargandoUsuarios || cargandoEmpleados" class="loading">
       Cargando...
     </div>
     
+    <!-- Información del tutor -->
     <div v-else-if="tutor" class="mi-cuentainfo">
       <p class="mi-cuentadato"><strong>Nombre:</strong> {{ tutor.nombre }}</p>
       <p class="mi-cuentadato"><strong>Email:</strong> {{ tutor.email }}</p>
@@ -78,9 +99,23 @@ const cerrarSesion = () => {
 
     <p v-else class="mi-cuentadato-usuario">No hay usuarios asignados.</p>
 
+    <!-- Si el rol es "empleado", mostrar su nombre y DNI -->
+    <div v-if="rol === 'empleado'">
+      <h2 class="mi-cuentaempleados">Mi Información de Empleado</h2>
+      <div v-if="empleados.length > 0">
+        <p><strong>Nombre:</strong> {{ empleados[0].nombre }}</p>
+        <p><strong>DNI:</strong> {{ empleados[0].dni }}</p>
+      </div>
+      <p v-else class="mi-cuentadato-empleado">No hay empleados asignados.</p>
+    </div>
+
     <button class="mi-cuentaboton" @click="cerrarSesion">Cerrar Sesión</button>
   </div>
 </template>
+
+
+
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
