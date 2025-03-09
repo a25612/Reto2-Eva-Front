@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useUsuariosStore } from '@/stores/usuarios';
+import { ref, computed, onMounted } from "vue";
+import { useUsuariosStore } from "../stores/usuarios";
 
 const usuariosStore = useUsuariosStore();
-const searchTerm = ref('');
+const searchTerm = ref("");
 
 // Cargar usuarios al montar el componente
 onMounted(() => {
   usuariosStore.cargarUsuarios();
 });
 
-// Función para manejar la búsqueda
+// Filtrar usuarios en tiempo real
 const handleSearch = () => {
-  usuariosStore.terminoBusqueda = searchTerm.value; // Actualiza el término de búsqueda directamente en el store
+  usuariosStore.filtrarUsuarios(searchTerm.value);
 };
 
-// Función para eliminar un usuario
-const eliminarUsuario = (id: number) => {
-  if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-    usuariosStore.deleteUsuario(id);
-  }
-};
-
-// Función para actualizar un usuario
+// Función para abrir el formulario de edición
 const editarUsuario = (usuario: any) => {
-  usuariosStore.selectUsuarioToUpdate(usuario); // Se actualiza el usuario desde el store
+  usuariosStore.abrirFormularioEdicion(usuario);
+};
+
+// Función para eliminar usuario
+const eliminarUsuario = (id: number) => {
+  if (confirm("¿Seguro que deseas eliminar este usuario?")) {
+    usuariosStore.eliminarUsuario(id);
+  }
 };
 </script>
 
@@ -61,13 +61,13 @@ const editarUsuario = (usuario: any) => {
       </div>
     </div>
 
-    <!-- Lista de usuarios filtrados -->
+    <!-- Lista de usuarios -->
     <div v-if="usuariosStore.usuariosFiltrados.length > 0" class="usuarios__lista">
       <div v-for="usuario in usuariosStore.usuariosFiltrados" :key="usuario.dni" class="usuarios__item">
         <div class="usuarios__item-contenido">
           <h3 class="usuarios__item-nombre">{{ usuario.nombre }}</h3>
           <p class="usuarios__item-dni">DNI: {{ usuario.dni }}</p>
-          <p class="usuarios__item-codigo">Código de Facturación: {{ usuario.codigoFacturacion }}</p>
+          <p class="usuarios__item-codigo">Código Facturación: {{ usuario.codigoFacturacion }}</p>
         </div>
         <div class="usuarios__item-acciones">
           <button class="usuarios__item-boton usuarios__item-boton--editar" @click="editarUsuario(usuario)">
@@ -83,8 +83,12 @@ const editarUsuario = (usuario: any) => {
     <div v-else class="usuarios__no-resultados">
       <p>No se encontraron usuarios</p>
     </div>
+
+    <!-- Formulario de creación/edición -->
+    <FormUsuario v-if="usuariosStore.mostrarFormulario" />
   </div>
 </template>
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
