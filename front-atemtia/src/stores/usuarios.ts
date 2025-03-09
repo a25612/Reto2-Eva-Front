@@ -1,125 +1,120 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import type { Ref } from 'vue';
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
-interface Usuario {
-  id: number;
-  nombre: string;
-  dni: string;
-  codigoFacturacion: string;
-}
+export const useUsuariosStore = defineStore("usuariosStore", () => {
+  const usuarios = ref<any[]>([]);
+  const usuariosFiltrados = ref<any[]>([]);
+  const mostrarFormularioCrear = ref(false); // Estado para mostrar el formulario de creación
+  const mostrarFormularioEditar = ref(false); // Estado para mostrar el formulario de edición
+  const usuarioActual = ref<any | null>(null);
 
-export const useUsuariosStore = defineStore('usuarios', () => {
-  const usuarios: Ref<Usuario[]> = ref([]);
-  const cargandoUsuarios: Ref<boolean> = ref(false);
-  const error: Ref<string> = ref('');
-  const usuariosFiltrados: Ref<Usuario[]> = ref([]);  // Aquí agregamos un array para los usuarios filtrados
-
-  async function cargarUsuarios() {
-    cargandoUsuarios.value = true;
-    error.value = '';
-
+  // Cargar usuarios desde la API
+  const cargarUsuarios = async () => {
     try {
-      const response = await fetch('https://localhost:7163/api/Usuarios');
-      if (!response.ok) {
-        throw new Error(`Error al cargar los usuarios: ${response.status}`);
+      const response = await fetch("https://localhost:7163/api/Usuarios");
+      if (!response.ok) throw new Error("Error al obtener usuarios");
+
+      const data = await response.json();
+      usuarios.value = data;
+      usuariosFiltrados.value = data;
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+    }
+  };
+
+  // Filtrar los usuarios por nombre
+  const filtrarUsuarios = (termino: string) => {
+    usuariosFiltrados.value = usuarios.value.filter((usuario) =>
+      usuario.nombre.toLowerCase().includes(termino.toLowerCase())
+    );
+  };
+
+  // Mostrar el formulario de creación
+  const toggleFormCreate = () => {
+    usuarioActual.value = { id: null, nombre: "", dni: "", codigoFacturacion: "" }; // Inicializar como un nuevo usuario
+    mostrarFormularioCrear.value = true;
+    mostrarFormularioEditar.value = false; // Asegurarse de que el formulario de edición no se muestre
+  };
+
+  // Abrir formulario de edición
+  const abrirFormularioEdicion = (usuario: any) => {
+    usuarioActual.value = { ...usuario };
+    mostrarFormularioCrear.value = false; // Ocultar formulario de creación
+    mostrarFormularioEditar.value = true; // Mostrar formulario de edición
+  };
+
+  // Guardar cambios (crear o actualizar usuario)
+  const guardarUsuario = async (usuario: any) => {
+    try {
+      let response;
+      if (usuario.id) {
+        // Actualizar usuario existente
+        response = await fetch(`https://localhost:7163/api/Usuarios/${usuario.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(usuario),
+        });
+      } else {
+        // Crear un nuevo usuario
+        response = await fetch("https://localhost:7163/api/Usuarios", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(usuario),
+        });
       }
 
-      usuarios.value = await response.json();
-      usuariosFiltrados.value = usuarios.value;  // Inicializamos los usuarios filtrados con todos los usuarios
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios';
-      console.error('Error al cargar usuarios:', err);
-    } finally {
-      cargandoUsuarios.value = false;
-    }
-  }
+      if (!response.ok) throw new Error(usuario.id ? "Error al actualizar usuario" : "Error al crear usuario");
 
-  async function addUsuario(usuario: Usuario) {
+      if (usuario.id) {
+        // Si es una actualización, actualizar el usuario en la lista
+        usuarios.value = usuarios.value.map((u) => (u.id === usuario.id ? usuario : u));
+      } else {
+        // Si es una creación, añadir el nuevo usuario a la lista
+        const newUser = await response.json();
+        usuarios.value.push(newUser);
+      }
+
+      filtrarUsuarios(""); // Refiltrar la lista de usuarios
+      mostrarFormularioCrear.value = false;
+      mostrarFormularioEditar.value = false;
+      usuarioActual.value = null;
+    } catch (error) {
+      console.error("Error al guardar usuario:", error);
+    }
+  };
+
+  // Eliminar un usuario
+  const eliminarUsuario = async (id: number) => {
     try {
-      const response = await fetch('https://localhost:7163/api/Usuarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuario),
+      const response = await fetch(`https://localhost:7163/api/Usuarios/${id}`, {
+        method: "DELETE",
       });
 
-      if (!response.ok) {
-        throw new Error(`Error al agregar el usuario: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Error en la eliminación");
 
-      const nuevoUsuario = await response.json();
-      usuarios.value.push(nuevoUsuario);
-      usuariosFiltrados.value.push(nuevoUsuario); // Agregamos el nuevo usuario a los filtrados también
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al agregar el usuario';
-      console.error('Error al agregar usuario:', err);
+      // Eliminar el usuario de la lista
+      usuarios.value = usuarios.value.filter((user) => user.id !== id);
+      filtrarUsuarios(""); // Refiltrar la lista de usuarios
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
     }
-  }
-
-  async function updateUsuario(usuario: Usuario) {
-    try {
-      const response = await fetch(`https://localhost:7163/api/Usuarios/${usuario.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuario),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error al actualizar el usuario: ${response.status}`);
-      }
-
-      const usuarioActualizado = await response.json();
-      const index = usuarios.value.findIndex(u => u.id === usuario.id);
-      if (index !== -1) {
-        usuarios.value[index] = usuarioActualizado;
-        usuariosFiltrados.value[index] = usuarioActualizado; // Actualizamos los usuarios filtrados también
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al actualizar el usuario';
-      console.error('Error al actualizar usuario:', err);
-    }
-  }
-
-  async function deleteUsuario(usuarioId: number) {
-    try {
-      const response = await fetch(`https://localhost:7163/api/Usuarios/${usuarioId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error al eliminar el usuario: ${response.status}`);
-      }
-
-      usuarios.value = usuarios.value.filter(u => u.id !== usuarioId);
-      usuariosFiltrados.value = usuariosFiltrados.value.filter(u => u.id !== usuarioId); // Eliminamos de los filtrados también
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al eliminar el usuario';
-      console.error('Error al eliminar usuario:', err);
-    }
-  }
-
-  // Función para filtrar usuarios por el término de búsqueda
-  function filterUsuariosByTerm(term: string) {
-    if (!term) {
-      usuariosFiltrados.value = usuarios.value;  // Si no hay término de búsqueda, mostramos todos
-    } else {
-      usuariosFiltrados.value = usuarios.value.filter(usuario =>
-        usuario.nombre.toLowerCase().includes(term.toLowerCase()) ||
-        usuario.dni.includes(term) ||
-        usuario.codigoFacturacion.includes(term)
-      );
-    }
-  }
+  };
 
   return {
     usuarios,
-    usuariosFiltrados,  // Exponemos los usuarios filtrados
-    cargandoUsuarios,
-    error,
+    usuariosFiltrados,
     cargarUsuarios,
-    addUsuario,
-    updateUsuario,
-    deleteUsuario,
-    filterUsuariosByTerm,  // Exponemos la función de filtrado
+    filtrarUsuarios,
+    toggleFormCreate,
+    abrirFormularioEdicion,
+    eliminarUsuario,
+    guardarUsuario,
+    mostrarFormularioCrear,
+    mostrarFormularioEditar,
+    usuarioActual,
   };
 });
