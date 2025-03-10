@@ -16,7 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await fetch('https://localhost:7163/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
@@ -26,14 +26,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       const data = await response.json();
       token.value = data.token;
-      rol.value = data.rol;
+      rol.value = data.rol; // Asegúrate de que este valor sea "tutor" o "empleado"
       userId.value = data.iduser;
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
       localStorage.setItem('userId', data.iduser);
 
-      router.push(data.rol === '' ? '/' : '/home-app-atemtia');
+      router.push('/home-app-atemtia');
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
     }

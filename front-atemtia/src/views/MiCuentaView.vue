@@ -2,61 +2,45 @@
 import { useRouter } from 'vue-router';
 import { useMiCuenta } from '../ts/micuenta';
 import { onMounted, ref, watch } from 'vue';
+import { useAuthStore } from '../stores/login'; 
 
 const router = useRouter();
+const authStore = useAuthStore(); 
 const { 
   tutor, 
   usuarios, 
-  empleados, // Agregamos empleados
+  empleados, 
   cargandoTutor, 
   cargandoUsuarios, 
-  cargandoEmpleados, // Agregamos cargandoEmpleados
+  cargandoEmpleados, 
   error, 
-  cargarTodosDatos, 
-  cargarEmpleados, // Agregamos cargarEmpleados
-  cerrarSesion: cerrarSesionComposable, 
-  usuarioSeleccionadoId, 
-  seleccionarUsuario, 
-  cargarUltimoUsuarioSeleccionado 
+  cargarTodosDatos,
 } = useMiCuenta();
 
-// Declarar la variable `rol` como reactiva y obtener el valor de localStorage
-const rol = ref(localStorage.getItem('rol') || '');
+const usuarioSeleccionado = ref<string | null>(null); 
 
-// Watch para reaccionar cuando el rol cambie
-watch(rol, async (newRol) => {
-  if (newRol === 'empleado') {
-    // Si el rol cambia a "empleado", cargamos los empleados
-    await cargarEmpleados();
+onMounted(async () => {
+  console.log('Rol desde authStore:', authStore.rol);
+  console.log('Rol desde localStorage:', localStorage.getItem('rol'));
+  console.log('User ID desde authStore:', authStore.userId);
+
+  await cargarTodosDatos();
+
+  // Seleccionar automáticamente el primer usuario si hay al menos uno
+  if (usuarios.value.length > 0) {
+    usuarioSeleccionado.value = usuarios.value[0].id;
   }
 });
 
-// Cargar todos los datos al montar el componente
-onMounted(async () => {
-  await cargarTodosDatos(); // Cargar todos los datos
-
-  // Cargar el último usuario seleccionado desde localStorage
-  cargarUltimoUsuarioSeleccionado();
-
-  // Si no hay un usuario seleccionado en localStorage
-  if (!usuarioSeleccionadoId.value) {
-    if (usuarios.value.length === 1) {
-      // Si solo hay un usuario, seleccionarlo automáticamente
-      seleccionarUsuario(usuarios.value[0].id);
-    } else if (usuarios.value.length > 1) {
-      // Si hay más de un usuario, seleccionar el primero por defecto
-      seleccionarUsuario(usuarios.value[0].id);
-    }
-  }
-
-  // Si el rol es "empleado", cargamos también los empleados si no se han cargado
-  if (rol.value === 'empleado' && empleados.value.length === 0) {
-    await cargarEmpleados();
+// Si la lista de usuarios cambia, asegurarse de que hay uno seleccionado
+watch(usuarios, (newUsuarios) => {
+  if (newUsuarios.length > 0 && !usuarioSeleccionado.value) {
+    usuarioSeleccionado.value = newUsuarios[0].id;
   }
 });
 
 const cerrarSesion = () => {
-  cerrarSesionComposable();
+  authStore.logout();
   router.push('/login');
 };
 </script>
@@ -65,7 +49,7 @@ const cerrarSesion = () => {
   <div class="mi-cuenta">
     <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
     
-    <h2 class="mi-cuentatitulo">Mi Cuenta</h2>
+    <h2 class="mi-cuenta__titulo">Mi Cuenta</h2>
     
     <p v-if="error" class="error">{{ error }}</p>
     
@@ -74,48 +58,50 @@ const cerrarSesion = () => {
     </div>
     
     <!-- Información del tutor -->
-    <div v-else-if="tutor" class="mi-cuentainfo">
-      <p class="mi-cuentadato"><strong>Nombre:</strong> {{ tutor.nombre }}</p>
-      <p class="mi-cuentadato"><strong>Email:</strong> {{ tutor.email }}</p>
-      <p class="mi-cuentadato"><strong>Rol:</strong> {{ tutor.rol }}</p>
+    <div v-if="authStore.rol === 'Tutor' && tutor" class="mi-cuenta__info">
+      <p class="mi-cuenta__dato"><strong>Nombre:</strong> {{ tutor?.nombre }}</p>
+      <p class="mi-cuenta__dato"><strong>Email:</strong> {{ tutor?.email }}</p>
+      <p class="mi-cuenta__dato"><strong>Rol:</strong> {{ tutor?.rol }}</p>
     </div>
     
-    <h2 class="mi-cuentausuarios">Mis Usuarios</h2>
+    <!-- Sección para mostrar los usuarios del tutor -->
+    <div v-if="authStore.rol === 'Tutor'">
+      <h2 class="mi-cuenta__usuarios">Mis Usuarios</h2>
 
-    <!-- Mostrar directamente si solo hay un usuario -->
-    <div v-if="usuarios.length === 1" class="mi-cuenta-info-usuarios">
-      <p><strong>Usuario Seleccionado:</strong> {{ usuarios[0].nombre }}</p>
-    </div>
-
-    <!-- Mostrar desplegable si hay más de un usuario -->
-    <div v-else-if="usuarios.length > 1" class="mi-cuenta-info-usuarios">
-      <label for="seleccionar-usuario"><strong>Seleccionar Usuario:</strong></label>
-      <select id="seleccionar-usuario" v-model="usuarioSeleccionadoId" @change="seleccionarUsuario(($event.target as HTMLSelectElement).value)" class="custom-select">
-        <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
-          {{ usuario.nombre }}
-        </option>
-      </select>
-    </div>
-
-    <p v-else class="mi-cuentadato-usuario">No hay usuarios asignados.</p>
-
-    <!-- Si el rol es "empleado", mostrar su nombre y DNI -->
-    <div v-if="rol === 'empleado'">
-      <h2 class="mi-cuentaempleados">Mi Información de Empleado</h2>
-      <div v-if="empleados.length > 0">
-        <p><strong>Nombre:</strong> {{ empleados[0].nombre }}</p>
-        <p><strong>DNI:</strong> {{ empleados[0].dni }}</p>
+      <!-- Mostrar directamente si solo hay un usuario -->
+      <div v-if="usuarios.length === 1" class="mi-cuenta__info">
+        <p><strong>Usuario Seleccionado:</strong> {{ usuarios[0].nombre }}</p>
       </div>
-      <p v-else class="mi-cuentadato-empleado">No hay empleados asignados.</p>
+
+      <!-- Selección de usuario si hay más de uno -->
+      <div v-else-if="usuarios.length > 1" class="mi-cuenta__info">
+        <label for="usuarioSelect"><strong>Selecciona un usuario:</strong></label>
+        <select id="usuarioSelect" class="custom-select" v-model="usuarioSeleccionado">
+          <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
+            {{ usuario.nombre }}
+          </option>
+        </select>
+      </div>
+      
+      <p v-else>No hay usuarios asignados.</p>
     </div>
 
-    <button class="mi-cuentaboton" @click="cerrarSesion">Cerrar Sesión</button>
+    <!-- Información del empleado -->
+    <div v-if="authStore.rol === 'Empleado' && empleados.length > 0" class="mi-cuenta__info">
+      <p><strong>Nombre:</strong> {{ empleados[0]?.nombre }}</p>
+      <p><strong>DNI:</strong> {{ empleados[0]?.dni }}</p>
+      <p><strong>Rol:</strong> Empleado</p>
+    </div>
+
+    <!-- Mensaje por defecto si no hay información -->
+    <p v-else-if="!cargandoTutor && !cargandoUsuarios && !cargandoEmpleados && !tutor && empleados.length === 0 && usuarios.length === 0">
+      No hay información disponible.
+    </p>
+
+
+    <button class="mi-cuenta__boton" @click="cerrarSesion">Cerrar Sesión</button>
   </div>
 </template>
-
-
-
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -131,13 +117,13 @@ const cerrarSesion = () => {
   margin: auto;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-  &titulo {
+  &__titulo {
     font-size: 22px;
     margin-bottom: 15px;
     color: #333;
   }
 
-  &info {
+  &__info {
     width: 100%;
     background: $color-fondo;
     padding: 15px;
@@ -146,66 +132,54 @@ const cerrarSesion = () => {
     text-align: left;
   }
 
-  &usuarios {
-    margin-top: 20px;
+  &__usuarios {
+    font-size: 20px;
+    margin-top: 15px;
+    color: #333;
   }
 
-  &-info-usuarios {
+  .custom-select {
     width: 100%;
-    background: $color-fondo;
-    padding: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: $color-fondo;
+    font-size: 16px;
+    cursor: pointer;
+
+    &:focus {
+      border-color: $color-principal;
+      outline: none;
+    }
+
+    option {
+      padding: 10px;
+    }
+  }
+
+  &__dato {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 8px;
+  }
+
+  &__boton {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    color: $color-fondo;
+    background: #d9534f;
+    border: none;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: left;
+    cursor: pointer;
+    margin-top: 15px;
 
-    label {
-      margin-bottom: 10px;
-      display: block; 
+    &:hover {
+      background: #c9302c;  
     }
-  
-    .custom-select {
-      width: calc(100% - 20px);
-      padding:10px; 
-      border-radius:5px; 
-      border:1px solid #ccc; 
-      background-color: $color-fondo;
-      font-size:16px; 
-      cursor:pointer; 
-      
-      &:focus {
-        border-color: $color-principal; 
-        outline:none;
-      }
-      
-      option {
-        padding:10px;
-      }
-    }
-   }
+  }
 
-   &dato {
-     font-size:16px;
-     color:#555;
-     margin-bottom:8px;
-   }
-
-   &boton {
-     width:100%;
-     padding:12px;
-     font-size:16px;
-     color:$color-fondo;
-     background:#d9534f;
-     border:none;
-     border-radius:8px;
-     cursor:pointer;
-     margin-top:15px;
-
-     &:hover {
-       background:#c9302c;  
-     }
-   }
-
-   .volver-atras {
+  .volver-atras {
      margin-right:310px;
      background-color:$color-boton;
      color:$color-fondo;
@@ -215,7 +189,6 @@ const cerrarSesion = () => {
      height:45px;
      font-size:20px;
      cursor:pointer;
-
      display:flex; 
      align-items:center; 
      justify-content:center; 
@@ -224,10 +197,9 @@ const cerrarSesion = () => {
    }
 }
 
-@media (min-width:768px) { 
-   .mi-cuenta{
-     
-       max-width:500px; 
+@media (min-width: 768px) { 
+   .mi-cuenta {
+       max-width: 500px; 
    }
 }
 </style>
