@@ -104,7 +104,6 @@ function irHome() {
 }
 </script>
 
-
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="servicios-container">

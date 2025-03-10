@@ -15,14 +15,14 @@ export const useSesionStore = defineStore('sesion', () => {
   const fechaHoraSeleccionada = ref<string | null>(null);
   const error = ref<string | null>(null);
 
-  // Utiliza refs para los IDs que necesitas
-  const idCentro = ref<number | null>(null);
-  const idServicio = ref<number | null>(null);
-  const idOpcionServicio = ref<number | null>(null);
+  // Recupera el usuario desde localStorage si existe
   const idUsuario = ref<number | null>(null);
-  const idTutor = ref<string | undefined>(
-    localStorage.getItem('userId') === null ? undefined : localStorage.getItem('userId')!
-  );
+  const idTutor = ref<string | undefined>(localStorage.getItem('userId') || undefined);
+
+  // Si hay un usuario seleccionado, lo recuperamos
+  idUsuario.value = localStorage.getItem('ultimoUsuarioSeleccionado') 
+    ? Number(localStorage.getItem('ultimoUsuarioSeleccionado')) 
+    : null;
 
   function seleccionarFechaHora(fechaHora: string) {
     fechaHoraSeleccionada.value = fechaHora;
@@ -33,16 +33,34 @@ export const useSesionStore = defineStore('sesion', () => {
 
     // Recoge los datos de los stores necesarios
     const serviciosStore = useServiciosStore();
-    idCentro.value = serviciosStore.centroSeleccionado;
-    idServicio.value = serviciosStore.servicioSeleccionado;
-    idOpcionServicio.value = serviciosStore.opcionSeleccionada;
-    idUsuario.value = serviciosStore.usuarioSeleccionado;
+    const idCentro = serviciosStore.centroSeleccionado;
+    const idServicio = serviciosStore.servicioSeleccionado;
+    const idOpcionServicio = serviciosStore.opcionSeleccionada;
 
+    // Log para ver qué datos tenemos
+    console.log('Datos antes de la validación:');
+    console.log('Fecha Hora Seleccionada:', fechaHoraSeleccionada.value);
+    console.log('Centro:', idCentro);
+    console.log('Servicio:', idServicio);
+    console.log('Opción de Servicio:', idOpcionServicio);
+    console.log('Usuario:', idUsuario.value);
+    console.log('Tutor:', idTutor.value);
+
+    const reservaData: ReservaData = {
+      fechaHora: fechaHoraSeleccionada.value,
+      idCentro: idCentro,
+      idServicio: idServicio,
+      idOpcionServicio: idOpcionServicio,
+      idUsuario: idUsuario.value,
+      idTutor: idTutor.value,
+    };
+
+    // Validación de los datos
     if (
       !fechaHoraSeleccionada.value ||
-      !idCentro.value ||
-      !idServicio.value ||
-      !idOpcionServicio.value ||
+      !idCentro ||
+      !idServicio ||
+      !idOpcionServicio ||
       !idUsuario.value ||
       !idTutor.value
     ) {
@@ -50,16 +68,7 @@ export const useSesionStore = defineStore('sesion', () => {
       return Promise.reject(new Error(error.value));
     }
 
-    const reservaData: ReservaData = {
-      fechaHora: fechaHoraSeleccionada.value,
-      idCentro: idCentro.value,
-      idServicio: idServicio.value,
-      idOpcionServicio: idOpcionServicio.value,
-      idUsuario: idUsuario.value,
-      idTutor: idTutor.value, 
-    };
-
-    // Imprime el objeto JSON para depuración
+    // Imprime el objeto reservaData antes de enviar a la API
     console.log('Objeto reservaData antes de enviar a la API:', JSON.stringify(reservaData, null, 2));
 
     try {
@@ -90,9 +99,6 @@ export const useSesionStore = defineStore('sesion', () => {
     error,
     seleccionarFechaHora,
     confirmarSesion,
-    idCentro,
-    idServicio,
-    idOpcionServicio,
     idUsuario,
     idTutor,
   };

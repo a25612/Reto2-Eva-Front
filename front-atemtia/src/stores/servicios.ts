@@ -128,52 +128,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     opcionSeleccionada.value = opcionId;
   }
 
-  async function realizarReserva() {
-    if (!centroSeleccionado.value || !servicioSeleccionado.value || 
-        !opcionSeleccionada.value || !usuarioSeleccionado.value || !tutorId.value) {
-      error.value = 'Por favor, complete todos los campos para realizar la reserva.';
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const reservaData = {
-        centroId: centroSeleccionado.value,
-        servicioId: servicioSeleccionado.value,
-        opcionServicioId: opcionSeleccionada.value,
-        usuarioId: usuarioSeleccionado.value,
-        tutorId: tutorId.value
-      };
-
-      const response = await fetch('https://localhost:7163/api/Reservas', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reservaData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error al realizar la reserva: ${response.status}`);
-      }
-
-      const reservaConfirmada = await response.json();
-      console.log('Reserva confirmada:', reservaConfirmada);
-      
-      // Reset selections
-      centroSeleccionado.value = null;
-      servicioSeleccionado.value = null;
-      opcionSeleccionada.value = null;
-      usuarioSeleccionado.value = null;
-
-      return reservaConfirmada;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error desconocido al realizar la reserva';
-      console.error('Error al realizar la reserva:', err);
-    }
-  }
-
   return {
     centros,
     servicios,
@@ -192,7 +146,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     cargarUsuariosAsignados,
     seleccionarUsuario,
     seleccionarServicio,
-    seleccionarOpcion,
-    realizarReserva
+    seleccionarOpcion
   };
 });
