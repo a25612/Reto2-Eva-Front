@@ -4,72 +4,70 @@ import { useServiciosStore } from './servicios';
 
 interface ReservaData {
   fechaHora: string | null;
-  idCentro: number | null;
-  idServicio: number | null;
-  idOpcionServicio: number | null;
-  idUsuario: number | null;
-  idTutor: string | undefined;
+  idCentro: number;
+  idServicio: number;
+  idOpcionServicio: number;
+  idUsuario: number;
+  idTutor: string;
 }
 
 export const useSesionStore = defineStore('sesion', () => {
   const fechaHoraSeleccionada = ref<string | null>(null);
   const error = ref<string | null>(null);
 
-  // Recupera el usuario desde localStorage si existe
-  const idUsuario = ref<number | null>(null);
-  const idTutor = ref<string | undefined>(localStorage.getItem('userId') || undefined);
+  // Recupera el usuario y tutor desde localStorage
+  const idUsuario = ref<number | null>(localStorage.getItem('ultimoUsuarioSeleccionado')
+    ? Number(localStorage.getItem('ultimoUsuarioSeleccionado'))
+    : null);
+  
+  const idTutor = ref<string>(localStorage.getItem('userId') ?? '');
 
-  // Si hay un usuario seleccionado, lo recuperamos
-  idUsuario.value = localStorage.getItem('ultimoUsuarioSeleccionado') 
-    ? Number(localStorage.getItem('ultimoUsuarioSeleccionado')) 
-    : null;
+  // Añadimos la propiedad idOpcionServicio
+  const idOpcionServicio = ref<number | null>(null);
 
+  // Función para actualizar la fecha y hora seleccionada
   function seleccionarFechaHora(fechaHora: string) {
     fechaHoraSeleccionada.value = fechaHora;
   }
 
+  // Función para confirmar la sesión
   async function confirmarSesion() {
     error.value = null;
 
-    // Recoge los datos de los stores necesarios
+    // Obtiene los datos del store de servicios
     const serviciosStore = useServiciosStore();
-    const idCentro = serviciosStore.centroSeleccionado;
-    const idServicio = serviciosStore.servicioSeleccionado;
-    const idOpcionServicio = serviciosStore.opcionSeleccionada;
+    const idCentro = serviciosStore.centroSeleccionado ?? 0;
+    const idServicio = serviciosStore.servicioSeleccionado ?? 0;
+    const idOpcion = idOpcionServicio.value ?? 0;  // Usamos idOpcionServicio
+    const usuarioId = idUsuario.value ?? 0;
+    const tutorId = idTutor.value.trim() || '';
 
-    // Log para ver qué datos tenemos
-    console.log('Datos antes de la validación:');
-    console.log('Fecha Hora Seleccionada:', fechaHoraSeleccionada.value);
-    console.log('Centro:', idCentro);
-    console.log('Servicio:', idServicio);
-    console.log('Opción de Servicio:', idOpcionServicio);
-    console.log('Usuario:', idUsuario.value);
-    console.log('Tutor:', idTutor.value);
+    // Log para depuración
+    console.log('Datos antes de la validación:', {
+      fechaHoraSeleccionada: fechaHoraSeleccionada.value,
+      idCentro,
+      idServicio,
+      idOpcion, // Usamos idOpcion en lugar de idOpcionServicio
+      usuarioId,
+      tutorId,
+    });
 
-    const reservaData: ReservaData = {
-      fechaHora: fechaHoraSeleccionada.value,
-      idCentro: idCentro,
-      idServicio: idServicio,
-      idOpcionServicio: idOpcionServicio,
-      idUsuario: idUsuario.value,
-      idTutor: idTutor.value,
-    };
-
-    // Validación de los datos
-    if (
-      !fechaHoraSeleccionada.value ||
-      !idCentro ||
-      !idServicio ||
-      !idOpcionServicio ||
-      !idUsuario.value ||
-      !idTutor.value
-    ) {
+    // Validación de datos requeridos
+    if (!fechaHoraSeleccionada.value || !idCentro || !idServicio || !idOpcion || !usuarioId || !tutorId) {
       error.value = 'Faltan datos para realizar la reserva.';
       return Promise.reject(new Error(error.value));
     }
 
-    // Imprime el objeto reservaData antes de enviar a la API
-    console.log('Objeto reservaData antes de enviar a la API:', JSON.stringify(reservaData, null, 2));
+    const reservaData: ReservaData = {
+      fechaHora: fechaHoraSeleccionada.value,
+      idCentro,
+      idServicio,
+      idOpcionServicio: idOpcion,  // Asegúrate de pasar el idOpcion correctamente
+      idUsuario: usuarioId,
+      idTutor: tutorId,
+    };
+
+    console.log('Objeto reservaData antes de enviar:', JSON.stringify(reservaData, null, 2));
 
     try {
       const token = localStorage.getItem('token');
@@ -101,5 +99,6 @@ export const useSesionStore = defineStore('sesion', () => {
     confirmarSesion,
     idUsuario,
     idTutor,
+    idOpcionServicio, // Asegúrate de exportarlo
   };
 });

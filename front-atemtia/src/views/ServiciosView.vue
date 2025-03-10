@@ -10,7 +10,6 @@ const router = useRouter();
 const serviciosStore = useServiciosStore();
 const sesionStore = useSesionStore();
 
-// Referencias de datos del store de servicios
 const {
   centros,
   servicios,
@@ -21,11 +20,9 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
-// Referencias del store de sesiones
-const { fechaHoraSeleccionada } = storeToRefs(sesionStore);
+const { fechaHoraSeleccionada, idOpcionServicio } = storeToRefs(sesionStore);
 const { confirmarSesion, seleccionarFechaHora } = sesionStore;
 
-// Variables locales
 const servicioSeleccionado = ref<string | null>(null);
 const servicioSeleccionadoId = ref<number | null>(null);
 const mostrarCalendario = ref<boolean>(false);
@@ -33,12 +30,10 @@ const reservaConfirmada = ref<boolean>(false);
 const fechaReserva = ref<string | null>(null);
 const horaReserva = ref<string | null>(null);
 
-// Cargar los centros al montar el componente
 onMounted(() => {
   serviciosStore.cargarCentros();
 });
 
-// Manejar el cambio de centro en el desplegable
 function handleCentroChange(event: Event) {
   const select = event.target as HTMLSelectElement;
   if (select && select.value) {
@@ -46,7 +41,6 @@ function handleCentroChange(event: Event) {
   }
 }
 
-// Formatear precio y duración para mostrar en la interfaz
 function formatPrecio(precio: number): string {
   return precio.toFixed(2) + ' €';
 }
@@ -55,24 +49,22 @@ function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
 }
 
-// Mostrar confirmación para reservar un servicio
-function mostrarConfirmacion(servicio: string, servicioId: number) {
+function mostrarConfirmacion(servicio: string, servicioId: number, opcionId: number) {
   servicioSeleccionado.value = servicio;
   servicioSeleccionadoId.value = servicioId;
+  idOpcionServicio.value = opcionId; // Ahora se asigna correctamente
 }
 
-// Cerrar la confirmación del modal
 function cerrarConfirmacion() {
   servicioSeleccionado.value = null;
 }
 
-// Abrir el calendario para seleccionar fecha y hora
 function abrirCalendario() {
-  if (servicioSeleccionadoId.value) {
+  if (servicioSeleccionadoId.value && idOpcionServicio.value !== null) {
     serviciosStore.seleccionarServicio(servicioSeleccionadoId.value);
     mostrarCalendario.value = true;
   } else {
-    console.error('No se ha seleccionado un servicio.');
+    alert('Por favor, selecciona una opción de servicio antes de proceder.');
   }
 }
 
@@ -94,9 +86,7 @@ function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string })
 }
 
 function handleCancelarFechaHora() {
-  console.log('Cancelar Fecha Hora - mostrarCalendario antes:', mostrarCalendario.value);
-  mostrarCalendario.value = false; 
-  console.log('Cancelar Fecha Hora - mostrarCalendario después:', mostrarCalendario.value);
+  mostrarCalendario.value = false;
 }
 
 function irHome() {
@@ -152,7 +142,7 @@ function irHome() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id)">
+              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
                 RESERVAR
               </button>
             </div>
@@ -162,7 +152,6 @@ function irHome() {
     </div>
   </div>
 
-  <!-- Modal de confirmación -->
   <div v-if="servicioSeleccionado && !mostrarCalendario && !reservaConfirmada" class="modal" @click.self="cerrarConfirmacion">
     <div class="modal-content">
       <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
@@ -173,7 +162,6 @@ function irHome() {
     </div>
   </div>
 
-  <!-- Modal del Calendario -->
   <div v-if="mostrarCalendario" class="modal">
     <div class="modal-content">
       <CalendarioReservas
@@ -183,20 +171,20 @@ function irHome() {
     </div>
   </div>
 
-  <!-- Modal de reserva confirmada -->
-  <div v-if="reservaConfirmada" class="modal" @click.self="">
+  <div v-if="reservaConfirmada" class="modal">
     <div class="modal-content">
       <h2>Reserva Confirmada</h2>
       <p>Tu reserva ha sido confirmada para:</p>
       <ul>
         <li><strong>Día:</strong> {{ fechaReserva }}</li>
         <li><strong>Hora:</strong> {{ horaReserva }}</li>
-        <!-- Aquí puedes añadir más detalles, como el empleado asignado -->
       </ul>
       <button @click="irHome">Aceptar</button>
     </div>
   </div>
 </template>
+
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
