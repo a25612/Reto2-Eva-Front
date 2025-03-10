@@ -1,19 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const mostrarConfirmacion = ref(false);
-
-const eliminarElemento = () => {
-  // Aquí iría la lógica para eliminar el elemento
-  console.log('Elemento eliminado');
-  mostrarConfirmacion.value = false; // Cerrar el modal después de la acción
-};
-
-const cancelarEliminacion = () => {
-  mostrarConfirmacion.value = false; // Solo cierra el modal sin eliminar
-};
-</script>
-
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras">
     <i class="fa-solid fa-arrow-left"></i>
