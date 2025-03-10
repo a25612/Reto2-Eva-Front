@@ -9,6 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref('');
   const router = useRouter();
 
+  const usuarioSeleccionadoId = ref(localStorage.getItem('ultimoUsuarioSeleccionado') || '');
+
   async function login(username: string, password: string) {
     error.value = '';
 
@@ -43,6 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = '';
     rol.value = '';
     userId.value = '';
+    usuarioSeleccionadoId.value = '';
 
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
@@ -51,5 +54,5 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/login');
   }
 
-  return { token, rol, userId, error, login, logout };
+  return { token, rol, userId, usuarioSeleccionadoId, error, login, logout };
 });

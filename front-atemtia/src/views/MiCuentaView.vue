@@ -2,22 +2,24 @@
 import { useRouter } from 'vue-router';
 import { useMiCuenta } from '../ts/micuenta';
 import { onMounted, ref, watch } from 'vue';
-import { useAuthStore } from '../stores/login'; 
+import { useAuthStore } from '../stores/login';
 
 const router = useRouter();
-const authStore = useAuthStore(); 
-const { 
-  tutor, 
-  usuarios, 
-  empleados, 
-  cargandoTutor, 
-  cargandoUsuarios, 
-  cargandoEmpleados, 
-  error, 
+const authStore = useAuthStore();
+const {
+  tutor,
+  usuarios,
+  empleados,
+  cargandoTutor,
+  cargandoUsuarios,
+  cargandoEmpleados,
+  error,
   cargarTodosDatos,
+  usuarioSeleccionadoId,
+  seleccionarUsuario // Importa la función seleccionarUsuario
 } = useMiCuenta();
 
-const usuarioSeleccionado = ref<string | null>(null); 
+const usuarioSeleccionado = ref<string | null>(null);
 
 onMounted(async () => {
   console.log('Rol desde authStore:', authStore.rol);
@@ -26,16 +28,28 @@ onMounted(async () => {
 
   await cargarTodosDatos();
 
-  // Seleccionar automáticamente el primer usuario si hay al menos uno
-  if (usuarios.value.length > 0) {
+  // Inicializa usuarioSeleccionado con el valor de usuarioSeleccionadoId
+  usuarioSeleccionado.value = usuarioSeleccionadoId.value;
+
+  // Seleccionar automáticamente el primer usuario si hay al menos uno y no hay usuario seleccionado
+  if (usuarios.value.length > 0 && !usuarioSeleccionadoId.value) {
     usuarioSeleccionado.value = usuarios.value[0].id;
+    seleccionarUsuario(usuarios.value[0].id); // Llama a seleccionarUsuario al inicio
   }
 });
 
 // Si la lista de usuarios cambia, asegurarse de que hay uno seleccionado
 watch(usuarios, (newUsuarios) => {
-  if (newUsuarios.length > 0 && !usuarioSeleccionado.value) {
+  if (newUsuarios.length > 0 && !usuarioSeleccionadoId.value) {
     usuarioSeleccionado.value = newUsuarios[0].id;
+    seleccionarUsuario(newUsuarios[0].id); // Llama a seleccionarUsuario al cambiar la lista
+  }
+});
+
+// Observa los cambios en usuarioSeleccionado y llama a seleccionarUsuario
+watch(usuarioSeleccionado, (nuevoUsuario) => {
+  if (nuevoUsuario) {
+    seleccionarUsuario(nuevoUsuario); // Llama a seleccionarUsuario al cambiar la selección
   }
 });
 
@@ -48,22 +62,22 @@ const cerrarSesion = () => {
 <template>
   <div class="mi-cuenta">
     <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
-    
+
     <h2 class="mi-cuenta__titulo">Mi Cuenta</h2>
-    
+
     <p v-if="error" class="error">{{ error }}</p>
-    
+
     <div v-if="cargandoTutor || cargandoUsuarios || cargandoEmpleados" class="loading">
       Cargando...
     </div>
-    
+
     <!-- Información del tutor -->
     <div v-if="authStore.rol === 'Tutor' && tutor" class="mi-cuenta__info">
       <p class="mi-cuenta__dato"><strong>Nombre:</strong> {{ tutor?.nombre }}</p>
       <p class="mi-cuenta__dato"><strong>Email:</strong> {{ tutor?.email }}</p>
       <p class="mi-cuenta__dato"><strong>Rol:</strong> {{ tutor?.rol }}</p>
     </div>
-    
+
     <!-- Sección para mostrar los usuarios del tutor -->
     <div v-if="authStore.rol === 'Tutor'">
       <h2 class="mi-cuenta__usuarios">Mis Usuarios</h2>
@@ -82,7 +96,7 @@ const cerrarSesion = () => {
           </option>
         </select>
       </div>
-      
+
       <p v-else>No hay usuarios asignados.</p>
     </div>
 
@@ -175,31 +189,31 @@ const cerrarSesion = () => {
     margin-top: 15px;
 
     &:hover {
-      background: #c9302c;  
+      background: #c9302c;
     }
   }
 
   .volver-atras {
-     margin-right:310px;
-     background-color:$color-boton;
-     color:$color-fondo;
-     border:none;
-     border-radius:50%;
-     width:45px;
-     height:45px;
-     font-size:20px;
-     cursor:pointer;
-     display:flex; 
-     align-items:center; 
-     justify-content:center; 
-     text-decoration:none; 
-     box-shadow:0 4px 8px rgba(0,0,0,.2);
-   }
+    margin-right: 310px;
+    background-color: $color-boton;
+    color: $color-fondo;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
+  }
 }
 
-@media (min-width: 768px) { 
-   .mi-cuenta {
-       max-width: 500px; 
-   }
+@media (min-width: 768px) {
+  .mi-cuenta {
+    max-width: 500px;
+  }
 }
 </style>

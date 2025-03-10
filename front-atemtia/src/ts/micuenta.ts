@@ -29,7 +29,7 @@ export function useMiCuenta() {
   const cargandoUsuarios: Ref<boolean> = ref(false);
   const cargandoEmpleados: Ref<boolean> = ref(false);
   const error: Ref<string> = ref('');
-  const usuarioSeleccionadoId: Ref<string> = ref('');
+  const usuarioSeleccionadoId: Ref<string | null> = ref(localStorage.getItem('ultimoUsuarioSeleccionado') || null); // Obtén el valor del localStorage al inicializar
 
   async function cargarTodosDatos() {
     const userId = authStore.userId;
@@ -82,6 +82,7 @@ export function useMiCuenta() {
   function seleccionarUsuario(id: string) {
     usuarioSeleccionadoId.value = id;
     localStorage.setItem('ultimoUsuarioSeleccionado', id);
+    console.log('Usuario seleccionado:', id);
   }
 
   function cerrarSesion() {
@@ -97,7 +98,7 @@ export function useMiCuenta() {
     cargandoEmpleados,
     error,
     usuarioSeleccionadoId,
-    cargarTodosDatos, // Se renombró correctamente
+    cargarTodosDatos,
     seleccionarUsuario,
     cerrarSesion
   };
