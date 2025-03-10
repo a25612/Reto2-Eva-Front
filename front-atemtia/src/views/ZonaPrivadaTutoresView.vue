@@ -137,51 +137,48 @@ const abrirFormularioEdicion = (tutor: any) => {
           <label class="tutores__formulario-label" for="password-create">Contraseña:</label>
           <input v-model="newTutor.password" class="tutores__formulario-input" type="password" id="password-create" placeholder="Contraseña del tutor" required />
         </div>
-         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="activo-create">Activo:</label>
-          <input v-model="newTutor.activo" class="tutores__formulario-input" type="checkbox" id="activo-create"/>
-        </div>
         <div class="tutores__formulario-grupo">
-          <button class="tutores__formulario-boton" type="submit">Añadir Tutor</button>
+          <label class="tutores__formulario-label" for="activo-create">Activo:</label>
+          <input v-model="newTutor.activo" type="checkbox" id="activo-create" />
         </div>
+        <button type="submit" class="tutores__formulario-boton">Guardar</button>
       </form>
     </div>
 
     <!-- Formulario de edición -->
     <div v-if="tutoresStore.mostrarFormularioEditar" class="tutores__formulario">
-      <h2 class="tutores__formulario-titulo">Actualizar Tutor</h2>
+      <h2 class="tutores__formulario-titulo">Editar Tutor</h2>
       <form class="tutores__formulario-contenido" @submit.prevent="updateTutor">
         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="nombre-update">Nombre:</label>
-          <input v-model="tutoresStore.tutorActual.nombre" class="tutores__formulario-input" type="text" id="nombre-update" placeholder="Nombre del tutor" required />
+          <label class="tutores__formulario-label" for="nombre-edit">Nombre:</label>
+          <input v-model="tutoresStore.tutorActual.nombre" class="tutores__formulario-input" type="text" id="nombre-edit" required />
         </div>
         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="dni-update">DNI:</label>
-          <input v-model="tutoresStore.tutorActual.dni" class="tutores__formulario-input" type="text" id="dni-update" placeholder="DNI del tutor" required />
+          <label class="tutores__formulario-label" for="dni-edit">DNI:</label>
+          <input v-model="tutoresStore.tutorActual.dni" class="tutores__formulario-input" type="text" id="dni-edit" required />
         </div>
         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="email-update">Email:</label>
-          <input v-model="tutoresStore.tutorActual.email" class="tutores__formulario-input" type="email" id="email-update" placeholder="Email del tutor" required />
+          <label class="tutores__formulario-label" for="email-edit">Email:</label>
+          <input v-model="tutoresStore.tutorActual.email" class="tutores__formulario-input" type="email" id="email-edit" required />
         </div>
         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="username-update">Username:</label>
-          <input v-model="tutoresStore.tutorActual.username" class="tutores__formulario-input" type="text" id="username-update" placeholder="Username del tutor" required />
+          <label class="tutores__formulario-label" for="username-edit">Username:</label>
+          <input v-model="tutoresStore.tutorActual.username" class="tutores__formulario-input" type="text" id="username-edit" required />
         </div>
         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="password-update">Contraseña:</label>
-          <input v-model="tutoresStore.tutorActual.password" class="tutores__formulario-input" type="password" id="password-update" placeholder="Contraseña del tutor" />
-        </div>
-         <div class="tutores__formulario-grupo">
-          <label class="tutores__formulario-label" for="activo-update">Activo:</label>
-          <input v-model="tutoresStore.tutorActual.activo" class="tutores__formulario-input" type="checkbox" id="activo-update"/>
+          <label class="tutores__formulario-label" for="password-edit">Contraseña:</label>
+          <input v-model="tutoresStore.tutorActual.password" class="tutores__formulario-input" type="password" id="password-edit" required />
         </div>
         <div class="tutores__formulario-grupo">
-          <button class="tutores__formulario-boton" type="submit">Actualizar Tutor</button>
+          <label class="tutores__formulario-label" for="activo-edit">Activo:</label>
+          <input v-model="tutoresStore.tutorActual.activo" type="checkbox" id="activo-edit" />
         </div>
+        <button type="submit" class="tutores__formulario-boton">Actualizar</button>
       </form>
     </div>
   </div>
 </template>
+
 
 <style lang="scss">
 // Variables

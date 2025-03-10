@@ -44,9 +44,13 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
 
   const guardarTutor = async (tutor: any) => {
     try {
+      // Agregar console log para ver los datos del tutor
+      console.log("Datos a enviar al servidor:", tutor);
+
       let response;
       if (tutor.id) {
         // Actualizar tutor existente
+        console.log("Enviando actualización del tutor con id:", tutor.id);
         response = await fetch(`https://localhost:7163/api/Tutor/${tutor.id}`, {
           method: "PUT",
           headers: {
@@ -56,6 +60,7 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
         });
       } else {
         // Crear un nuevo tutor
+        console.log("Enviando nuevo tutor para creación");
         response = await fetch("https://localhost:7163/api/Tutor", {
           method: "POST",
           headers: {
@@ -65,14 +70,20 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
         });
       }
 
-      if (!response.ok) throw new Error(tutor.id ? "Error al actualizar tutor" : "Error al crear tutor");
+      // Verificar si la respuesta es exitosa
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error al guardar tutor:", errorData); // Muestra el detalle del error
+        throw new Error(tutor.id ? "Error al actualizar tutor" : "Error al crear tutor");
+      }
 
+      // Si es una actualización, actualizar el tutor en la lista
       if (tutor.id) {
-        // Si es una actualización, actualizar el tutor en la lista
         tutores.value = tutores.value.map((t) => (t.id === tutor.id ? tutor : t));
       } else {
         // Si es una creación, añadir el nuevo tutor a la lista
         const newTutor = await response.json();
+        console.log("Nuevo tutor creado:", newTutor);
         tutores.value.push(newTutor);
       }
 
