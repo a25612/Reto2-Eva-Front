@@ -174,6 +174,21 @@ const formatFecha = (fecha: string): string => {
       display: none;
     }
   }
+
+  /* Media query para pantallas grandes */
+  @media (min-width: 1200px) {
+    .carrusel-container {
+      gap: 24px; /* Más espacio entre tarjetas en pantallas grandes */
+      margin-left: 100px;
+      padding: 0 20px;
+    }
+
+    .carrusel-tarjeta {
+      width: 20%; /* Aumentar el tamaño de las tarjetas */
+      height: 380px; /* Altura mayor para las pantallas grandes */
+    }
+  }
 }
+
 
 </style>
