@@ -9,6 +9,7 @@ interface ReservaData {
   idOpcionServicio: number;
   idUsuario: number;
   idTutor: string;
+  idEmpleado: number;
 }
 
 export const useSesionStore = defineStore('sesion', () => {
@@ -21,6 +22,11 @@ export const useSesionStore = defineStore('sesion', () => {
     : null);
   
   const idTutor = ref<string>(localStorage.getItem('userId') ?? '');
+  
+  // Recupera el ID del empleado desde localStorage
+  const idEmpleado = ref<number | null>(localStorage.getItem('idEmpleado')
+    ? Number(localStorage.getItem('idEmpleado'))
+    : null);
 
   // Añadimos la propiedad idOpcionServicio
   const idOpcionServicio = ref<number | null>(null);
@@ -41,19 +47,21 @@ export const useSesionStore = defineStore('sesion', () => {
     const idOpcion = idOpcionServicio.value ?? 0;  // Usamos idOpcionServicio
     const usuarioId = idUsuario.value ?? 0;
     const tutorId = idTutor.value.trim() || '';
+    const empleadoId = idEmpleado.value ?? 0;  // Añadido idEmpleado
 
     // Log para depuración
     console.log('Datos antes de la validación:', {
       fechaHoraSeleccionada: fechaHoraSeleccionada.value,
       idCentro,
       idServicio,
-      idOpcion, // Usamos idOpcion en lugar de idOpcionServicio
+      idOpcion,
       usuarioId,
       tutorId,
+      empleadoId,  // Incluido empleadoId en el log
     });
 
     // Validación de datos requeridos
-    if (!fechaHoraSeleccionada.value || !idCentro || !idServicio || !idOpcion || !usuarioId || !tutorId) {
+    if (!fechaHoraSeleccionada.value || !idCentro || !idServicio || !idOpcion || !usuarioId || !tutorId || !empleadoId) {
       error.value = 'Faltan datos para realizar la reserva.';
       return Promise.reject(new Error(error.value));
     }
@@ -65,6 +73,7 @@ export const useSesionStore = defineStore('sesion', () => {
       idOpcionServicio: idOpcion,  // Asegúrate de pasar el idOpcion correctamente
       idUsuario: usuarioId,
       idTutor: tutorId,
+      idEmpleado: empleadoId,  // Asegúrate de incluir el idEmpleado
     };
 
     console.log('Objeto reservaData antes de enviar:', JSON.stringify(reservaData, null, 2));
@@ -99,6 +108,7 @@ export const useSesionStore = defineStore('sesion', () => {
     confirmarSesion,
     idUsuario,
     idTutor,
-    idOpcionServicio, // Asegúrate de exportarlo
+    idOpcionServicio,  // Asegúrate de exportarlo
+    idEmpleado,  // Exportamos idEmpleado
   };
 });
