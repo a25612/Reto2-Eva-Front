@@ -42,8 +42,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function setSelectedUser(id: string) {
-    usuarioSeleccionadoId.value = id;
-    localStorage.setItem('ultimoUsuarioSeleccionado', id);
+    // Solo guardar usuario seleccionado si el rol no es "Empleado"
+    if (rol.value !== 'Empleado') {
+      usuarioSeleccionadoId.value = id;
+      localStorage.setItem('ultimoUsuarioSeleccionado', id);
+    }
   }
 
   function logout() {
@@ -55,6 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('userId');
+    localStorage.removeItem('ultimoUsuarioSeleccionado');
 
     router.push('/login');
   }
