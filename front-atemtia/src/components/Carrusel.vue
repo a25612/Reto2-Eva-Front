@@ -65,9 +65,8 @@ const formatFecha = (fecha: string): string => {
 .carrusel {
   margin-top: -95px;
   overflow: hidden;
-  padding: 16px;
-  margin-left: 40px;
   padding: 90px 10px 0;
+  margin-left: 40px;
 
   &-container {
     display: flex;
@@ -77,34 +76,15 @@ const formatFecha = (fecha: string): string => {
     padding-bottom: 16px;
     scroll-behavior: smooth;
     align-items: center;
-  &-content {
-    align-content: center;
-    }
-
-
-    .carrusel-titulo {
-      color: $color-secundario;
-      font-size: 1.2rem;  
-      font-weight: bold;  
-      margin: 10px 0;
-      line-height: 1.4;
-      transition: color 0.3s ease, font-size 0.3s ease;
-
-      &:hover {
-        font-size: 1.3rem;  
-      }
-    }
-    .carrusel-descripcion {
-      color: black  ;  
-      font-size: 1rem;
-      margin-bottom: 10px;
-      line-height: 1.5;
-      transition: color 0.3s ease;
-    }
 
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  &-content {
+    flex-direction: column;
+    text-align: center;
   }
 
   &-tarjeta {
@@ -117,7 +97,6 @@ const formatFecha = (fecha: string): string => {
     height: 320px; 
     overflow: hidden;
 
-
     &-imagen {
       width: 100%;
       height: 80px; 
@@ -126,6 +105,28 @@ const formatFecha = (fecha: string): string => {
       border-top-right-radius: 8px;
     }
   }
+
+  &-titulo {
+    color: $color-secundario;
+    font-size: 1.2rem;
+    font-weight: bold;  
+    margin: 10px 0;
+    line-height: 1.4;
+    transition: color 0.3s ease, font-size 0.3s ease;
+
+    &:hover {
+      font-size: 1.3rem;
+    }
+  }
+
+  &-descripcion {
+    color: black;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    transition: color 0.3s ease;
+  }
+
   &-scroll {
     position: relative;
     width: 100%;
@@ -146,34 +147,17 @@ const formatFecha = (fecha: string): string => {
 
   @media (min-width: 768px) {
     .carrusel-container {
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      margin-right: 70px;
-      justify-content: center;
-      align-items: center;
-      overflow-x: visible;
-      padding-bottom: 0;
-    }
-
-    .carrusel-tarjeta {
-      flex: initial;
-      width: 22%;
-      height: 320px; 
-    }
-
-    .carrusel-scroll {
-      display: none;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .carrusel-container {
       gap: 24px;
       padding: 0 20px;
     }
 
     .carrusel-tarjeta {
       width: 20%;
-      height: 380px; 
+      height: 380px;
+    }
+
+    .carrusel-scroll {
+      display: none;
     }
   }
 }
