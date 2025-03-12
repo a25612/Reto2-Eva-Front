@@ -174,8 +174,7 @@ const formatFecha = (fecha: string): string => {
 
   @media (min-width: 768px) {
     .carrusel-container {
-      gap: 24px; 
-      margin-left: 100px;
+      gap: 24px;
       padding: 0 20px;
     }
 
@@ -185,6 +184,4 @@ const formatFecha = (fecha: string): string => {
     }
   }
 }
-
-
 </style>

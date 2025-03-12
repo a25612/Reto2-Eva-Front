@@ -31,16 +31,14 @@ const fechaReserva = ref<string | null>(null);
 const horaReserva = ref<string | null>(null);
 
 onMounted(() => {
-  // Cargar centros al montar el componente
+
   serviciosStore.cargarCentros();
 
-  // Cargar servicios automáticamente si ya hay un centro seleccionado
   if (centroSeleccionado.value) {
     serviciosStore.cargarServiciosPorCentro(Number(centroSeleccionado.value));
   }
 });
 
-// Escuchar cambios en el centro seleccionado para cargar servicios
 watch(centroSeleccionado, (newCentro) => {
   if (newCentro) {
     serviciosStore.cargarServiciosPorCentro(Number(newCentro));
@@ -65,7 +63,7 @@ function formatDuracion(minutos: number | null): string {
 function mostrarConfirmacion(servicio: string, servicioId: number, opcionId: number) {
   servicioSeleccionado.value = servicio;
   servicioSeleccionadoId.value = servicioId;
-  idOpcionServicio.value = opcionId; // Ahora se asigna correctamente
+  idOpcionServicio.value = opcionId;
 }
 
 function cerrarConfirmacion() {
@@ -86,18 +84,16 @@ function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string })
 
   seleccionarFechaHora(fechaHoraISO);
 
-  // Crear el objeto de datos para la reserva
   const datosReserva = {
     fechaHora: fechaHoraISO,
-    idCentro: Number(centroSeleccionado.value), // Obtener el centro seleccionado
+    idCentro: Number(centroSeleccionado.value),
     idServicio: servicioSeleccionadoId.value,
     idOpcionServicio: idOpcionServicio.value,
-    idUsuario: 1, // Cambia esto al id del usuario autenticado
-    idTutor: 1, // Cambia esto al id del tutor correspondiente
-    idEmpleado: 1 // Cambia esto al id del empleado correspondiente
+    idUsuario: 1,
+    idTutor: 1,
+    idEmpleado: 1 
   };
 
-  // Enviar los datos al servidor usando fetch
   fetch('https://localhost:7163/api/Sesion', {
     method: 'POST',
     headers: {
@@ -365,52 +361,48 @@ function irHome() {
       }
       
       .btn--reservar {
-        background-color: $color-secundario;
-        border: none;
-        padding: 10px 15px;
-        color: white;
-        font-size: 1.1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        
-        &:hover {
-          background-color: darken($color-secundario, 10%);
-        }
+         background-color: $color-secundario;
+         color: white;
+         border: none;
+         padding: 8px 11px;
+         cursor: pointer;
+         border-radius: 5px;
+         font-weight: bold;
+         transition: background-color 0.3s ease;
+         font-size: 0.8rem;
+
+  &:hover {
+    background-color: $color-principal;
+  }
+}
       }
     }
   }
-}
 
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: white;
+  padding: 60px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 390px;
 }
 
 .modal-content {
-  background-color: white;
-  padding: 25px;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  background: white;
+  padding: 30px;
 }
-
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 10px;
 }
 
 .boton-si,
 .boton-no {
-  background-color: $color-principal;
+  background-color: $color-secundario;
   border: none;
   padding: 10px 15px;
   color: white;
@@ -418,12 +410,12 @@ function irHome() {
   cursor: pointer;
   
   &:hover {
-    background-color: darken($color-principal, 10%);
+    background-color: #5e9422;
   }
 }
 
 .boton-no {
-  background-color: #ddd;
+  background-color: rgb(194, 15, 15);
   
   &:hover {
     background-color: darken(#ddd, 10%);
