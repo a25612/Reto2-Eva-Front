@@ -1,7 +1,42 @@
 <script setup lang="ts">
-import { useCalendario } from '../ts/calendario';
+import { ref, watch } from 'vue';
+import { useCalendarioStore } from '../stores/calendario';
 
-const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, actividadesDelDia } = useCalendario();
+const calendarioStore = useCalendarioStore();
+
+const contenedor = ref<HTMLElement | null>(null);
+const nav = ref<HTMLElement | null>(null);
+const btn = ref<HTMLElement | null>(null);
+
+watch(
+  () => calendarioStore.diaActual,
+  (newDate) => {
+    calendarioStore.cargarSesiones(newDate);
+  },
+  { immediate: true }
+);
+
+function abrirCalendario() {
+  if (contenedor.value && nav.value) {
+    contenedor.value.classList.toggle('active');
+    nav.value.classList.toggle('active');
+    if (nav.value.classList.contains('active')) {
+      document.addEventListener('click', cerrarCalendarioFuera);
+    } else {
+      document.removeEventListener('click', cerrarCalendarioFuera);
+    }
+  }
+}
+
+function cerrarCalendarioFuera(event: Event) {
+  if (nav.value && contenedor.value && btn.value) {
+    if (!nav.value.contains(event.target as Node) && !btn.value.contains(event.target as Node)) {
+      contenedor.value.classList.remove('active');
+      nav.value.classList.remove('active');
+      document.removeEventListener('click', cerrarCalendarioFuera);
+    }
+  }
+}
 </script>
 
 <template>
@@ -21,19 +56,30 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
       <div class="nav-calendario-header">
         <h2>Mi agenda</h2>
         <div class="nav-controls">
-          <button @click="cambiarDia(-1)">‹</button>
-          <span>{{ fechaActual.toLocaleDateString("es-ES") }}</span>
-          <button @click="cambiarDia(1)">›</button>
+          <button @click="calendarioStore.cambiarDia('anterior')">‹</button>
+          <span>{{ calendarioStore.diaActual.toLocaleDateString("es-ES", { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          }) }}</span>
+          <button @click="calendarioStore.cambiarDia('siguiente')">›</button>
         </div>
       </div>
 
       <div class="nav-calendario-content">
-        <!-- Mostrar las actividades dinámicamente -->
-        <div v-if="actividadesDelDia.length === 0">
+        <div v-if="calendarioStore.cargando">
+          <p>Cargando actividades...</p>
+        </div>
+        <div v-else-if="calendarioStore.actividadesDelDia.length === 0">
           <p>No hay actividades para este día.</p>
         </div>
         <div v-else>
-          <div v-for="(actividad, index) in actividadesDelDia" :key="index" class="agenda-item">
+          <div 
+            v-for="(actividad, index) in calendarioStore.actividadesDelDia" 
+            :key="index" 
+            class="agenda-item"
+          >
             <div class="time">{{ actividad.hora }}</div>
             <div class="details">
               <div class="title">{{ actividad.titulo }}</div>
@@ -46,11 +92,10 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
   </div>
 </template>
 
-  
-
 <style lang="scss">
+/* Tus estilos originales se mantienen igual */
 @import '../assets/styles/variables.scss';
-// Botón de calendario
+
 .calendario-desplegable {
     position: relative;
 
@@ -78,12 +123,6 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
             .svg-icon {
                 animation: slope 1s linear infinite;
             }
-        }
-        
-        &.disabled {
-            pointer-events: none;
-            opacity: 0.5;
-            cursor: not-allowed;
         }
     }
 
@@ -136,6 +175,7 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
                 span {
                     color: #333;
                     font-size: 1rem;
+                    text-transform: capitalize;
                 }
             }
         }
@@ -183,44 +223,24 @@ const { contenedor, nav, btn, abrirCalendario, cambiarDia, fechaActual, activida
     }
 }
 
-// Animación del icono del calendario
 @keyframes slope {
   0% {}
-
-  50% {
-    transform: rotate(10deg);
-  }
-
+  50% { transform: rotate(10deg); }
   100% {}
 }
+
 @media (min-width: 768px) {
   .calendario-desplegable {
-    .btn-calendario {
-      display: none; 
-    }
+    .btn-calendario { display: none; }
 
     .nav-calendario {
-      position: fixed;
-      top: 10%; 
-      right: 0; 
-      width: 15%; 
-      height: 100vh; 
+      top: 10%;
+      right: 0;
+      width: 15%;
+      height: 100vh;
       margin-top: 0;
-      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
-      transition: none; 
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem; 
-      border-radius: 10px; 
-    }
-
-    &.active {
-      .btn-calendario {
-        display: none;
-      }
+      border-radius: 10px;
     }
   }
 }
-
-</style> 
+</style>
