@@ -409,9 +409,55 @@ function irHome() {
 
 .modal-content {
   border-radius: 8px;
-  background: white;
+  background: $color-fondo;
   padding: 30px;
-}
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-family: $fuente-principal;
+
+  h2 {
+    color: $color-titulos;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: #444;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+
+    li {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: $color-principal;
+    }
+  }
+  button {
+    background-color:$color-secundario;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: darken($color-boton, 10%);
+      transform: scale(1.05);
+    }
+  }
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -457,6 +503,6 @@ function irHome() {
     width: 100%;
   }
 }
-
+}
 
 </style>
