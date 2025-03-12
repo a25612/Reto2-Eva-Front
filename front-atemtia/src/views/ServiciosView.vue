@@ -421,4 +421,23 @@ function irHome() {
     background-color: darken(#ddd, 10%);
   }
 }
+@media (max-width: 768px) {
+  .servicios-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  
+  .servicio-card {
+    padding: 20px;
+  &:hover {
+    background-color: darken(#ddd, 10%);
+  }
+}
+
+  .modal {
+    width: 100%;
+  }
+}
+
+
 </style>
