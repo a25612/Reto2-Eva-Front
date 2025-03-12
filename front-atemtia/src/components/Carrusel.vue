@@ -83,7 +83,7 @@ const formatFecha = (fecha: string): string => {
   }
 
   &-tarjeta {
-    flex: 0 0 85%;
+    flex: 0 0 66%;
     background-color: $color-fondo;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
