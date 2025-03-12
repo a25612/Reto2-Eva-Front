@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useCarruselStore } from "../stores/carrusel"; // Importamos la tienda de carrusel
+import { useCarruselStore } from "../stores/carrusel";
 
-// Usamos la tienda de carrusel
 const carruselStore = useCarruselStore();
 
-// Obtenemos los anuncios cuando el componente se monte
 onMounted(() => {
   carruselStore.obtenerAnuncios();
 });
@@ -91,23 +89,22 @@ const formatFecha = (fecha: string): string => {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    height: 320px; /* Altura fija para todas las tarjetas */
+    height: 320px; 
     overflow: hidden;
 
     &-content {
       padding: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between; /* Para distribuir el contenido uniformemente */
-      height: 100%; /* Asegurar que el contenido ocupe todo el espacio disponible */
-
+      justify-content: space-between; 
+      height: 100%;
       .carrusel-titulo {
         font-size: 16px;
         color: #333;
         margin: 0 0 8px;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* Para evitar que el título se desborde */
+        text-overflow: ellipsis; 
       }
 
       .carrusel-fecha,
@@ -122,14 +119,14 @@ const formatFecha = (fecha: string): string => {
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Limitar la descripción a 2 líneas */
+        -webkit-line-clamp: 2; 
         -webkit-box-orient: vertical;
       }
     }
 
     &-imagen {
       width: 100%;
-      height: 80px; /* Imagen más pequeña */
+      height: 80px; 
       object-fit: cover;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
@@ -167,7 +164,7 @@ const formatFecha = (fecha: string): string => {
     .carrusel-tarjeta {
       flex: initial;
       width: 22%;
-      height: 320px; /* Asegurar que en pantallas más grandes las tarjetas tengan la misma altura */
+      height: 320px; 
     }
 
     .carrusel-scroll {
@@ -175,17 +172,16 @@ const formatFecha = (fecha: string): string => {
     }
   }
 
-  /* Media query para pantallas grandes */
-  @media (min-width: 1200px) {
+  @media (min-width: 768px) {
     .carrusel-container {
-      gap: 24px; /* Más espacio entre tarjetas en pantallas grandes */
+      gap: 24px; 
       margin-left: 100px;
       padding: 0 20px;
     }
 
     .carrusel-tarjeta {
-      width: 20%; /* Aumentar el tamaño de las tarjetas */
-      height: 380px; /* Altura mayor para las pantallas grandes */
+      width: 20%;
+      height: 380px; 
     }
   }
 }

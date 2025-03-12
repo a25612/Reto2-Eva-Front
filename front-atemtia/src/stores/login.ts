@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       const data = await response.json();
       token.value = data.token;
-      rol.value = data.rol; // Asegúrate de que este valor sea "tutor" o "empleado"
+      rol.value = data.rol;
       userId.value = data.iduser;
 
       localStorage.setItem('token', data.token);
@@ -39,6 +39,11 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
     }
+  }
+
+  function setSelectedUser(id: string) {
+    usuarioSeleccionadoId.value = id;
+    localStorage.setItem('ultimoUsuarioSeleccionado', id);
   }
 
   function logout() {
@@ -54,5 +59,5 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/login');
   }
 
-  return { token, rol, userId, usuarioSeleccionadoId, error, login, logout };
+  return { token, rol, userId, usuarioSeleccionadoId, error, login, logout, setSelectedUser };
 });
