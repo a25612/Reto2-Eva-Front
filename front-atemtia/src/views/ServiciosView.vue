@@ -31,7 +31,6 @@ const fechaReserva = ref<string | null>(null);
 const horaReserva = ref<string | null>(null);
 
 onMounted(() => {
-
   serviciosStore.cargarCentros();
 
   if (centroSeleccionado.value) {
@@ -80,6 +79,26 @@ function abrirCalendario() {
 }
 
 function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
+  const fechaSeleccionada = new Date(fechaHora.fecha);
+  const diaSemana = fechaSeleccionada.getDay(); // 0 = Domingo, 6 = Sábado
+  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]); // Extrae la hora como número entero
+
+  // Verifica si es fin de semana
+  if (diaSemana === 0 || diaSemana === 6) {
+    alert('Solo se pueden seleccionar días laborables (lunes a viernes).');
+    return;
+  }
+
+  // Verifica si la hora está en los rangos permitidos
+  const esHoraValida = 
+    (horaSeleccionada >= 9 && horaSeleccionada <= 13) || 
+    (horaSeleccionada >= 16 && horaSeleccionada <= 20);
+
+  if (!esHoraValida) {
+    alert('Las reservas solo están permitidas entre las 9:00-13:00 y 16:00-20:00 en horas exactas.');
+    return;
+  }
+
   const fechaHoraISO = `${fechaHora.fecha}T${fechaHora.hora}:00.000Z`;
 
   seleccionarFechaHora(fechaHoraISO);
