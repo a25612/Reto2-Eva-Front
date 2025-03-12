@@ -42,9 +42,8 @@ const formatFecha = (fecha: string): string => {
         <div class="carrusel-content">
           <h3 class="carrusel-titulo">{{ anuncio.titulo }}</h3>
           <!-- Mostrar la fecha de publicación correctamente -->
-          <p class="carrusel-fecha">{{ formatFecha(anuncio.fecha_Publicacion) }}</p>
+          <p class="carrusel-fecha"> 📅 {{ formatFecha(anuncio.fecha_Publicacion) }}</p>
           <p class="carrusel-descripcion">{{ anuncio.descripcion }}</p>
-          <p class="carrusel-autor">{{ anuncio.autor }}</p>
         </div>
       </div>
     </div>
@@ -78,6 +77,30 @@ const formatFecha = (fecha: string): string => {
     padding-bottom: 16px;
     scroll-behavior: smooth;
     align-items: center;
+  &-content {
+    align-content: center;
+    }
+
+
+    .carrusel-titulo {
+      color: $color-secundario;
+      font-size: 1.2rem;  
+      font-weight: bold;  
+      margin: 10px 0;
+      line-height: 1.4;
+      transition: color 0.3s ease, font-size 0.3s ease;
+
+      &:hover {
+        font-size: 1.3rem;  
+      }
+    }
+    .carrusel-descripcion {
+      color: black  ;  
+      font-size: 1rem;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      transition: color 0.3s ease;
+    }
 
     &::-webkit-scrollbar {
       display: none;
@@ -94,37 +117,6 @@ const formatFecha = (fecha: string): string => {
     height: 320px; 
     overflow: hidden;
 
-    &-content {
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between; 
-      height: 100%;
-      .carrusel-titulo {
-        font-size: 16px;
-        color: #333;
-        margin: 0 0 8px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; 
-      }
-
-      .carrusel-fecha,
-      .carrusel-autor {
-        font-size: 14px;
-        color: #666;
-      }
-
-      .carrusel-descripcion {
-        font-size: 14px;
-        color: #666;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2; 
-        -webkit-box-orient: vertical;
-      }
-    }
 
     &-imagen {
       width: 100%;
@@ -134,7 +126,6 @@ const formatFecha = (fecha: string): string => {
       border-top-right-radius: 8px;
     }
   }
-
   &-scroll {
     position: relative;
     width: 100%;
