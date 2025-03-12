@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useCarruselStore } from "../stores/carrusel";
+import { iniciarCarrusel } from "../stores/carrusel"; // Importar la función para iniciar el carrusel
 
 const carruselStore = useCarruselStore();
 
 onMounted(() => {
   carruselStore.obtenerAnuncios();
+  iniciarCarrusel(); // Iniciar el carrusel al montar el componente
 });
 
 const formatFecha = (fecha: string): string => {
@@ -19,8 +21,7 @@ const formatFecha = (fecha: string): string => {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
+};
 </script>
 
 <template>
@@ -54,6 +55,7 @@ const formatFecha = (fecha: string): string => {
     </div>
   </div>
 </template>
+
 
 
 
