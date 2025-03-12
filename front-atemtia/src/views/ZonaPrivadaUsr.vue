@@ -169,7 +169,6 @@ const handleSearch = () => {
 @import '../assets/styles/variables.scss';
 
 .usuarios {
-  font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;

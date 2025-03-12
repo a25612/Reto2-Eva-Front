@@ -25,7 +25,6 @@
 @import '../assets/styles/variables.scss';
 
 .zona-privada {
-  font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;

@@ -135,12 +135,10 @@
   h2 {
     font-size: 24px;
     margin-bottom: 12px;
-    font-family: $fuente-principal;
   }
 
   p {
     font-size: 18px;
-    font-family: $fuente-principal;
     line-height: 1.5;
     max-width: 800px;
     margin: 0 auto;

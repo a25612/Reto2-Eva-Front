@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useCarruselStore } from "../stores/carrusel";
-import { iniciarCarrusel } from "../stores/carrusel"; // Importar la función para iniciar el carrusel
+import { iniciarCarrusel } from "../stores/carrusel"; 
+import { computed } from 'vue';
+
 
 const carruselStore = useCarruselStore();
 
@@ -18,11 +20,19 @@ const formatFecha = (fecha: string): string => {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
 };
+
+// Ordenar los anuncios por fecha de creación
+const anunciosOrdenados = computed(() => {
+  return carruselStore.anuncios.slice().sort((a, b) => {
+    const fechaA = new Date(a.fecha_Publicacion).getTime();
+    const fechaB = new Date(b.fecha_Publicacion).getTime();
+    return fechaB - fechaA; // Orden descendente, de la más reciente a la más antigua
+  });
+});
 </script>
+
 
 <template>
   <!-- CARRUSEL DE ANUNCIOS -->
@@ -59,7 +69,7 @@ const formatFecha = (fecha: string): string => {
 
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../assets/styles/variables.scss";
 
 .carrusel {

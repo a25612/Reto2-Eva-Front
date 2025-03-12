@@ -185,7 +185,6 @@ const abrirFormularioEdicion = (tutor: any) => {
 @import '../assets/styles/variables.scss';
 
 .tutores {
-  font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;

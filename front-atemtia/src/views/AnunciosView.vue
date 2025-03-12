@@ -31,7 +31,6 @@ onMounted(() => {
 .contenedor-anuncios {
   text-align: center;
   padding: 20px;
-  font-family: $fuente-principal;
 }
 
 .titulo {
