@@ -156,19 +156,32 @@ const anunciosOrdenados = computed(() => {
   }
 
   @media (min-width: 768px) {
-    .carrusel-container {
+  .carrusel {
+    margin-top: -95px;
+    overflow: hidden;
+    padding: 90px 20px 0;
+    display: flex;
+    justify-content: center;  // Para centrar el contenido horizontalmente
+
+    &-container {
       gap: 24px;
       padding: 0 20px;
+      display: flex;
+      justify-content: center;  
+      align-items: center;  
     }
 
-    .carrusel-tarjeta {
-      width: 20%;
+    &-tarjeta {
+      flex: 0 0 20%;
       height: 380px;
+      display: flex;
+     
     }
 
-    .carrusel-scroll {
+    &-scroll {
       display: none;
     }
   }
+}
 }
 </style>

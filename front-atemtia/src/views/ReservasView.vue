@@ -85,7 +85,6 @@ onMounted(() => {
     gap: 15px;
 
     .reserva-card {
-      background-color: $color-principal;
       color: $color-fondo;
       padding: 15px;
       border-radius: 8px;
@@ -99,6 +98,7 @@ onMounted(() => {
 
       p {
         margin-bottom: 5px;
+        color:black;
 
         strong {
           color: $color-titulos;
