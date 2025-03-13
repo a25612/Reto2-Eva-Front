@@ -1,19 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const mostrarConfirmacion = ref(false);
-
-const eliminarElemento = () => {
-  // Aquí iría la lógica para eliminar el elemento
-  console.log('Elemento eliminado');
-  mostrarConfirmacion.value = false; // Cerrar el modal después de la acción
-};
-
-const cancelarEliminacion = () => {
-  mostrarConfirmacion.value = false; // Solo cierra el modal sin eliminar
-};
-</script>
-
 <template>
   <router-link to="/home-app-atemtia" class="volver-atras">
     <i class="fa-solid fa-arrow-left"></i>
@@ -32,7 +16,6 @@ const cancelarEliminacion = () => {
       <router-link to="/home-app-atemtia/zona-privada/tutores" class="btn-accion">Tutores</router-link>
       <router-link to="/home-app-atemtia/zona-privada/servicios" class="btn-accion">Servicios</router-link>
       <router-link to="/home-app-atemtia/zona-privada/anuncios" class="btn-accion">Anuncios</router-link>
-      <router-link to="/home-app-atemtia/zona-privada/incidencias" class="btn-accion">Incidencias</router-link>
     </div>
 
   </div>
@@ -42,7 +25,6 @@ const cancelarEliminacion = () => {
 @import '../assets/styles/variables.scss';
 
 .zona-privada {
-  font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;

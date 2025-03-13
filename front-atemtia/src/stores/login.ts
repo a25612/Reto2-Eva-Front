@@ -9,6 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref('');
   const router = useRouter();
 
+  const usuarioSeleccionadoId = ref(localStorage.getItem('ultimoUsuarioSeleccionado') || '');
+
   async function login(username: string, password: string) {
     error.value = '';
 
@@ -16,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await fetch('https://localhost:7163/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
@@ -33,9 +35,17 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('rol', data.rol);
       localStorage.setItem('userId', data.iduser);
 
-      router.push(data.rol === '' ? '/' : '/home-app-atemtia');
+      router.push('/home-app-atemtia');
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
+    }
+  }
+
+  function setSelectedUser(id: string) {
+    // Solo guardar usuario seleccionado si el rol no es "Empleado"
+    if (rol.value !== 'Empleado') {
+      usuarioSeleccionadoId.value = id;
+      localStorage.setItem('ultimoUsuarioSeleccionado', id);
     }
   }
 
@@ -43,13 +53,15 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = '';
     rol.value = '';
     userId.value = '';
+    usuarioSeleccionadoId.value = '';
 
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('userId');
+    localStorage.removeItem('ultimoUsuarioSeleccionado');
 
     router.push('/login');
   }
 
-  return { token, rol, userId, error, login, logout };
+  return { token, rol, userId, usuarioSeleccionadoId, error, login, logout, setSelectedUser };
 });

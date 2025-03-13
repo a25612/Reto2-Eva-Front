@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useServiciosStore } from '../stores/servicios';
+import { useSesionStore } from '../stores/sesion';
 import { storeToRefs } from 'pinia';
+import CalendarioReservas from '../components/CalendarioReservas.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const serviciosStore = useServiciosStore();
+const sesionStore = useSesionStore();
+
 const {
   centros,
   servicios,
@@ -14,8 +20,28 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
+const { fechaHoraSeleccionada, idOpcionServicio } = storeToRefs(sesionStore);
+const { confirmarSesion, seleccionarFechaHora } = sesionStore;
+
+const servicioSeleccionado = ref<string | null>(null);
+const servicioSeleccionadoId = ref<number | null>(null);
+const mostrarCalendario = ref<boolean>(false);
+const reservaConfirmada = ref<boolean>(false);
+const fechaReserva = ref<string | null>(null);
+const horaReserva = ref<string | null>(null);
+
 onMounted(() => {
   serviciosStore.cargarCentros();
+
+  if (centroSeleccionado.value) {
+    serviciosStore.cargarServiciosPorCentro(Number(centroSeleccionado.value));
+  }
+});
+
+watch(centroSeleccionado, (newCentro) => {
+  if (newCentro) {
+    serviciosStore.cargarServiciosPorCentro(Number(newCentro));
+  }
 });
 
 function handleCentroChange(event: Event) {
@@ -33,20 +59,86 @@ function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
 }
 
-// Estado para manejar la confirmación de reserva
-const servicioSeleccionado = ref<string | null>(null);
-
-function mostrarConfirmacion(servicio: string) {
+function mostrarConfirmacion(servicio: string, servicioId: number, opcionId: number) {
   servicioSeleccionado.value = servicio;
+  servicioSeleccionadoId.value = servicioId;
+  idOpcionServicio.value = opcionId;
 }
 
 function cerrarConfirmacion() {
   servicioSeleccionado.value = null;
 }
 
-function confirmarReserva() {
-  alert(`Has reservado el servicio: ${servicioSeleccionado.value}`);
-  cerrarConfirmacion();
+function abrirCalendario() {
+  if (servicioSeleccionadoId.value && idOpcionServicio.value !== null) {
+    serviciosStore.seleccionarServicio(servicioSeleccionadoId.value);
+    mostrarCalendario.value = true;
+  } else {
+    alert('Por favor, selecciona una opción de servicio antes de proceder.');
+  }
+}
+
+function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
+  const fechaSeleccionada = new Date(fechaHora.fecha);
+  const diaSemana = fechaSeleccionada.getDay(); // 0 = Domingo, 6 = Sábado
+  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]); // Extrae la hora como número entero
+
+  // Verifica si es fin de semana
+  if (diaSemana === 0 || diaSemana === 6) {
+    alert('Solo se pueden seleccionar días laborables (lunes a viernes).');
+    return;
+  }
+
+  // Verifica si la hora está en los rangos permitidos
+  const esHoraValida = 
+    (horaSeleccionada >= 9 && horaSeleccionada <= 13) || 
+    (horaSeleccionada >= 16 && horaSeleccionada <= 20);
+
+  if (!esHoraValida) {
+    alert('Las reservas solo están permitidas entre las 9:00-13:00 y 16:00-20:00 en horas exactas.');
+    return;
+  }
+
+  const fechaHoraISO = `${fechaHora.fecha}T${fechaHora.hora}:00.000Z`;
+
+  seleccionarFechaHora(fechaHoraISO);
+
+  const datosReserva = {
+    fechaHora: fechaHoraISO,
+    idCentro: Number(centroSeleccionado.value),
+    idServicio: servicioSeleccionadoId.value,
+    idOpcionServicio: idOpcionServicio.value,
+    idUsuario: 1,
+    idTutor: 1,
+    idEmpleado: 1 
+  };
+
+  fetch('https://localhost:7163/api/Sesion', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(datosReserva),
+  })
+    .then(response => response.json())
+    .then(data => {
+      reservaConfirmada.value = true;
+      fechaReserva.value = fechaHora.fecha;
+      horaReserva.value = fechaHora.hora;
+      mostrarCalendario.value = false;
+      alert('Reserva confirmada exitosamente!');
+    })
+    .catch(error => {
+      alert('Error al confirmar la reserva: ' + error.message);
+    });
+}
+
+function handleCancelarFechaHora() {
+  mostrarCalendario.value = false;
+}
+
+function irHome() {
+  router.push('/home-app-atemtia');
 }
 </script>
 
@@ -99,9 +191,9 @@ function confirmarReserva() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <div class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre)">
-                RESERVAR 
-              </div>
+              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
+                RESERVAR
+              </button>
             </div>
           </div>
         </div>
@@ -109,17 +201,38 @@ function confirmarReserva() {
     </div>
   </div>
 
-  <!-- Modal de confirmación -->
-  <div v-if="servicioSeleccionado" class="modal">
+  <div v-if="servicioSeleccionado && !mostrarCalendario && !reservaConfirmada" class="modal" @click.self="cerrarConfirmacion">
     <div class="modal-content">
       <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
       <div class="modal-buttons">
-        <button class="boton-si" @click="confirmarReserva">SI</button>
+        <button class="boton-si" @click="abrirCalendario">SI</button>
         <button class="boton-no" @click="cerrarConfirmacion">NO</button>
       </div>
     </div>
   </div>
+
+  <div v-if="mostrarCalendario" class="modal">
+    <div class="modal-content">
+      <CalendarioReservas
+        @confirmarFechaHora="handleFechaHoraSeleccionada"
+        @cancelarFechaHora="handleCancelarFechaHora"
+      />
+    </div>
+  </div>
+
+  <div v-if="reservaConfirmada" class="modal">
+    <div class="modal-content">
+      <h2>Reserva Confirmada</h2>
+      <p>Tu reserva ha sido confirmada para:</p>
+      <ul>
+        <li><strong>Día:</strong> {{ fechaReserva }}</li>
+        <li><strong>Hora:</strong> {{ horaReserva }}</li>
+      </ul>
+      <button @click="irHome">Aceptar</button>
+    </div>
+  </div>
 </template>
+
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -221,215 +334,175 @@ function confirmarReserva() {
   background-color: $color-fondo;
   border-radius: 10px;
   padding: 25px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #eee;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-  }
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   
   h3 {
-    color: $color-principal;
-    margin-top: 0;
+    color: $color-titulos;
     margin-bottom: 15px;
     font-size: 1.3rem;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
   }
   
   .descripcion {
-    color: #555;
+    font-size: 1.1rem;
+    color: #666;
     margin-bottom: 15px;
-    line-height: 1.6;
-    flex-grow: 1;
   }
-
+  
   .opcion-servicio {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: rgba($color-secundario, 0.05);
-    border-radius: 5px;
-
+    padding: 10px 0;
+    
     .opcion-descripcion {
-      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
       margin-bottom: 5px;
     }
-
-    .sesiones, .duracion {
-      font-size: 0.9rem;
-      color: #666;
-      margin: 2px 0;
+    
+    .sesiones {
+      font-size: 1rem;
+      color: #777;
     }
-
-    .precio {
-      color: $color-secundario;
-      font-weight: 700;
-      font-size: 1.2rem;
-      margin-top: 5px;
+    
+    .duracion {
+      font-size: 1rem;
+      color: #777;
     }
-  }
-}
+    
+    .precio-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      
+      .precio {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: $color-principal;
+      }
+      
+      .btn--reservar {
+         background-color: $color-secundario;
+         color: white;
+         border: none;
+         padding: 8px 11px;
+         cursor: pointer;
+         border-radius: 5px;
+         font-weight: bold;
+         transition: background-color 0.3s ease;
+         font-size: 0.8rem;
 
-.volver-atras {
-  margin-left: 10px;
-  margin-top: 10px;
-  background-color: $color-boton;
-  color: $color-fondo;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-}
-.btn--reservar {
-  background-color: $color-secundario;
-  color: $color-fondo;
-  border: none;
-  padding: 6px 10px; 
-  font-size: 0.8rem; 
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  display: inline-block;
-  text-align: right;
-  margin-left: 190px;
-  
   &:hover {
-    background-color: $color-fondo;
-    color: $color-secundario;
+    background-color: $color-principal;
   }
 }
-
-.btn--reservar-container {
-  display: flex;
-
-  margin-top: 10px;
-}
-
-
-@media (max-width: 768px) {
-  .servicios-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
   }
-  
-  .servicio-card {
-    padding: 20px;
-  }
-}
+
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
   background: white;
-  padding: 20px;
+  padding: 60px;
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  width: 300px;
+  width: 390px;
 }
 
+.modal-content {
+  border-radius: 8px;
+  background: $color-fondo;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-family: $fuente-principal;
+
+  h2 {
+    color: $color-titulos;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: #444;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+
+    li {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: $color-principal;
+    }
+  }
+  button {
+    background-color:$color-secundario;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: darken($color-boton, 10%);
+      transform: scale(1.05);
+    }
+  }
 .modal-buttons {
-  margin-top: 15px;
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 25px;
+  margin-top: 10px;
 }
 
-.boton-si {
-  background-color: green;
-  color: white;
+.boton-si,
+.boton-no {
+  background-color: $color-secundario;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 15px;
+  color: white;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-
+  
   &:hover {
-    background-color: darken($color-secundario, 10%);
+    background-color: #5e9422;
   }
 }
 
 .boton-no {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-
-  &:hover {
-    background-color: darken($color-boton, 10%);
-  }
-  .servicio-card {
-  .precio-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  }
-  .btn--reservar {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  font-size: 0.8rem;
- 
-
-  &:hover {
-    background-color: darkred;
-  }
-}
-
-.btn--pequeno {
-  font-size: 0.8rem;
-  padding: 6px 10px;
-}
-
-.opcion__precio-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+  background-color: rgb(194, 15, 15);
   
-
-
-@media (max-width: 480px) {
+  &:hover {
+    background-color: darken(#ddd, 10%);
+  }
+}
+@media (max-width: 768px) {
   .servicios-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
+
   
-  .selector-centro select {
-    max-width: 100%;
+  .servicio-card {
+    padding: 20px;
+  &:hover {
+    background-color: darken(#ddd, 10%);
+  }
+}
+
+  .modal {
+    width: 100%;
   }
 }
 }
+
 </style>

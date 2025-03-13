@@ -1,44 +1,61 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { iniciarCarrusel } from "../ts/carrusel";
+import { useCarruselStore } from "../stores/carrusel";
+import { iniciarCarrusel } from "../stores/carrusel"; 
+import { computed } from 'vue';
+
+
+const carruselStore = useCarruselStore();
 
 onMounted(() => {
-  iniciarCarrusel();
+  carruselStore.obtenerAnuncios();
+  iniciarCarrusel(); // Iniciar el carrusel al montar el componente
+});
+
+const formatFecha = (fecha: string): string => {
+    if (!fecha) return 'Fecha no disponible';
+    const dateObj = new Date(fecha);
+    if (isNaN(dateObj.getTime())) return 'Fecha inválida';
+    return dateObj.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+};
+
+// Ordenar los anuncios por fecha de creación
+const anunciosOrdenados = computed(() => {
+  return carruselStore.anuncios.slice().sort((a, b) => {
+    const fechaA = new Date(a.fecha_Publicacion).getTime();
+    const fechaB = new Date(b.fecha_Publicacion).getTime();
+    return fechaB - fechaA; // Orden descendente, de la más reciente a la más antigua
+  });
 });
 </script>
 
 
 <template>
-    <!-- CARRUSEL DE ANUNCIOS -->
+  <!-- CARRUSEL DE ANUNCIOS -->
   <div class="carrusel">
     <div class="carrusel-container">
-      <div class="carrusel-tarjeta">
-        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
+      <!-- Mostrar anuncios dinámicamente -->
+      <div
+        class="carrusel-tarjeta"
+        v-for="anuncio in carruselStore.anuncios"
+        :key="anuncio.id"
+      >
+        <img
+          src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg"
+          class="carrusel-imagen"
+          alt="Imagen del curso"
+        />
         <div class="carrusel-content">
-          <h3 class="carrusel-titulo">Curso 1</h3>
-          <p class="carrusel-fecha">23 de enero de 2025</p>
-          <p class="carrusel-autor">Ruben Arnadillo</p>
+          <h3 class="carrusel-titulo">{{ anuncio.titulo }}</h3>
+          <!-- Mostrar la fecha de publicación correctamente -->
+          <p class="carrusel-fecha"> 📅 {{ formatFecha(anuncio.fecha_Publicacion) }}</p>
+          <p class="carrusel-descripcion">{{ anuncio.descripcion }}</p>
         </div>
       </div>
-      <div class="carrusel-tarjeta">
-        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
-        <div class="carrusel-content">
-          <h3 class="carrusel-titulo">Curso 2</h3>
-          <p class="carrusel-date">15 de enero de 2025</p>
-          <p class="carrusel-autor">Javier Plo</p>
-        </div>
-      </div>
-      <div class="carrusel-tarjeta">
-        <img src="https://espacioatemtia.es/wp-content/uploads/2023/07/Piscina-Atemtia-Terapias-Acu%C3%A1ticas2-scaled-1280x852.jpg" class="carrusel-imagen">
-        <div class="carrusel-content">
-          <h3 class="carrusel-titulo">Curso 3</h3>
-          <p class="carrusel-fecha">12 de febrero de 2025</p>
-          <p class="carrusel-autor">Ruben Arnadillo</p>
-        </div>
-      </div>
-
-      
-     
     </div>
 
     <!-- SCROLL PARA EL CARRUSEL -->
@@ -48,15 +65,18 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
- @import '../assets/styles/variables.scss';
+
+
+
+
+<style lang="scss" scoped>
+@import "../assets/styles/variables.scss";
 
 .carrusel {
   margin-top: -95px;
   overflow: hidden;
-  padding: 16px;
-  margin-left: 40px;
   padding: 90px 10px 0;
+  margin-left: 40px;
 
   &-container {
     display: flex;
@@ -72,42 +92,56 @@ onMounted(() => {
     }
   }
 
+  &-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
   &-tarjeta {
-    flex: 0 0 85%; 
+    flex: 0 0 66%;
     background-color: $color-fondo;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
+    height: 320px; 
+    overflow: hidden;
+
+    &-imagen {
+      width: 100%;
+      height: 80px; 
+      object-fit: cover;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
   }
 
-  &-imagen {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
+  &-titulo {
+    color: $color-secundario;
+    font-size: 1.2rem;
+    font-weight: bold;  
+    margin: 10px 0;
+    line-height: 1.4;
+    transition: color 0.3s ease, font-size 0.3s ease;
+
+    &:hover {
+      font-size: 1.3rem;
+    }
   }
 
-  &-content {
-    padding: 12px;
-
-    .carrusel-titulo {
-      font-size: 16px;
-      color: #333;
-      margin: 0 0 8px;
-    }
-
-    .carrusel-fecha,
-    .carrusel-autor {
-      font-size: 14px;
-      color: #666;
-    }
+  &-descripcion {
+    color: black;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    transition: color 0.3s ease;
   }
 
   &-scroll {
     position: relative;
     width: 100%;
     height: 8px;
-    background-color: #EEEEEE;
+    background-color: #eeeeee;
     border-radius: 4px;
     margin-top: 8px;
     overflow: hidden;
@@ -116,33 +150,38 @@ onMounted(() => {
 
   &-scrollbar {
     height: 100%;
-    width: 25%; 
+    width: 25%;
     background-color: $color-boton;
     border-radius: 4px;
   }
 
   @media (min-width: 768px) {
-  .carrusel-container {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    margin-right: 70px;
-    justify-content: center; 
-    align-items: center; 
-    overflow-x: visible;
-    padding-bottom: 0;
-  }
+  .carrusel {
+    margin-top: -95px;
+    overflow: hidden;
+    padding: 90px 20px 0;
+    display: flex;
+    justify-content: center;  // Para centrar el contenido horizontalmente
 
-  .carrusel-tarjeta {
-    flex: initial;
-    width: 22%;
-    height: auto; 
-   
-  }
+    &-container {
+      gap: 24px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: center;  
+      align-items: center;  
+    }
 
-  .carrusel-scroll {
-    display: none; 
+    &-tarjeta {
+      flex: 0 0 20%;
+      height: 380px;
+      display: flex;
+     
+    }
+
+    &-scroll {
+      display: none;
+    }
   }
 }
 }
-
 </style>
-

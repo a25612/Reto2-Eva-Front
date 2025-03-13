@@ -4,8 +4,8 @@ import { ref } from "vue";
 export const useUsuariosStore = defineStore("usuariosStore", () => {
   const usuarios = ref<any[]>([]);
   const usuariosFiltrados = ref<any[]>([]);
-  const mostrarFormularioCrear = ref(false); // Estado para mostrar el formulario de creación
-  const mostrarFormularioEditar = ref(false); // Estado para mostrar el formulario de edición
+  const mostrarFormularioCrear = ref(false);
+  const mostrarFormularioEditar = ref(false); 
   const usuarioActual = ref<any | null>(null);
 
   // Cargar usuarios desde la API

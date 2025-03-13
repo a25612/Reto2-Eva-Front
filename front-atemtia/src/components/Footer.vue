@@ -163,7 +163,6 @@
   }
 
   &-copyright {
-    font-family: $fuente-principal;
     font-size: 12px;
     color: #777;
   }

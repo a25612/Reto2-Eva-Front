@@ -1,78 +1,119 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { useReservasStore } from '../stores/reservas';
+
+const reservasStore = useReservasStore();
+
+// Cargar las reservas al montar el componente
+onMounted(() => {
+  reservasStore.cargarReservas();
+});
 </script>
 
 <template>
-
-
-<div class="separador-abajo">
-      <span class="bar-separador"></span>
-    </div>
-    <router-link to="/home-app-atemtia" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
   <div class="reservas">
-    <h2 class="reservas__titulo">Reservas realizadas</h2>
+    <router-link to="/home-app-atemtia" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
 
-    <div class="reservas__lista">
-     
-        
+    <h2 class="reservas__titulo">Historial de Reservas</h2>
+
+    <!-- Mostrar mensajes de carga o error -->
+    <div v-if="reservasStore.cargando" class="mensaje">Cargando reservas...</div>
+    <div v-if="reservasStore.error" class="mensaje error">{{ reservasStore.error }}</div>
+
+    <!-- Mostrar lista de reservas -->
+    <div v-if="!reservasStore.cargando && !reservasStore.error" class="reservas__lista">
+      <div
+        v-for="reserva in reservasStore.reservas"
+        :key="reserva.id"
+        class="reserva-card"
+      >
+        <h3>{{ reserva.usuario.nombre }}</h3>
+        <p><strong>Servicio:</strong> {{ reserva.servicio.nombre }}</p>
+        <p><strong>Empleado:</strong> {{ reserva.empleado.nombre }}</p>
+        <p><strong>Centro:</strong> {{ reserva.centro.nombre }}</p>
+        <p><strong>Precio:</strong> {{ reserva.opcionServicio.precio }} €</p>
+        <p><strong>Fecha:</strong> {{ new Date(reserva.fecha).toLocaleString() }}</p>
+        <p><strong>Facturado:</strong> {{ reserva.facturar ? "Sí" : "No" }}</p>
       </div>
     </div>
-    <div class="separador-abajo">
-      <span class="bar-separador"></span>
+
+    <!-- Mostrar mensaje si no hay reservas -->
+    <div v-if="!reservasStore.cargando && !reservasStore.error && reservasStore.reservas.length === 0" class="mensaje">
+      No hay reservas disponibles.
     </div>
+  </div>
 </template>
-
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .reservas {
-  
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background: #f8f8f8;
-  border-radius: 12px;
-  max-width: 500px;
-  margin: 0 auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .volver-atras {
+    align-self: flex-start;
+    margin-bottom: 20px;
+    background-color: $color-boton;
+    color: $color-fondo;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+
+    i {
+      font-size: 20px;
+    }
+  }
 
   &__titulo {
     color: $color-titulos;
-    font-size: 22px;
+    font-size: 24px;
+    margin-bottom: 20px;
   }
-  .separador-abajo {
+
+  &__lista {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
 
-    .bar-separador {
-      margin: 0 0 25px; 
-      width: 350px;
-      height: 1px;
-      background: rgba($color-secundario, 0.6);
+    .reserva-card {
+      color: $color-fondo;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px;
+
+      h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: $color-secundario;
+      }
+
+      p {
+        margin-bottom: 5px;
+        color:black;
+
+        strong {
+          color: $color-titulos;
+        }
+      }
     }
+  }
 
-    .volver-atras {
-  margin-right: 310px;
-  background-color: $color-boton;
-  color: $color-fondo;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  .mensaje {
+    font-size: 16px;
+
+    &.error {
+      color: red;
+    }
+  }
 }
-}
-}
-
-
-
 </style>
+```

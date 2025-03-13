@@ -21,11 +21,6 @@
         <p>Reservas</p>
       </router-link>
 
-      <router-link class="espacio-item incidencias" to="/home-app-atemtia/incidencias">
-        <div class="icono"></div>
-        <p>Incidencias</p>
-      </router-link>
-
       <router-link class="espacio-item mi-cuenta" to="/home-app-atemtia/mi-cuenta">
         <div class="icono"></div>
         <p>Mi cuenta</p>
@@ -118,7 +113,7 @@
     text-align: center;
 
     .mi-espacio-grid {
-      grid-template-columns: repeat(3, 1fr);  
+      grid-template-columns: repeat(2, 1fr);  
     }
 
     .espacio-item {

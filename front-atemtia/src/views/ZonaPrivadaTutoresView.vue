@@ -1,187 +1,190 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, onMounted } from "vue";
+import { useTutoresStore } from "../stores/tutores";
+import { useRouter } from 'vue-router';
 
-const showFormCreate = ref(false);
-const showFormUpdate = ref(false);
-const showFormDelete = ref(false);
-const showModalDelete = ref(false); 
-const tutorSearch = ref('');
-const tutorToDelete = ref<number | null>(null);
+const router = useRouter();
+const tutoresStore = useTutoresStore();
+const searchTerm = ref("");
 
-const tutors = ref([
-  { id: 1, name: 'Juan Pérez', email: 'juan@example.com' },
-  { id: 2, name: 'Ana García', email: 'ana@example.com' },
-  { id: 3, name: 'Carlos López', email: 'carlos@example.com' },
-]);
-
-const toggleFormCreate = () => {
-  showFormCreate.value = !showFormCreate.value;
-  if (showFormCreate.value) {
-    showFormUpdate.value = false;
-    showFormDelete.value = false;
-  }
-};
-
-const toggleFormUpdate = () => {
-  showFormUpdate.value = !showFormUpdate.value;
-  if (showFormUpdate.value) {
-    showFormCreate.value = false;
-    showFormDelete.value = false;
-  }
-};
-
-const toggleFormDelete = () => {
-  showFormDelete.value = !showFormDelete.value;
-  if (showFormDelete.value) {
-    showFormCreate.value = false;
-    showFormUpdate.value = false;
-  }
-};
-
-const filteredTutors = computed(() => {
-  if (tutorSearch.value === '') {
-    return [];
-  }
-  return tutors.value.filter(tutor => tutor.name.toLowerCase().includes(tutorSearch.value.toLowerCase()) || tutor.email.toLowerCase().includes(tutorSearch.value.toLowerCase()));
+const newTutor = ref({
+  nombre: "",
+  dni: "",
+  email: "",
+  username: "",
+  password: "",
+  activo: true,
 });
 
+onMounted(() => {
+  tutoresStore.cargarTutores();
+});
 
-const openModalDelete = (tutorId: number) => {
-  tutorToDelete.value = tutorId;
-  showModalDelete.value = true;
-};
-
-
-const confirmDelete = () => {
-  if (tutorToDelete.value !== null) {
-    tutors.value = tutors.value.filter(tutor => tutor.id !== tutorToDelete.value);
-    tutorSearch.value = '';
-    showModalDelete.value = false;
-    showFormDelete.value = false;
+const updateTutor = async () => {
+  try {
+    await tutoresStore.guardarTutor(tutoresStore.tutorActual);
+    tutoresStore.mostrarFormularioEditar = false;
+  } catch (error) {
+    console.error("Error al actualizar el tutor:", error);
   }
 };
 
+const saveTutor = async () => {
+  try {
+    await tutoresStore.guardarTutor(newTutor.value);
+    newTutor.value = { nombre: "", dni: "", email: "", username: "", password: "", activo: true };
+    tutoresStore.mostrarFormularioCrear = false;
+  } catch (error) {
+    console.error("Error al guardar el tutor:", error);
+  }
+};
 
-const cancelDelete = () => {
-  showModalDelete.value = false;
-  tutorToDelete.value = null;
+const handleSearch = () => {
+  tutoresStore.filtrarTutores(searchTerm.value);
+};
+
+const eliminarTutor = async (id: number) => {
+  try {
+    await tutoresStore.eliminarTutor(id);
+  } catch (error) {
+    console.error("Error al eliminar el tutor:", error);
+  }
+};
+
+const abrirFormularioEdicion = (tutor: any) => {
+  tutoresStore.abrirFormularioEdicion(tutor);
 };
 </script>
 
-
 <template>
-    <div class="tutores">
-      <router-link to="/home-app-atemtia/zona-privada" class="volver-atras"><i class="fa-solid fa-arrow-left"></i></router-link>
-      <h1 class="tutores__titulo">TUTORES</h1>
-  
-      <div class="tutores__separador-abajo">
-        <span class="tutores__bar-separador"></span>
-      </div>
-  
-      <div class="tutores__botones">
-        <button class="tutores__boton" @click="toggleFormCreate">
-          Añadir Tutor
+  <div class="tutores">
+    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
+    <h1 class="tutores__titulo">TUTORES</h1>
+
+    <div class="tutores__separador-abajo">
+      <span class="tutores__bar-separador"></span>
+    </div>
+
+    <div class="tutores__botones">
+      <button class="tutores__boton" @click="tutoresStore.toggleFormCreate">
+        Añadir Tutor
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="tutores__buscador">
+      <div class="tutores__buscador-contenedor">
+        <input 
+          v-model="searchTerm" 
+          class="tutores__buscador-input" 
+          type="text" 
+          placeholder="Buscar tutor..." 
+          @input="handleSearch"
+        />
+        <button class="tutores__buscador-boton" @click="handleSearch">
+          <i class="fa-solid fa-search"></i>
         </button>
-        <button class="tutores__boton" @click="toggleFormUpdate">
-          Actualizar Tutor
-        </button>
-        <button class="tutores__boton" @click="toggleFormDelete">
-          Eliminar Tutor
-        </button>
       </div>
-  
-      <!-- Formulario para crear tutor -->
-      <div v-if="showFormCreate" class="tutores__formulario">
-        <h2 class="tutores__formulario-titulo">Crear Tutor</h2>
-        <form class="tutores__formulario-contenido">
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="nombre">Nombre:</label>
-            <input class="tutores__formulario-input" type="text" id="nombre" placeholder="Nombre del tutor" required />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="email">Email:</label>
-            <input class="tutores__formulario-input" type="email" id="email" placeholder="Email del tutor" required />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="contraseña">Contraseña:</label>
-            <input class="tutores__formulario-input" type="password" id="contraseña" placeholder="Contraseña" required />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <button class="tutores__formulario-boton" type="submit">Crear Tutor</button>
-          </div>
-        </form>
-      </div>
-  
-      <!-- Formulario para actualizar tutor -->
-      <div v-if="showFormUpdate" class="tutores__formulario">
-        <h2 class="tutores__formulario-titulo">Actualizar Tutor</h2>
-        <form class="tutores__formulario-contenido">
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="nombre-update">Nombre:</label>
-            <input class="tutores__formulario-input" type="text" id="nombre-update" placeholder="Nombre del tutor" required />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="email-update">Email:</label>
-            <input class="tutores__formulario-input" type="email" id="email-update" placeholder="Email del tutor" required />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <label class="tutores__formulario-label" for="contraseña-update">Contraseña:</label>
-            <input class="tutores__formulario-input" type="password" id="contraseña-update" placeholder="Contraseña" />
-          </div>
-          <div class="tutores__formulario-grupo">
-            <button class="tutores__formulario-boton" type="submit">Actualizar Tutor</button>
-          </div>
-        </form>
-      </div>
-  
-      <!-- Formulario para eliminar tutor -->
-      <div v-if="showFormDelete" class="tutores__formulario">
-        <h2 class="tutores__formulario-titulo">Eliminar Tutor</h2>
-        <div class="tutores__formulario-grupo">
-          <input 
-            class="tutores__formulario-input" 
-            v-model="tutorSearch" 
-            type="text" 
-            placeholder="Buscar por nombre o email" 
-          />
+    </div>
+
+    <!-- Lista de tutores -->
+    <div v-if="tutoresStore.tutoresFiltrados.length > 0" class="tutores__lista">
+      <div v-for="tutor in tutoresStore.tutoresFiltrados" :key="tutor.dni" class="tutores__item">
+        <div class="tutores__item-contenido">
+          <h3 class="tutores__item-nombre">{{ tutor.nombre }}</h3>
+          <p class="tutores__item-dni">DNI: {{ tutor.dni }}</p>
+          <p class="tutores__item-email">Email: {{ tutor.email }}</p>
+          <p class="tutores__item-username">Username: {{ tutor.username }}</p>
         </div>
-  
-        <div v-if="filteredTutors.length > 0" class="tutores__tutores-encontrados">
-          <ul>
-            <li v-for="tutor in filteredTutors" :key="tutor.id">
-              <div>{{ tutor.name }} - {{ tutor.email }}</div>
-              <button 
-                class="tutores__eliminar-boton" 
-                @click="openModalDelete(tutor.id)">
-                Eliminar
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div v-else>
-          <p>No se encontraron tutores</p>
-        </div>
-      </div>
-  
-      <!-- Modal de confirmación para eliminar tutor -->
-      <div v-if="showModalDelete" class="tutores__modal">
-        <div class="tutores__modal-contenido">
-          <p>¿Estás seguro de que deseas eliminar este tutor?</p>
-          <div class="tutores__modal-botones">
-            <button class="tutores__btn-confirmar" @click="confirmDelete">Confirmar</button>
-            <button class="tutores__btn-cancelar" @click="cancelDelete">Cancelar</button>
-          </div>
+        <div class="tutores__item-acciones">
+          <button class="tutores__item-boton tutores__item-boton--editar" @click="abrirFormularioEdicion(tutor)">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+          <button class="tutores__item-boton tutores__item-boton--eliminar" @click="eliminarTutor(tutor.id)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
         </div>
       </div>
     </div>
-  </template>
-  
+
+    <div v-else class="tutores__no-resultados">
+      <p>No se encontraron tutores</p>
+    </div>
+
+    <!-- Formulario de creación -->
+    <div v-if="tutoresStore.mostrarFormularioCrear" class="tutores__formulario">
+      <h2 class="tutores__formulario-titulo">Añadir Tutor</h2>
+      <form class="tutores__formulario-contenido" @submit.prevent="saveTutor">
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="nombre-create">Nombre:</label>
+          <input v-model="newTutor.nombre" class="tutores__formulario-input" type="text" id="nombre-create" placeholder="Nombre del tutor" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="dni-create">DNI:</label>
+          <input v-model="newTutor.dni" class="tutores__formulario-input" type="text" id="dni-create" placeholder="DNI del tutor" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="email-create">Email:</label>
+          <input v-model="newTutor.email" class="tutores__formulario-input" type="email" id="email-create" placeholder="Email del tutor" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="username-create">Username:</label>
+          <input v-model="newTutor.username" class="tutores__formulario-input" type="text" id="username-create" placeholder="Username del tutor" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="password-create">Contraseña:</label>
+          <input v-model="newTutor.password" class="tutores__formulario-input" type="password" id="password-create" placeholder="Contraseña del tutor" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="activo-create">Activo:</label>
+          <input v-model="newTutor.activo" type="checkbox" id="activo-create" />
+        </div>
+        <button type="submit" class="tutores__formulario-boton">Guardar</button>
+      </form>
+    </div>
+
+    <!-- Formulario de edición -->
+    <div v-if="tutoresStore.mostrarFormularioEditar" class="tutores__formulario">
+      <h2 class="tutores__formulario-titulo">Editar Tutor</h2>
+      <form class="tutores__formulario-contenido" @submit.prevent="updateTutor">
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="nombre-edit">Nombre:</label>
+          <input v-model="tutoresStore.tutorActual.nombre" class="tutores__formulario-input" type="text" id="nombre-edit" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="dni-edit">DNI:</label>
+          <input v-model="tutoresStore.tutorActual.dni" class="tutores__formulario-input" type="text" id="dni-edit" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="email-edit">Email:</label>
+          <input v-model="tutoresStore.tutorActual.email" class="tutores__formulario-input" type="email" id="email-edit" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="username-edit">Username:</label>
+          <input v-model="tutoresStore.tutorActual.username" class="tutores__formulario-input" type="text" id="username-edit" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="password-edit">Contraseña:</label>
+          <input v-model="tutoresStore.tutorActual.password" class="tutores__formulario-input" type="password" id="password-edit" required />
+        </div>
+        <div class="tutores__formulario-grupo">
+          <label class="tutores__formulario-label" for="activo-edit">Activo:</label>
+          <input v-model="tutoresStore.tutorActual.activo" type="checkbox" id="activo-edit" />
+        </div>
+        <button type="submit" class="tutores__formulario-boton">Actualizar</button>
+      </form>
+    </div>
+  </div>
+</template>
+
 
 <style lang="scss">
+// Variables
 @import '../assets/styles/variables.scss';
 
 .tutores {
-  font-family: $fuente-principal;
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;
@@ -206,6 +209,127 @@ const cancelDelete = () => {
       background-color: $color-principal;
       margin: auto;
     }
+  }
+
+  // Estilos para la barra de búsqueda
+  &__buscador {
+    margin: 15px 0;
+
+    &-contenedor {
+      display: flex;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    &-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    &-boton {
+      width: 40px;
+      background-color: $color-principal;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken($color-principal, 10%);
+      }
+    }
+  }
+
+  // Estilos para la lista de tutores
+  &__lista {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left;
+
+    &-contenido {
+      flex: 1;
+    }
+
+    &-nombre {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+      color: $color-titulos;
+    }
+
+    &-dni {
+      font-size: 14px;
+      margin: 0;
+      color: #666;
+    }
+
+    &-email {
+      font-size: 14px;
+      margin: 0;
+      color: #666;
+    }
+
+    &-username {
+      font-size: 14px;
+      margin: 0;
+      color: #666;
+    }
+
+    &-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    &-boton {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: background-color 0.3s ease;
+
+      &--editar {
+        background-color: $color-principal;
+
+        &:hover {
+          background-color: darken($color-principal, 10%);
+        }
+      }
+
+      &--eliminar {
+        background-color: red;
+
+        &:hover {
+          background-color: darkred;
+        }
+      }
+    }
+  }
+
+  &__no-resultados {
+    margin: 15px 0;
+    font-style: italic;
+    color: #666;
   }
 
   &__botones {
@@ -378,22 +502,21 @@ const cancelDelete = () => {
     background-color: darkgray;
   }
 }
+
 .volver-atras {
-     margin-right:310px;
-     background-color:$color-boton;
-     color:$color-fondo;
-     border:none;
-     border-radius:50%;
-     width:45px;
-     height:45px;
-     font-size:20px;
-     cursor:pointer;
-
-     display:flex; 
-     align-items:center; 
-     justify-content:center; 
-     text-decoration:none; 
-     box-shadow:0 4px 8px rgba(0,0,0,.2);
-   }
-
+  margin-right: 310px;
+  background-color: $color-boton;
+  color: $color-fondo;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+}
 </style>
