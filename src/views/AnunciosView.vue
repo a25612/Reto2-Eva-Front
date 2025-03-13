@@ -25,7 +25,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss" scoped scoped>
+<style lang="scss" scoped>
 @import '../assets/styles/variables.scss';
 
 .contenedor-anuncios {

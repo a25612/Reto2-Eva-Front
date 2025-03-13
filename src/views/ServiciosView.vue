@@ -20,7 +20,7 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
-const { idOpcionServicio } = storeToRefs(sesionStore);
+const { fechaHoraSeleccionada, idOpcionServicio } = storeToRefs(sesionStore);
 const { confirmarSesion, seleccionarFechaHora } = sesionStore;
 
 const servicioSeleccionado = ref<string | null>(null);
@@ -80,14 +80,16 @@ function abrirCalendario() {
 
 function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
   const fechaSeleccionada = new Date(fechaHora.fecha);
-  const diaSemana = fechaSeleccionada.getDay();
-  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]);
+  const diaSemana = fechaSeleccionada.getDay(); // 0 = Domingo, 6 = Sábado
+  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]); // Extrae la hora como número entero
 
+  // Verifica si es fin de semana
   if (diaSemana === 0 || diaSemana === 6) {
     alert('Solo se pueden seleccionar días laborables (lunes a viernes).');
     return;
   }
 
+  // Verifica si la hora está en los rangos permitidos
   const esHoraValida = 
     (horaSeleccionada >= 9 && horaSeleccionada <= 13) || 
     (horaSeleccionada >= 16 && horaSeleccionada <= 20);
@@ -101,8 +103,25 @@ function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string })
 
   seleccionarFechaHora(fechaHoraISO);
 
-  confirmarSesion()
-    .then(() => {
+  const datosReserva = {
+    fechaHora: fechaHoraISO,
+    idCentro: Number(centroSeleccionado.value),
+    idServicio: servicioSeleccionadoId.value,
+    idOpcionServicio: idOpcionServicio.value,
+    idUsuario: 1,
+    idTutor: 1,
+    idEmpleado: 1 
+  };
+
+  fetch('http://servicios-atemtia-api.retocsv.es/api/Sesion', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(datosReserva),
+  })
+    .then(response => response.json())
+    .then(data => {
       reservaConfirmada.value = true;
       fechaReserva.value = fechaHora.fecha;
       horaReserva.value = fechaHora.hora;
@@ -215,7 +234,7 @@ function irHome() {
 </template>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .servicios-container {
