@@ -69,7 +69,7 @@ const anunciosOrdenados = computed(() => {
 
 
 
-<style lang="scss" scoped>
+<style lang="scss" scoped scoped>
 @import "../assets/styles/variables.scss";
 
 .carrusel {

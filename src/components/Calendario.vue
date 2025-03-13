@@ -92,7 +92,7 @@ function cerrarCalendarioFuera(event: Event) {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 /* Tus estilos originales se mantienen igual */
 @import '../assets/styles/variables.scss';
 

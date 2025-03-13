@@ -47,9 +47,9 @@ export const useReservasStore = defineStore('reservas', () => {
     try {
       let url = '';
       if (rol === 'Tutor') {
-        url = `https://localhost:7163/api/Sesion/Usuario/${userId}`;
+        url = `http://servicios-atemtia-api.retocsv.es/api/Sesion/Usuario/${userId}`;
       } else if (rol === 'Empleado') {
-        url = `https://localhost:7163/api/Sesion/Empleado/${userId}`;
+        url = `http://servicios-atemtia-api.retocsv.es/api/Sesion/Empleado/${userId}`;
       } else {
         throw new Error('Rol no válido');
       }

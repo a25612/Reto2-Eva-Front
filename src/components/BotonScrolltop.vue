@@ -13,7 +13,7 @@ const { mostrarBotonScroll, scrollToTop } = useBotonScroll();
   </button>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '../assets/styles/variables.scss';
 
 .boton-scroll-top {

@@ -14,6 +14,6 @@ const route = useRoute();
     <Footer v-if="route.path !== '/login'" />
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 </style>

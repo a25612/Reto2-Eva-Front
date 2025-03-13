@@ -4,7 +4,7 @@
     </v-btn>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .v-btn{
         background-color: aqua;
     }

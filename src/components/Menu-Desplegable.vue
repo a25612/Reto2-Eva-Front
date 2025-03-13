@@ -42,7 +42,7 @@ watchEffect(() => {
 </template>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '../assets/styles/variables.scss';
 .btn-menudesplegable {
   position: fixed;

@@ -80,7 +80,7 @@ export const useSesionStore = defineStore('sesion', () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://localhost:7163/api/Sesion', {
+      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/Sesion', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
