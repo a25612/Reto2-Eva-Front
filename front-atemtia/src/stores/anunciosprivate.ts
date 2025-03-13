@@ -33,7 +33,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   // Función para obtener anuncios
   const fetchAnuncios = async () => {
     try {
-      const response = await fetch('https://localhost:7163/api/Anuncio');
+      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/Anuncio');
       if (!response.ok) {
         throw new Error('Error al obtener los anuncios');
       }
@@ -46,7 +46,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   // Función para crear un nuevo anuncio
   const addAnuncio = async () => {
     try {
-      const response = await fetch('https://localhost:7163/api/Anuncio', {
+      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/Anuncio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAnuncio.value)
@@ -67,7 +67,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   // Función para actualizar un anuncio
   const updateAnuncio = async () => {
     try {
-      const response = await fetch(`https://localhost:7163/api/Anuncio/${updatedAnuncio.value.id}`, {
+      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Anuncio/${updatedAnuncio.value.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedAnuncio.value)
@@ -90,7 +90,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     try {
       if (anuncioToDelete.value === null) return;
 
-      const response = await fetch(`https://localhost:7163/api/Anuncio/${anuncioToDelete.value}`, {
+      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Anuncio/${anuncioToDelete.value}`, {
         method: 'DELETE'
       });
 

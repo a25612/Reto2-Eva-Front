@@ -10,7 +10,7 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
 
   const cargarTutores = async () => {
     try {
-      const response = await fetch("https://localhost:7163/api/Tutor");
+      const response = await fetch("http://servicios-atemtia-api.retocsv.es/api/Tutor");
       if (!response.ok) throw new Error("Error al obtener tutores");
 
       const data = await response.json();
@@ -51,7 +51,7 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
       if (tutor.id) {
         // Actualizar tutor existente
         console.log("Enviando actualización del tutor con id:", tutor.id);
-        response = await fetch(`https://localhost:7163/api/Tutor/${tutor.id}`, {
+        response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Tutor/${tutor.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
       } else {
         // Crear un nuevo tutor
         console.log("Enviando nuevo tutor para creación");
-        response = await fetch("https://localhost:7163/api/Tutor", {
+        response = await fetch("http://servicios-atemtia-api.retocsv.es/api/Tutor", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export const useTutoresStore = defineStore("tutoresStore", () => {
 
   const eliminarTutor = async (id: number) => {
     try {
-      const response = await fetch(`https://localhost:7163/api/Tutor/${id}`, {
+      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Tutor/${id}`, {
         method: "DELETE",
       });
 

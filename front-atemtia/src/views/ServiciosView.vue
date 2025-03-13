@@ -113,7 +113,7 @@ function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string })
     idEmpleado: 1 
   };
 
-  fetch('https://localhost:7163/api/Sesion', {
+  fetch('http://servicios-atemtia-api.retocsv.es/api/Sesion', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -404,7 +404,6 @@ function irHome() {
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  width: 390px;
 }
 
 .modal-content {
