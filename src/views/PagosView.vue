@@ -1,67 +1,144 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { usePagosStore } from '../stores/pagos';
 
 const pagosStore = usePagosStore();
+const showAddForm = ref(false);
+const nuevoPago = ref({
+  usuario: '',
+  monto: 0,
+  metodoPago: '',
+  fecha_pago: '',
+  estado: ''
+});
 
+// Cargar pagos al montar el componente
 onMounted(() => {
   pagosStore.fetchPagos();
 });
 
+// Toggle para mostrar y ocultar el formulario de agregar pago
+const toggleAddForm = () => {
+  showAddForm.value = !showAddForm.value;
+};
 
+// Función para agregar un nuevo pago
+const addPago = async () => {
+  try {
+    // Validación básica para evitar enviar datos vacíos
+    if (!nuevoPago.value.usuario || nuevoPago.value.monto <= 0 || !nuevoPago.value.metodoPago || !nuevoPago.value.estado) {
+      console.error('Por favor complete todos los campos.');
+      return;
+    }
+
+    // Asignar fecha actual si no está presente
+    if (!nuevoPago.value.fecha_pago) {
+      nuevoPago.value.fecha_pago = new Date().toISOString();
+    }
+
+    console.log('Nuevo pago a agregar:', nuevoPago.value);
+
+    // Agregar el pago
+    await pagosStore.addPago({
+      ...nuevoPago.value
+    });
+
+    // Limpiar el formulario después de agregar el pago
+    nuevoPago.value = {
+      usuario: '',
+      monto: 0,
+      metodoPago: '',
+      fecha_pago: '',
+      estado: ''
+    };
+
+    // Ocultar el formulario de agregar pago
+    showAddForm.value = false;
+
+    // Agregar mensaje de éxito
+    alert('Pago agregado correctamente');
+
+  } catch (error) {
+    console.error('Error al agregar el pago:', error);
+    alert('Hubo un error al agregar el pago');
+  }
+};
+
+// Función para eliminar un pago
 const toggleFormDelete = async (pagoId: number) => {
   try {
-    // Confirmar la acción de eliminación
     const confirmation = confirm('¿Estás seguro de eliminar este pago?');
     if (confirmation) {
-      await pagosStore.deletePago(pagoId); 
+      await pagosStore.deletePago(pagoId);
+      alert('Pago eliminado correctamente');
     }
   } catch (error) {
     console.error('Error al eliminar el pago:', error);
+    alert('Hubo un error al eliminar el pago');
   }
 };
 </script>
 
-
-
 <template>
-    <div class="pagos">
-      <h2 class="pagos__titulo">Historial de Pagos</h2>
-  
-      <div v-if="pagosStore.cargando" class="mensaje">Cargando Pagos...</div>
-  
-      <div v-if="pagosStore.error" class="mensaje error">{{ pagosStore.error }}</div>
-  
-      <div v-if="!pagosStore.cargando && !pagosStore.error" class="pagos__lista">
-        <div v-for="pago in pagosStore.pagos" :key="pago.id" class="pago-card">
-          <h3>{{ pago.usuarioId }}</h3>
-          <p><strong>Precio Pagado:</strong> {{ pago.monto }} €</p>
-  
-          <!-- Usar la propiedad 'fecha' que ya has mapeado correctamente -->
-          <p><strong>Fecha de Pago:</strong> 
-            {{ pago.fecha.toLocaleDateString("es-ES") }} 
-            {{ pago.fecha.toLocaleTimeString("es-ES") }}
-          </p>
-  
-          <p><strong>Estado del Pago:</strong> {{ pago.estado === 'COMPLETADO' ? "Completado" : "Pendiente" }}</p>
-  
-          <!-- Botón para eliminar el pago -->
-          <button class="servicios__boton" @click="toggleFormDelete(pago.id)">
-            Eliminar Servicio
-          </button>
-        </div>
-      </div>
-  
-      <div v-if="pagosStore.pagos.length === 0 && !pagosStore.cargando && !pagosStore.error">
-        <p>No hay pagos registrados.</p>
+  <div class="pagos">
+    <h2 class="pagos__titulo">Historial de Pagos</h2>
+
+    <!-- Mostrar estado de carga y error -->
+    <div v-if="pagosStore.cargando" class="mensaje">Cargando Pagos...</div>
+    <div v-if="pagosStore.error" class="mensaje error">{{ pagosStore.error }}</div>
+
+    <!-- Mostrar la lista de pagos -->
+    <div v-if="!pagosStore.cargando && !pagosStore.error" class="pagos__lista">
+      <div v-for="pago in pagosStore.pagos" :key="pago.id" class="pago-card">
+        <h3>{{ pago.usuarioId }}</h3>
+        <p><strong>Precio Pagado:</strong> {{ pago.monto }} €</p>
+        <p><strong>Fecha de Pago:</strong> {{ pago.fecha.toLocaleDateString("es-ES") }} {{ pago.fecha.toLocaleTimeString("es-ES") }}</p>
+        <p><strong>Estado del Pago:</strong> {{ pago.estado === 'COMPLETADO' ? "Completado" : "Pendiente" }}</p>
+
+        <button class="servicios__boton" @click="toggleFormDelete(pago.id)">Eliminar Pago</button>
       </div>
     </div>
-  </template>
-  
+
+    <!-- Formulario para agregar un nuevo pago -->
+    <div v-if="showAddForm" class="add-pago-form">
+      <h3>Agregar Nuevo Pago</h3>
+      <div>
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" v-model="nuevoPago.usuario" placeholder="Nombre del usuario" />
+
+        <label for="monto">Monto (€)</label>
+        <input type="number" id="monto" v-model="nuevoPago.monto" placeholder="Monto" />
+
+        <label for="metodoPago">Método de Pago</label>
+        <input type="text" id="metodoPago" v-model="nuevoPago.metodoPago" placeholder="Método de pago" />
+
+        <label for="estado">Estado</label>
+        <select id="estado" v-model="nuevoPago.estado">
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="COMPLETADO">Completado</option>
+        </select>
+
+        <button @click="addPago">Agregar Pago</button>
+        <button @click="toggleAddForm">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Botón para mostrar el formulario de agregar pago -->
+    <div v-if="!showAddForm">
+      <button @click="toggleAddForm" class="servicios__boton">Agregar Pago</button>
+    </div>
+
+    <!-- Mensaje si no hay pagos -->
+    <div v-if="pagosStore.pagos.length === 0 && !pagosStore.cargando && !pagosStore.error">
+      <p>No hay pagos registrados.</p>
+    </div>
+  </div>
+</template>
+
   
   
 
-<style lang="scss" >
+<style lang="scss">
 @import '../assets/styles/variables.scss';
 
 .pagos {
@@ -135,7 +212,47 @@ const toggleFormDelete = async (pagoId: number) => {
       transform: scale(1);
     }
   }
+
+  .add-pago-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px;
+
+    label {
+      font-size: 16px;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 10px;
+      background-color: green;
+      color: white;
+      font-size: 16px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      
+      &:hover {
+        background-color: darkgreen;
+        transform: scale(1.05);
+      }
+
+      &:active {
+        transform: scale(1);
+      }
+    }
+  }
 }
 </style>
-
-
