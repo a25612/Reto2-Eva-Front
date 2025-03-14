@@ -10,7 +10,7 @@
   <div class="home">
     <div class="bienvenida">
       <div class="bienvenida-content">
-        <h1>Bienvenido a la App de ATEMTIA</h1>
+        <h1>Bienvenido a la Prueba de Autoria Javier Plo</h1>
         <p>La plataforma de gestión de reservas diseñada para facilitar el acceso a los tutores.</p>
       </div>
     </div>
