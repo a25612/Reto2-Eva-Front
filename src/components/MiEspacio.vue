@@ -25,6 +25,11 @@
         <div class="icono"></div>
         <p>Mi cuenta</p>
       </router-link>
+
+      <router-link class="espacio-item mi-cuenta" to="/home-app-atemtia/pago">
+        <div class="icono"></div>
+        <p>Pagos</p>
+      </router-link>
     </div>
   </div>
 </template>
