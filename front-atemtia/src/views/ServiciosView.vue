@@ -237,6 +237,11 @@ function irHome() {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
+.volver-atras{
+  margin-top: 15px;
+  margin-left: 15px;
+}
+
 .servicios-container {
   max-width: 1200px;
   margin: 0 auto;
