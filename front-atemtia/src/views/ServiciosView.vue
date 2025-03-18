@@ -20,8 +20,8 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
-const { fechaHoraSeleccionada, idOpcionServicio } = storeToRefs(sesionStore);
-const { confirmarSesion, seleccionarFechaHora } = sesionStore;
+const { idOpcionServicio } = storeToRefs(sesionStore);
+const { seleccionarFechaHora } = sesionStore;
 
 const servicioSeleccionado = ref<string | null>(null);
 const servicioSeleccionadoId = ref<number | null>(null);
@@ -191,7 +191,7 @@ function irHome() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <button class="btn--reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
+              <button class="btn-reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
                 RESERVAR
               </button>
             </div>
@@ -384,7 +384,7 @@ function irHome() {
         color: $color-principal;
       }
       
-      .btn--reservar {
+      .btn-reservar {
          background-color: $color-secundario;
          color: white;
          border: none;

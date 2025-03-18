@@ -19,6 +19,20 @@
     </div>
 
   </div>
+
+  <div class="zona-privada">
+    <h1 class="titulo">Relaciones</h1>
+
+    <!-- Separador abajo -->
+    <div class="separador-abajo">
+      <span class="bar-separador"></span>
+    </div>
+
+    <div class="botones">
+      <router-link to="/home-app-atemtia/zona-privada/usuarios" class="btn-accion">Usuarios Tutores</router-link>
+    </div>
+
+  </div>
 </template>
 
 <style lang="scss">

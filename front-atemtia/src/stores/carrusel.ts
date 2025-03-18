@@ -31,7 +31,7 @@ export const useCarruselStore = defineStore("carrusel", {
         // Convertir la fecha de publicación a tipo Date
         this.anuncios = data.map((anuncio: any) => ({
           ...anuncio,
-          fecha_Publicacion: new Date(anuncio.fecha_Publicacion), // Corrige la propiedad de la fecha
+          fecha_Publicacion: new Date(anuncio.fecha_Publicacion),
         }));
       } catch (error) {
         console.error("Error al obtener los anuncios:", error);

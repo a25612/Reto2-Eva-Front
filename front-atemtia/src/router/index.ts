@@ -83,7 +83,7 @@ router.beforeEach((to, from, next) => {
     return next({ name: 'error-404' });
   }
 
-  next(); // Si pasa todas las validaciones, continuar con la navegación
+  next();
 });
 
 
