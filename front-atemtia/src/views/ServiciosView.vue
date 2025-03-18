@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useServiciosStore } from '../stores/servicios';
 import { useSesionStore } from '../stores/sesion';
 import { storeToRefs } from 'pinia';
+import BotonScrolltop from '../components/BotonScrolltop.vue';
 import CalendarioReservas from '../components/CalendarioReservas.vue';
 import { useRouter } from 'vue-router';
 
@@ -231,6 +232,8 @@ function irHome() {
       <button @click="irHome">Aceptar</button>
     </div>
   </div>
+
+  <BotonScrolltop />
 </template>
 
 

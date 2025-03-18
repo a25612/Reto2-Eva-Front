@@ -36,6 +36,12 @@ watchEffect(() => {
             Administración
           </router-link>
         </li>
+        <li>
+          <router-link to="/login" class="menu-izquierda-link-cerrar-sesion">
+            <i class="fas fa-sign-out-alt"></i>
+            Cerrar Sesión
+          </router-link>
+        </li>
       </ul>
     </nav>
   </div>
@@ -92,8 +98,8 @@ watchEffect(() => {
   .nav-tutor {
     position: fixed;
     top: 1px;
-    left: -36%;
-    width: 33%;
+    left: -44%;
+    width: 43%;
     height: 100%;
     margin-top: 101px;
     background: $color-secundario;
@@ -108,8 +114,8 @@ watchEffect(() => {
   .nav-empleado {
     position: fixed;
     top: 1px;
-    left: -42%;
-    width: 41%;
+    left: -44%;
+    width: 43%;
     height: 100%;
     margin-top: 101px;
     background: $color-secundario;
@@ -129,6 +135,22 @@ watchEffect(() => {
 
       li {
         margin: 1rem 0;
+
+        .menu-izquierda-link-cerrar-sesion{
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+          color: $color-fondo;
+
+          i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+          }
+
+          &:hover {
+            color: #dedfe1;
+          }
+        }
 
         .menu-izquierda-link {
           display: flex;
@@ -196,9 +218,7 @@ watchEffect(() => {
   }
 
   .btn-menudesplegable {
-    display: flex;
-    left: 1rem;
-    margin-top: 60px;
+    display: none;
   }
 }
 </style>
