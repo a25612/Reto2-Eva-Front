@@ -9,7 +9,7 @@ const { mostrarBotonScroll, scrollToTop } = useBotonScroll();
     class="boton-scroll-top" 
     :class="{ mostrar: mostrarBotonScroll }" 
     @click="scrollToTop">
-    ↑
+    <i class="fa-solid fa-arrow-up"></i>
   </button>
 </template>
 
