@@ -1,8 +1,5 @@
 import { useAuthStore } from '../stores/login';
 
-
-
-
 export function abrirMenuIzquierda() {
     const contenedor = document.querySelector('.desplegable-izquierda') as HTMLElement;
     const menu = document.querySelector('.nav-izquierda') as HTMLElement;
