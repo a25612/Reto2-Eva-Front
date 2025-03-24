@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect,} from 'vue';
+import { useRouter } from 'vue-router';
 import { abrirMenuIzquierda } from '../ts/menu-desplegable';
 
 const userRole = ref('');
+const router = useRouter();
 
 watchEffect(() => {
   userRole.value = (localStorage.getItem('rol') || '').toUpperCase();
 });
+
+const cerrarSesion = () => {
+  cerrarSesion();
+    router.push('/login');
+};
 </script>
 
 <template>
@@ -37,10 +44,10 @@ watchEffect(() => {
           </router-link>
         </li>
         <li>
-          <router-link to="/login" class="menu-izquierda-link-cerrar-sesion">
+          <button @click="cerrarSesion" class="menu-izquierda-link-cerrar-sesion">
             <i class="fas fa-sign-out-alt"></i>
             Cerrar Sesión
-          </router-link>
+          </button>
         </li>
       </ul>
     </nav>

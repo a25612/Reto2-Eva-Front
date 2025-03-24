@@ -1,3 +1,8 @@
+import { useAuthStore } from '../stores/login';
+
+
+
+
 export function abrirMenuIzquierda() {
     const contenedor = document.querySelector('.desplegable-izquierda') as HTMLElement;
     const menu = document.querySelector('.nav-izquierda') as HTMLElement;
@@ -38,4 +43,8 @@ export function abrirMenuIzquierda() {
       document.removeEventListener('click', cerrarMenuFuera);
     }
   }
-  
+
+  function cerrarSesion() {
+    const authStore = useAuthStore();
+    authStore.logout();
+  }
