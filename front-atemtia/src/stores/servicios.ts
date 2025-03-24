@@ -48,7 +48,7 @@ export const useServiciosStore = defineStore('servicios', () => {
     error.value = '';
     
     try {
-      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/Centro');
+      const response = await fetch('https://localhost:7163/api/Centro');
       if (!response.ok) {
         throw new Error(`Error al cargar los centros: ${response.status}`);
       }
@@ -76,7 +76,7 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
     
     try {
-      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Servicios/centros/${centroId}`);
+      const response = await fetch(`https://localhost:7163/api/Servicios/centros/${centroId}`);
       if (!response.ok) {
         throw new Error(`Error al cargar los servicios: ${response.status}`);
       }
@@ -98,7 +98,7 @@ export const useServiciosStore = defineStore('servicios', () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Tutor/${tutorId.value}/usuarios`, {
+      const response = await fetch(`https://localhost:7163/api/Tutor/${tutorId.value}/usuarios`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

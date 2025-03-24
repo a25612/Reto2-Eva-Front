@@ -27,7 +27,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
 
   const fetchAnuncios = async () => {
     try {
-      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/Anuncio');
+      const response = await fetch('https://localhost:7163/api/Anuncio');
       if (!response.ok) throw new Error('Error al obtener anuncios');       
       
       const data = await response.json();

@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = '';
 
     try {
-      const response = await fetch('http://servicios-atemtia-api.retocsv.es/api/auth/login', {
+      const response = await fetch('https://localhost:7163/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

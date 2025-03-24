@@ -11,7 +11,7 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
   // Cargar usuarios desde la API
   const cargarUsuarios = async () => {
     try {
-      const response = await fetch("http://servicios-atemtia-api.retocsv.es/api/Usuarios");
+      const response = await fetch("https://localhost:7163/api/Usuarios");
       if (!response.ok) throw new Error("Error al obtener usuarios");
 
       const data = await response.json();
@@ -49,7 +49,7 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
       let response;
       if (usuario.id) {
         // Actualizar usuario existente
-        response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Usuarios/${usuario.id}`, {
+        response = await fetch(`https://localhost:7163/api/Usuarios/${usuario.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
         });
       } else {
         // Crear un nuevo usuario
-        response = await fetch("http://servicios-atemtia-api.retocsv.es/api/Usuarios", {
+        response = await fetch("https://localhost:7163/api/Usuarios", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
   // Eliminar un usuario
   const eliminarUsuario = async (id: number) => {
     try {
-      const response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Usuarios/${id}`, {
+      const response = await fetch(`https://localhost:7163/api/Usuarios/${id}`, {
         method: "DELETE",
       });
 

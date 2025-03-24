@@ -15,7 +15,7 @@ export const useCarruselStore = defineStore("carrusel", {
     // Función para obtener los anuncios desde la API
     async obtenerAnuncios() {
       try {
-        const response = await fetch("http://servicios-atemtia-api.retocsv.es/api/Anuncio", {
+        const response = await fetch("https://localhost:7163/api/Anuncio", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

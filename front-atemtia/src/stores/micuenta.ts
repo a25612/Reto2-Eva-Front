@@ -48,7 +48,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
 
       if (rol === 'Tutor') {
         cargandoTutor.value = true;
-        response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Tutor/${userId}`, {
+        response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
         if (!response.ok) throw new Error(`Error al cargar datos del tutor: ${response.status}`);
@@ -56,7 +56,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         cargandoTutor.value = false;
 
         cargandoUsuarios.value = true;
-        response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Tutor/${userId}/usuarios`, {
+        response = await fetch(`https://localhost:7163/api/Tutor/${userId}/usuarios`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
         if (!response.ok) throw new Error(`Error al cargar usuarios: ${response.status}`);
@@ -65,7 +65,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
 
       } else if (rol === 'Empleado') {
         cargandoEmpleados.value = true;
-        response = await fetch(`http://servicios-atemtia-api.retocsv.es/api/Empleado/${userId}`, {
+        response = await fetch(`https://localhost:7163/api/Empleado/${userId}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
         if (!response.ok) throw new Error(`Error al cargar datos del empleado: ${response.status}`);
