@@ -44,8 +44,11 @@ const cerrarSesionHandler = () => {
           </router-link>
         </li>
         <li>
-          <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion">
-            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+          <button 
+            @click="cerrarSesionHandler" 
+            class="menu-izquierda-link-cerrar-sesion" 
+            :style="{ marginTop: userRole === 'EMPLEADO' ? '555px' : userRole === 'TUTOR' ? '590px' : '0' }">
+             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
       </ul>
