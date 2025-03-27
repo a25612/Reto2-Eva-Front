@@ -45,9 +45,9 @@ export const useCalendarioStore = defineStore('calendario', () => {
       const fechaFiltro = fechaLocal.toISOString().split('T')[0];
 
       if (authStore.rol === 'Tutor') {
-        url = `https://localhost:7163/api/Sesion/Usuario/${userId}?fecha=${fechaFiltro}`;
+        url = `https://localhost:7163/api/Sesion/Usuario/${userId}/PorFecha?fecha=${fechaFiltro}`;
       } else if (authStore.rol === 'Empleado') {
-        url = `https://localhost:7163/api/Sesion/Empleado/${userId}?fecha=${fechaFiltro}`;
+        url = `https://localhost:7163/api/Sesion/Empleado/${userId}/PorFecha?fecha=${fechaFiltro}`;
       }
 
       const response = await fetch(url, {
