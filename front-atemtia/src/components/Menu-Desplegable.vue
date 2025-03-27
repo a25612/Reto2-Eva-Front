@@ -213,7 +213,7 @@ const cerrarSesionHandler = () => {
 @media (min-width: 768px) {
   .desplegable-izquierda {
     .nav-izquierda {
-      width: 8%;
+      width: 9%;
       left: 0;
       position: fixed;
       margin-top: 80px;
@@ -230,7 +230,7 @@ const cerrarSesionHandler = () => {
     display: none;
   }
   .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
-    margin-top: 713px !important; 
+    margin-top: 683px !important; 
 
   }
 
