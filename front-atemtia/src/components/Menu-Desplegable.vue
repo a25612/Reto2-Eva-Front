@@ -229,5 +229,13 @@ const cerrarSesionHandler = () => {
   .btn-menudesplegable {
     display: none;
   }
+  .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
+    margin-top: 713px !important; 
+
+  }
+
+  .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
+    margin-top: 713px !important; 
+  }
 }
 </style>
