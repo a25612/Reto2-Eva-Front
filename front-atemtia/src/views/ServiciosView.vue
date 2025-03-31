@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useServiciosStore } from '../stores/servicios';
 import { useSesionStore } from '../stores/sesion';
 import { storeToRefs } from 'pinia';
+import { useAuthStore } from '../stores/login';
 import BotonScrolltop from '../components/BotonScrolltop.vue';
 import CalendarioReservas from '../components/CalendarioReservas.vue';
 import { useRouter } from 'vue-router';
@@ -10,6 +11,10 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const serviciosStore = useServiciosStore();
 const sesionStore = useSesionStore();
+const authStore = useAuthStore();
+const { rol } = storeToRefs(authStore);
+
+console.log('Rol actual:', rol.value);
 
 const {
   centros,
@@ -81,18 +86,16 @@ function abrirCalendario() {
 
 function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
   const fechaSeleccionada = new Date(fechaHora.fecha);
-  const diaSemana = fechaSeleccionada.getDay(); // 0 = Domingo, 6 = Sábado
-  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]); // Extrae la hora como número entero
+  const diaSemana = fechaSeleccionada.getDay(); 
+  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]);
 
-  // Verifica si es fin de semana
   if (diaSemana === 0 || diaSemana === 6) {
     alert('Solo se pueden seleccionar días laborables (lunes a viernes).');
     return;
   }
 
-  // Verifica si la hora está en los rangos permitidos
-  const esHoraValida = 
-    (horaSeleccionada >= 9 && horaSeleccionada <= 13) || 
+  const esHoraValida =
+    (horaSeleccionada >= 9 && horaSeleccionada <= 13) ||
     (horaSeleccionada >= 16 && horaSeleccionada <= 20);
 
   if (!esHoraValida) {
@@ -111,7 +114,7 @@ function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string })
     idOpcionServicio: idOpcionServicio.value,
     idUsuario: 1,
     idTutor: 1,
-    idEmpleado: 1 
+    idEmpleado: 1
   };
 
   fetch('https://localhost:7163/api/Sesion', {
@@ -192,7 +195,8 @@ function irHome() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <button class="btn-reservar" @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
+              <button class="btn-reservar" v-if="rol !== 'Empleado'"
+                @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
                 RESERVAR
               </button>
             </div>
@@ -202,7 +206,8 @@ function irHome() {
     </div>
   </div>
 
-  <div v-if="servicioSeleccionado && !mostrarCalendario && !reservaConfirmada" class="modal" @click.self="cerrarConfirmacion">
+  <div v-if="servicioSeleccionado && !mostrarCalendario && !reservaConfirmada" class="modal"
+    @click.self="cerrarConfirmacion">
     <div class="modal-content">
       <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
       <div class="modal-buttons">
@@ -214,10 +219,8 @@ function irHome() {
 
   <div v-if="mostrarCalendario" class="modal">
     <div class="modal-content">
-      <CalendarioReservas
-        @confirmarFechaHora="handleFechaHoraSeleccionada"
-        @cancelarFechaHora="handleCancelarFechaHora"
-      />
+      <CalendarioReservas @confirmarFechaHora="handleFechaHoraSeleccionada"
+        @cancelarFechaHora="handleCancelarFechaHora" />
     </div>
   </div>
 
@@ -240,7 +243,7 @@ function irHome() {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
-.volver-atras{
+.volver-atras {
   margin-top: 15px;
   margin-left: 15px;
 }
@@ -249,7 +252,7 @@ function irHome() {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  
+
   h1 {
     color: $color-titulos;
     margin-bottom: 30px;
@@ -263,7 +266,7 @@ function irHome() {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  
+
   p {
     margin: 0;
   }
@@ -273,7 +276,7 @@ function irHome() {
   padding: 15px;
   text-align: center;
   color: $color-principal;
-  
+
   p {
     margin: 0;
     font-style: italic;
@@ -282,7 +285,7 @@ function irHome() {
 
 .selector-centro {
   margin-bottom: 40px;
-  
+
   label {
     display: block;
     margin-bottom: 10px;
@@ -290,7 +293,7 @@ function irHome() {
     color: $color-titulos;
     font-size: 1.1rem;
   }
-  
+
   select {
     padding: 12px 15px;
     border-radius: 8px;
@@ -300,7 +303,7 @@ function irHome() {
     font-size: 1rem;
     background-color: $color-fondo;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    
+
     &:focus {
       border-color: $color-principal;
       outline: none;
@@ -325,7 +328,7 @@ function irHome() {
   border-radius: 8px;
   text-align: center;
   color: #757575;
-  
+
   p {
     margin: 0;
     font-size: 1.1rem;
@@ -343,68 +346,68 @@ function irHome() {
   border-radius: 10px;
   padding: 25px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  
+
   h3 {
     color: $color-titulos;
     margin-bottom: 15px;
     font-size: 1.3rem;
   }
-  
+
   .descripcion {
     font-size: 1.1rem;
     color: #666;
     margin-bottom: 15px;
   }
-  
+
   .opcion-servicio {
     padding: 10px 0;
-    
+
     .opcion-descripcion {
       font-size: 1.1rem;
       color: #333;
       margin-bottom: 5px;
     }
-    
+
     .sesiones {
       font-size: 1rem;
       color: #777;
     }
-    
+
     .duracion {
       font-size: 1rem;
       color: #777;
     }
-    
+
     .precio-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 20px;
-      
+
       .precio {
         font-size: 1.3rem;
         font-weight: bold;
         color: $color-principal;
       }
-      
-      .btn-reservar {
-         background-color: $color-secundario;
-         color: white;
-         border: none;
-         padding: 8px 11px;
-         cursor: pointer;
-         border-radius: 5px;
-         font-weight: bold;
-         transition: background-color 0.3s ease;
-         font-size: 0.8rem;
 
-  &:hover {
-    background-color: $color-principal;
-  }
-}
+      .btn-reservar {
+        background-color: $color-secundario;
+        color: white;
+        border: none;
+        padding: 8px 11px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        font-size: 0.8rem;
+
+        &:hover {
+          background-color: $color-principal;
+        }
       }
     }
   }
+}
 
 .modal {
   background: white;
@@ -449,8 +452,9 @@ function irHome() {
       color: $color-principal;
     }
   }
+
   button {
-    background-color:$color-secundario;
+    background-color: $color-secundario;
     color: white;
     border: none;
     padding: 12px 20px;
@@ -465,51 +469,53 @@ function irHome() {
       transform: scale(1.05);
     }
   }
-.modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  margin-top: 10px;
-}
 
-.boton-si,
-.boton-no {
-  background-color: $color-secundario;
-  border: none;
-  padding: 10px 15px;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: #5e9422;
-  }
-}
-
-.boton-no {
-  background-color: rgb(194, 15, 15);
-  
-  &:hover {
-    background-color: darken(#ddd, 10%);
-  }
-}
-@media (max-width: 768px) {
-  .servicios-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 10px;
   }
 
-  
-  .servicio-card {
-    padding: 20px;
-  &:hover {
-    background-color: darken(#ddd, 10%);
+  .boton-si,
+  .boton-no {
+    background-color: $color-secundario;
+    border: none;
+    padding: 10px 15px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #5e9422;
+    }
+  }
+
+  .boton-no {
+    background-color: rgb(194, 15, 15);
+
+    &:hover {
+      background-color: darken(#ddd, 10%);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .servicios-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+
+    .servicio-card {
+      padding: 20px;
+
+      &:hover {
+        background-color: darken(#ddd, 10%);
+      }
+    }
+
+    .modal {
+      width: 100%;
+    }
   }
 }
-
-  .modal {
-    width: 100%;
-  }
-}
-}
-
 </style>
