@@ -1,13 +1,13 @@
 <script setup lang="ts">
-  import Carrusel from '../components/Carrusel.vue';
-  import BotonScrolltop from '../components/BotonScrolltop.vue';
-  import MenuDesplegable from '../components/Menu-Desplegable.vue';
-  import Calendario from '../components/Calendario.vue';
-  import MiEspacio from '../components/MiEspacio.vue';
-  import { useAuthStore } from '../stores/login';
-  
-  const authStore = useAuthStore();
-  const usuarioSeleccionadoId = authStore.usuarioSeleccionadoId;
+import Carrusel from '../components/Carrusel.vue';
+import BotonScrolltop from '../components/BotonScrolltop.vue';
+import MenuDesplegable from '../components/Menu-Desplegable.vue';
+import Calendario from '../components/Calendario.vue';
+import MiEspacio from '../components/MiEspacio.vue';
+import { useAuthStore } from '../stores/login';
+
+const authStore = useAuthStore();
+const usuarioSeleccionadoId = authStore.usuarioSeleccionadoId;
 
 console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 </script>
@@ -16,7 +16,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
   <Calendario />
 
   <MenuDesplegable />
-  
+
   <div class="titulo-anuncios">
     <!-- SEPARADOR -->
     <div class="separador">
@@ -25,14 +25,14 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 
     <!-- ANUNCIOS -->
     <div class="div-mi-espacio">
-  <div class="separador-abajo"> </div>
+      <div class="separador-abajo"> </div>
 
-  <router-link to="/home-app-atemtia/anuncios" class="btn-anuncios">
-    <button>Anuncios</button>
-  </router-link>
+      <router-link to="/home-app-atemtia/anuncios" class="btn-anuncios">
+        <button>Anuncios</button>
+      </router-link>
 
-  <div class="separador-abajo"></div>
-</div>
+      <div class="separador-abajo"></div>
+    </div>
     <!-- SEPARADOR -->
     <div class="separador-abajo">
       <span class="bar-separador"></span>
@@ -42,7 +42,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
   <Carrusel />
 
   <BotonScrolltop />
-  
+
   <MiEspacio />
 
 </template>
@@ -73,7 +73,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
     padding: 10px;
     transition: color 0.3s ease, transform 0.2s ease;
 
-    
+
   }
 
   .separador-abajo {
@@ -85,7 +85,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
       margin-bottom: 25px;
       width: 350px;
       height: 1px;
-      
+
     }
   }
 
@@ -131,7 +131,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
   }
 }
 
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
   .titulo-anuncios {
     margin-right: 32px;
   }

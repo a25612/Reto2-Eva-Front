@@ -13,36 +13,54 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(username: string, password: string) {
     error.value = '';
-
+  
     try {
       const response = await fetch('https://localhost:7163/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error al iniciar sesión');
       }
-
+  
       const data = await response.json();
       token.value = data.token;
       rol.value = data.rol;
       userId.value = data.iduser;
-
+  
       localStorage.setItem('token', data.token);
       localStorage.setItem('rol', data.rol);
       localStorage.setItem('userId', data.iduser);
 
-      router.push('/home-app-atemtia');
+      if (data.rol === 'Tutor') {
+        const usuariosResponse = await fetch(`https://localhost:7163/api/Tutor/${data.iduser}/usuarios`, {
+          headers: { 'Authorization': `Bearer ${data.token}`, 'Content-Type': 'application/json' },
+        });
+  
+        if (!usuariosResponse.ok) {
+          throw new Error('Error al cargar los usuarios asociados');
+        }
+  
+        const usuariosData = await usuariosResponse.json();
+  
+        if (usuariosData.length > 0) {
+          usuarioSeleccionadoId.value = usuariosData[0].id; 
+          localStorage.setItem('ultimoUsuarioSeleccionado', usuariosData[0].id);
+          console.log('Usuario asignado automáticamente:', usuariosData[0].id);
+        }
+      }
+  
+      router.push('/home-app-atemtia'); 
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
     }
   }
+  
 
   function setSelectedUser(id: string) {
-    // Solo guardar usuario seleccionado si el rol no es "Empleado"
     if (rol.value !== 'Empleado') {
       usuarioSeleccionadoId.value = id;
       localStorage.setItem('ultimoUsuarioSeleccionado', id);

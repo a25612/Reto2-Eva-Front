@@ -72,7 +72,6 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         empleados.value = [await response.json()];
         cargandoEmpleados.value = false;
 
-        // Limpiar cualquier usuario seleccionado, ya que no aplica para empleados
         usuarioSeleccionadoId.value = '';
         localStorage.removeItem('ultimoUsuarioSeleccionado');
       } else {
@@ -86,7 +85,6 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
   function seleccionarUsuario(id: string) {
     const authStore = useAuthStore();
 
-    // Solo guardar usuario seleccionado si el rol no es "Empleado"
     if (authStore.rol !== 'Empleado') {
       usuarioSeleccionadoId.value = id;
       localStorage.setItem('ultimoUsuarioSeleccionado', id);
@@ -106,7 +104,6 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
   }
 
   return {
-    // State
     tutor,
     usuarios,
     empleados,
