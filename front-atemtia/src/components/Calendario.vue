@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useCalendarioStore } from '../stores/calendario';
+import VueDatePicker from 'vue3-datepicker';
 
 const calendarioStore = useCalendarioStore();
 
 const contenedor = ref<HTMLElement | null>(null);
 const nav = ref<HTMLElement | null>(null);
 const btn = ref<HTMLElement | null>(null);
+const mostrarCalendario = ref(false); 
+const diasConActividades = ref([]); 
+
+watch(
+  () => calendarioStore.sesiones,
+  (sesiones) => {
+    diasConActividades.value = sesiones.map((sesion) => new Date(sesion.fecha));
+  },
+  { immediate: true }
+);
 
 watch(
   () => calendarioStore.diaActual,
@@ -49,24 +60,32 @@ function cerrarCalendarioFuera(event: Event) {
           <path d="m16 3v4"></path>
           <path d="m4 11h16"></path>
         </g>
-      </svg>    
+      </svg>
     </button>
 
     <nav ref="nav" class="nav-calendario">
       <div class="nav-calendario-header">
         <h2>Mi agenda</h2>
         <div class="nav-controls">
+          <!-- Botón para cambiar al día anterior -->
           <button @click="calendarioStore.cambiarDia('anterior')">‹</button>
-          <span>{{ calendarioStore.diaActual.toLocaleDateString("es-ES", { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          }) }}</span>
+
+          <!-- Fecha actual con funcionalidad para abrir el datepicker -->
+          <span @click="mostrarCalendario = true">
+            {{ calendarioStore.diaActual.toLocaleDateString("es-ES", {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) }}
+          </span>
+
+          <!-- Botón para cambiar al día siguiente -->
           <button @click="calendarioStore.cambiarDia('siguiente')">›</button>
         </div>
       </div>
 
+      <!-- Contenido del calendario -->
       <div class="nav-calendario-content">
         <div v-if="calendarioStore.cargando">
           <p>Cargando actividades...</p>
@@ -75,11 +94,7 @@ function cerrarCalendarioFuera(event: Event) {
           <p>No hay actividades para este día.</p>
         </div>
         <div v-else>
-          <div 
-            v-for="(actividad, index) in calendarioStore.actividadesDelDia" 
-            :key="index" 
-            class="agenda-item"
-          >
+          <div v-for="(actividad, index) in calendarioStore.actividadesDelDia" :key="index" class="agenda-item">
             <div class="time">{{ actividad.hora }}</div>
             <div class="details">
               <div class="title">{{ actividad.titulo }}</div>
@@ -97,141 +112,147 @@ function cerrarCalendarioFuera(event: Event) {
 @import '../assets/styles/variables.scss';
 
 .calendario-desplegable {
-    position: relative;
+  position: relative;
 
-    .btn-calendario {
-        position: fixed;
+  .btn-calendario {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 9px 12px;
+    gap: 8px;
+    height: 40px;
+    width: 50px;
+    border: none;
+    margin-top: 12px;
+    background: $color-secundario;
+    border-radius: 20px;
+    cursor: pointer;
+    right: 4%;
+    z-index: 1001;
+    transition: right 0.5s ease-out;
+
+    &:hover {
+      background: $color-principal;
+
+      .svg-icon {
+        animation: slope 1s linear infinite;
+      }
+    }
+  }
+
+  .nav-calendario {
+    position: fixed;
+    top: 1px;
+    right: -56%;
+    width: 56%;
+    height: 100%;
+    margin-top: 101px;
+    background: $color-fondo;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+    transition: right 0.5s ease-out;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+
+    &-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+
+      h2 {
+        margin: 0;
+        color: $color-principal;
+        font-size: 1.5rem;
+        margin-left: 20px;
+      }
+
+      .nav-controls {
         display: flex;
-        justify-content: center;
         align-items: center;
-        padding: 9px 12px;
-        gap: 8px;
-        height: 40px;
-        width: 50px;
-        border: none;
-        margin-top: 12px;
-        background: $color-secundario;
-        border-radius: 20px;
-        cursor: pointer;
-        right: 4%;
-        z-index: 1001;
-        transition: right 0.5s ease-out; 
-        
-        &:hover {
-            background: $color-principal;
+        justify-content: space-between;
 
-            .svg-icon {
-                animation: slope 1s linear infinite;
-            }
+        button {
+          background: none;
+          border: none;
+          color: $color-secundario;
+          cursor: pointer;
+          font-size: 1.5rem;
+          padding: 0.5rem;
+
+          &:hover {
+            color: $color-principal;
+          }
         }
+
+        span {
+          color: #333;
+          font-size: 1rem;
+          text-transform: capitalize;
+        }
+      }
     }
 
-    .nav-calendario {
-        position: fixed;
-        top: 1px;
-        right: -56%;
-        width: 56%;
-        height: 100%;
-        margin-top: 101px;
-        background: $color-fondo;
-        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
-        transition: right 0.5s ease-out; 
-        z-index: 2000;
+    &-content {
+      .agenda-item {
         display: flex;
-        flex-direction: column;
-        padding: 1.5rem;
+        margin-bottom: 1.5rem;
 
-        &-header {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-
-            h2 {
-                margin: 0;
-                color: $color-principal;
-                font-size: 1.5rem;
-                margin-left: 20px;
-            }
-
-            .nav-controls {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                
-                button {
-                    background: none;
-                    border: none;
-                    color: $color-secundario;
-                    cursor: pointer;
-                    font-size: 1.5rem;
-                    padding: 0.5rem;
-                    
-                    &:hover {
-                        color: $color-principal;
-                    }
-                }
-
-                span {
-                    color: #333;
-                    font-size: 1rem;
-                    text-transform: capitalize;
-                }
-            }
+        .time {
+          min-width: 60px;
+          color: #333;
+          font-weight: bold;
         }
 
-        &-content {
-            .agenda-item {
-                display: flex;
-                margin-bottom: 1.5rem;
-                
-                .time {
-                    min-width: 60px;
-                    color: #333;
-                    font-weight: bold;
-                }
-                
-                .details {
-                    margin-left: 1rem;
-                    padding-left: 1rem;
-                    border-left: 2px solid $color-secundario;
-                    
-                    .title {
-                        color: #333;
-                        margin-bottom: 0.25rem;
-                        font-weight: 500;
-                    }
-                    
-                    .location {
-                        color: #666;
-                        font-size: 0.9rem;
-                    }
-                }
-            }
-        }
+        .details {
+          margin-left: 1rem;
+          padding-left: 1rem;
+          border-left: 2px solid $color-secundario;
 
-        &.active {
-            right: 0;
-            margin-top: 101px;
+          .title {
+            color: #333;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+          }
+
+          .location {
+            color: #666;
+            font-size: 0.9rem;
+          }
         }
+      }
     }
 
     &.active {
-        .btn-calendario {
-            right: 58%;
-        }
+      right: 0;
+      margin-top: 101px;
     }
+  }
+
+  &.active {
+    .btn-calendario {
+      right: 58%;
+    }
+  }
 }
 
 @keyframes slope {
   0% {}
-  50% { transform: rotate(10deg); }
+
+  50% {
+    transform: rotate(10deg);
+  }
+
   100% {}
 }
 
 @media (min-width: 768px) {
   .calendario-desplegable {
-    .btn-calendario { display: none; }
+    .btn-calendario {
+      display: none;
+    }
 
     .nav-calendario {
       top: 10%;
