@@ -37,6 +37,12 @@ const cerrarSesionHandler = () => {
             Servicios
           </router-link>
         </li>
+        <li>
+          <router-link to="/home-app-atemtia/mi-cuenta" class="menu-izquierda-link">
+            <i class="fa-solid fa-user"></i>
+            Mi cuenta
+          </router-link>
+        </li>
         <li v-if="userRole === 'EMPLEADO'">
           <router-link to="/home-app-atemtia/zona-privada" class="menu-izquierda-link">
             <i class="fa-solid fa-shield"></i>
@@ -47,7 +53,7 @@ const cerrarSesionHandler = () => {
           <button 
             @click="cerrarSesionHandler" 
             class="menu-izquierda-link-cerrar-sesion" 
-            :style="{ marginTop: userRole === 'EMPLEADO' ? '555px' : userRole === 'TUTOR' ? '590px' : '0' }">
+            :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '555px' : '0' }">
              <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
