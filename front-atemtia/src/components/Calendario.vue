@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useCalendarioStore } from '../stores/calendario';
-import VueDatePicker from 'vue3-datepicker';
 
 const calendarioStore = useCalendarioStore();
-
 const contenedor = ref<HTMLElement | null>(null);
 const nav = ref<HTMLElement | null>(null);
 const btn = ref<HTMLElement | null>(null);
