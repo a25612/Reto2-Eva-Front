@@ -14,8 +14,6 @@ const sesionStore = useSesionStore();
 const authStore = useAuthStore();
 const { rol } = storeToRefs(authStore);
 
-console.log('Rol actual:', rol.value);
-
 const {
   centros,
   servicios,

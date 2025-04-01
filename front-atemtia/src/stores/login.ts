@@ -2,6 +2,11 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+interface Usuario {
+  id: string;
+  nombre: string;
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token') || '');
   const rol = ref(localStorage.getItem('rol') || '');
@@ -39,27 +44,33 @@ export const useAuthStore = defineStore('auth', () => {
         const usuariosResponse = await fetch(`https://localhost:7163/api/Tutor/${data.iduser}/usuarios`, {
           headers: { 'Authorization': `Bearer ${data.token}`, 'Content-Type': 'application/json' },
         });
-  
+      
         if (!usuariosResponse.ok) {
           throw new Error('Error al cargar los usuarios asociados');
         }
-  
-        const usuariosData = await usuariosResponse.json();
-  
-        if (usuariosData.length > 0) {
-          usuarioSeleccionadoId.value = usuariosData[0].id; 
-          localStorage.setItem('ultimoUsuarioSeleccionado', usuariosData[0].id);
-          console.log('Usuario asignado automáticamente:', usuariosData[0].id);
+      
+        const usuariosData = await usuariosResponse.json() as Usuario[];
+      
+        // Find the first user assigned to this tutor
+        const assignedUser = usuariosData.find((usuario: Usuario) => usuario.id === data.iduser.toString());
+      
+        if (assignedUser) {
+          usuarioSeleccionadoId.value = assignedUser.id;
+          localStorage.setItem('ultimoUsuarioSeleccionado', assignedUser.id);
+          console.log('Usuario asignado automáticamente:', assignedUser.id);
+        } else {
+          console.log('No se encontró un usuario asignado a este tutor');
+          usuarioSeleccionadoId.value = '';
+          localStorage.removeItem('ultimoUsuarioSeleccionado');
         }
       }
-  
+      
       router.push('/home-app-atemtia'); 
     } catch (err: any) {
       error.value = err.message || 'Error al iniciar sesión';
     }
   }
   
-
   function setSelectedUser(id: string) {
     if (rol.value !== 'Empleado') {
       usuarioSeleccionadoId.value = id;

@@ -34,18 +34,18 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
     const authStore = useAuthStore();
     const userId = authStore.userId;
     const rol = authStore.rol;
-
+  
     if (!userId || !rol) {
       error.value = 'No se encontró información de usuario';
       return;
     }
-
+  
     error.value = '';
-
+  
     try {
       const token = authStore.token;
       let response;
-
+  
       if (rol === 'Tutor') {
         cargandoTutor.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
@@ -54,7 +54,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar datos del tutor: ${response.status}`);
         tutor.value = await response.json();
         cargandoTutor.value = false;
-
+  
         cargandoUsuarios.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}/usuarios`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -62,18 +62,15 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar usuarios: ${response.status}`);
         usuarios.value = await response.json();
         cargandoUsuarios.value = false;
-
+  
+          if (usuarios.value.length > 0) {
+          seleccionarUsuario(usuarios.value[0].id);
+        } else {
+          console.log('No se encontró un usuario asignado a este tutor');
+        }
+  
       } else if (rol === 'Empleado') {
-        cargandoEmpleados.value = true;
-        response = await fetch(`https://localhost:7163/api/Empleado/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        });
-        if (!response.ok) throw new Error(`Error al cargar datos del empleado: ${response.status}`);
-        empleados.value = [await response.json()];
-        cargandoEmpleados.value = false;
 
-        usuarioSeleccionadoId.value = '';
-        localStorage.removeItem('ultimoUsuarioSeleccionado');
       } else {
         throw new Error('Rol no válido');
       }
@@ -81,6 +78,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
       error.value = err instanceof Error ? err.message : 'Error desconocido';
     }
   }
+  
 
   function seleccionarUsuario(id: string) {
     const authStore = useAuthStore();

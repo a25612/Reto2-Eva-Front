@@ -111,9 +111,8 @@ onMounted(() => {
     font-size: 16px;
 
     &.error {
-      color: red;
+      color: $color-secundario;
     }
   }
 }
 </style>
-```
