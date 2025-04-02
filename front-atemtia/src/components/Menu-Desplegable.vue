@@ -241,7 +241,7 @@ const cerrarSesionHandler = () => {
   }
 
   .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
-    margin-top: 665px !important; 
+    margin-top: 645px !important; 
   }
 }
 </style>

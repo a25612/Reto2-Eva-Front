@@ -32,8 +32,7 @@ function confirmarSeleccion() {
     <input type="time" v-model="horaSeleccionada" />
 
     <div class="botones-calendario">
-      <button @click="confirmarSeleccion">Aceptar</button>
-      <button @click="cancelarSeleccion">Cancelar</button>
+      <button @click="confirmarSeleccion">Aceptar</button>       <button @click="cancelarSeleccion">Cancelar</button>
     </div>
 
     <p v-if="error">{{ error }}</p>
@@ -55,6 +54,7 @@ function confirmarSeleccion() {
     display: flex; 
     justify-content: space-around; 
     margin-top: 20px;
+    gap: 20px;
   }
 
   button {
@@ -64,6 +64,7 @@ function confirmarSeleccion() {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+
 
     &:hover {
       background-color: darken($color-boton, 10%);
