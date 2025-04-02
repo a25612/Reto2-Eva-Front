@@ -110,41 +110,46 @@ const cerrarSesion = () => {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: #f8f8f8;
+    background: #ffffff;
     border-radius: 12px;
     max-width: 400px;
     margin: auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
 
     &__titulo {
-        font-size: 22px;
-        margin-bottom: 15px;
-        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: $color-principal;
+        font-weight: bold;
     }
 
     &__info {
         width: 100%;
         background: $color-fondo;
-        padding: 15px;
+        padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         text-align: left;
+        margin-bottom: 20px;
     }
 
     &__usuarios {
         font-size: 20px;
-        margin-top: 15px;
-        color: #333;
+        margin-top: 20px;
+        color: $color-secundario;
+        font-weight: bold;
     }
 
     .custom-select {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         border-radius: 5px;
         border: 1px solid #ccc;
         background-color: $color-fondo;
         font-size: 16px;
         cursor: pointer;
+        transition: border-color 0.3s ease;
 
         &:focus {
             border-color: $color-principal;
@@ -159,29 +164,30 @@ const cerrarSesion = () => {
     &__dato {
         font-size: 16px;
         color: #555;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     &__boton {
         width: 100%;
-        padding: 12px;
+        padding: 15px;
         font-size: 16px;
-        color: $color-fondo;
-        background: #d9534f;
+        color: #fff;
+        background: rgba(255, 0, 0, 0.785);
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        margin-top: 15px;
+        margin-top: 20px;
+        transition: background 0.3s ease;
 
         &:hover {
-            background: #c9302c;
+            background: darken($color-principal, 10%);
         }
     }
 
     .volver-atras {
-        margin-right: 310px;
+        margin-right: auto;
         background-color: $color-boton;
-        color: $color-fondo;
+        color: #fff;
         border: none;
         border-radius: 50%;
         width: 45px;
@@ -192,13 +198,36 @@ const cerrarSesion = () => {
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease;
+
+        &:hover {
+            background-color: darken($color-boton, 10%);
+        }
     }
 }
 
 @media (min-width: 768px) {
     .mi-cuenta {
-        max-width: 500px;
+        max-width: 600px;
+        padding: 30px;
+    }
+
+    .mi-cuenta__titulo {
+        font-size: 28px;
+    }
+
+    .mi-cuenta__info {
+        padding: 25px;
+    }
+
+    .mi-cuenta__usuarios {
+        font-size: 22px;
+    }
+
+    .mi-cuenta__boton {
+        padding: 18px;
+        font-size: 18px;
     }
 }
 </style>
