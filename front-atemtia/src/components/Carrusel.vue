@@ -165,7 +165,7 @@ const anunciosOrdenados = computed(() => {
 
     &-container {
       gap: 24px;
-      padding: 0 20px;
+      padding: 11 ;
       display: flex;
       justify-content: center;  
       align-items: center;  

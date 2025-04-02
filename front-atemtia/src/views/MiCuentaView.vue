@@ -54,7 +54,12 @@ const cerrarSesion = () => {
     <p v-if="miCuentaStore.error" class="error">{{ miCuentaStore.error }}</p>
 
     <div v-if="miCuentaStore.cargandoTutor || miCuentaStore.cargandoUsuarios || miCuentaStore.cargandoEmpleados" class="loading">
-      Cargando...
+      <div class="newtons-cradle">
+      <div class="newtons-cradle__dot"></div>
+      <div class="newtons-cradle__dot"></div>
+      <div class="newtons-cradle__dot"></div>
+      <div class="newtons-cradle__dot"></div>
+</div>
     </div>
 
     <div v-if="authStore.rol === 'Tutor' && miCuentaStore.tutor" class="mi-cuenta__info">
@@ -205,6 +210,78 @@ const cerrarSesion = () => {
             background-color: darken($color-boton, 10%);
         }
     }
+}
+.newtons-cradle {
+  $uib-size: 50px;
+  $uib-speed: 1.2s;
+  $uib-color: #474554;
+  
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $uib-size;
+  height: $uib-size;
+
+  &__dot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 25%;
+    transform-origin: center top;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 25%;
+      border-radius: 50%;
+      background-color: $uib-color;
+    }
+
+    &:first-child {
+      animation: swing $uib-speed linear infinite;
+    }
+
+    &:last-child {
+      animation: swing2 $uib-speed linear infinite;
+    }
+  }
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+
+  25% {
+    transform: rotate(70deg);
+    animation-timing-function: ease-in;
+  }
+
+  50% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes swing2 {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+
+  50% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+
+  75% {
+    transform: rotate(-70deg);
+    animation-timing-function: ease-in;
+  }
 }
 
 @media (min-width: 768px) {

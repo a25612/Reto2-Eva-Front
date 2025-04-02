@@ -2,18 +2,10 @@
 </script>
 
 <template>
-    <!-- SEPARADOR -->
-    <div class="separador">
-      <span class="bar-separador"></span>
-    </div>
+    
   
   <div class="div-mi-espacio">
     <h2>Mi Espacio</h2>
-
-    <!-- Separador abajo -->
-    <div class="separador-abajo">
-      <span class="bar-separador"></span>
-    </div>
 
     <div class="mi-espacio-grid">
       <router-link class="espacio-item reservas" to="/home-app-atemtia/Reservas">
