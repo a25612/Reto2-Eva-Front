@@ -19,23 +19,17 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 
   <div class="titulo-anuncios">
     <!-- SEPARADOR -->
-    <div class="separador">
-      <span class="bar-separador"></span>
-    </div>
+  
 
     <!-- ANUNCIOS -->
     <div class="div-mi-espacio">
-      <div class="separador-abajo"> </div>
+     
 
       <router-link to="/home-app-atemtia/anuncios" class="btn-anuncios">
-        <button>Anuncios</button>
+        <button class="button type1">
+        <span class="btn-txt"> Anuncios</span>
+        </button>
       </router-link>
-
-      <div class="separador-abajo"></div>
-    </div>
-    <!-- SEPARADOR -->
-    <div class="separador-abajo">
-      <span class="bar-separador"></span>
     </div>
   </div>
 
@@ -72,8 +66,6 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
     cursor: pointer;
     padding: 10px;
     transition: color 0.3s ease, transform 0.2s ease;
-
-
   }
 
   .separador-abajo {
@@ -85,7 +77,6 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
       margin-bottom: 25px;
       width: 350px;
       height: 1px;
-
     }
   }
 
@@ -136,4 +127,51 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
     margin-right: 32px;
   }
 }
-</style>
+
+
+.button {
+  height: 50px;
+  width: 200px;
+  position: relative;
+  background-color: transparent;
+  cursor: pointer;
+  border: 2px solid #76b82a;
+  overflow: hidden;
+  border-radius: 30px;
+  color: #76b82a;
+  transition: all 1.0s ease-in-out;
+
+  &:hover {
+    box-shadow: 1px 1px 200px #0090a9;
+    color: #fff;
+    border: none;
+  }
+
+  &.type1 {
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      transition: all 0.5s ease-in-out;
+      background-color: #76b82a;
+      border-radius: 30px;
+      visibility: hidden;
+      height: 10px;
+      width: 10px;
+      z-index: -1;
+    }
+
+    &:hover::after {
+      visibility: visible;
+      transform: scale(100) translateX(2px);
+    }
+  }
+}
+
+.btn-txt {
+  z-index: 1;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+</style>  
