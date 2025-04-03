@@ -14,11 +14,16 @@ const hoy = new Date();
 const mesActual = ref(hoy);
 
 const eventos = ref([
-  { fecha: '2025-04-11', titulo: 'La competencia', color: '#3b82f6' },
-  { fecha: '2025-04-11', titulo: 'Ceremonia', color: '#dc2626' },
-  { fecha: '2025-04-14', titulo: 'Reunión', color: '#facc15' },
-  { fecha: '2025-04-11', titulo: 'La competencia', color: '#0000FF' },
+  { fecha: '2025-04-02', titulo: 'Piscina', color: '#34d399' },
+  { fecha: '2025-04-06', titulo: 'Fisoterapia', color: '#f87171' },
+  { fecha: '2025-04-07', titulo: 'Piscina', color: '#60a5fa' },
+  { fecha: '2025-04-08', titulo: 'Piscina', color: '#fbbf24' },
+  { fecha: '2025-04-09', titulo: 'Piscina', color: '#a78bfa' },
+  { fecha: '2025-04-10', titulo: 'Piscina', color: '#fb7185' },
+  { fecha: '2025-04-23', titulo: 'Piscina', color: '#34d399' },
+  { fecha: '2025-05-01', titulo: 'Piscina', color: '#60a5fa' },
 ]);
+
 
 const diasDelMes = computed(() => {
   const inicio = startOfMonth(mesActual.value);
@@ -40,30 +45,22 @@ const cambiarMes = (accion: 'anterior' | 'siguiente') => {
 </script>
 
 <template>
-  <div class="calendario">
-    <div class="calendario__header">
+  <div class="calendario-grande">
+    <div class="calendario-grande__header">
       <button @click="cambiarMes('anterior')">⬅</button>
       <h2>{{ format(mesActual, 'MMMM yyyy', { locale: es }) }}</h2>
       <button @click="cambiarMes('siguiente')">➡</button>
     </div>
 
-    <div class="calendario__grid">
-      <div v-for="dia in diasDelMes" :key="dia.toISOString()" class="calendario__dia">
-        <span class="calendario__numero">{{ format(dia, 'd') }}</span>
-        
-        <!-- Contenedor de eventos -->
+    <div class="calendario-grande__grid">
+      <div class="calendario-grande__dia" v-for="dia in diasDelMes" :key="dia.toISOString()">
+        <span class="calendario-grande__numero">{{ format(dia, 'd') }}</span>
         <div v-if="eventosPorDia(dia).length > 0" class="evento-container">
           <div
             v-for="(evento, index) in eventosPorDia(dia)"
             :key="index"
             class="evento"
-            :style="{
-              backgroundColor: evento.color,
-              height: eventosPorDia(dia).length === 1 ? '100%' : '50%',
-              width: '100%',
-              position: 'absolute',
-              top: eventosPorDia(dia).length === 2 && index === 1 ? '50%' : '0'
-            }"
+            :style="{ backgroundColor: evento.color }"
           >
             {{ evento.titulo }}
           </div>
@@ -74,16 +71,14 @@ const cambiarMes = (accion: 'anterior' | 'siguiente') => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/variables.scss';
-
-.calendario {
-  max-width: 600px;
+.calendario-grande {
+  max-width: 650px;
   margin: auto;
   text-align: center;
-  font-family: 'Open Sans', sans-serif;
 
   &__header {
     display: flex;
+    margin-top: 20px;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
@@ -110,7 +105,7 @@ const cambiarMes = (accion: 'anterior' | 'siguiente') => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden; /* Evitar que los eventos se desborden fuera de la casilla */
+    overflow: hidden;
   }
 
   &__numero {
