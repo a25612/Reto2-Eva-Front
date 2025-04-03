@@ -14,7 +14,7 @@ import ServiciosView from '../views/ServiciosView.vue';
 import AnunciosView from '../views/AnunciosView.vue';
 import ZonaPrivada from '../views/ZonaPrivadaView.vue';
 import ZonaPrivadaUsr from '../views/ZonaPrivadaUsr.vue';
-import TutoresView from '@/views/ZonaPrivadaTutoresView.vue';
+import TutoresView from '../views/ZonaPrivadaTutoresView.vue';
 import ZonaPrivadaServiciosView from '@/views/ZonaPrivadaServiciosView.vue';
 import ZonaPrivadaAnunciosView from '@/views/ZonaPrivadaAnunciosView.vue';
 

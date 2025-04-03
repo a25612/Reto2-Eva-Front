@@ -4,6 +4,7 @@ import BotonScrolltop from '../components/BotonScrolltop.vue';
 import MenuDesplegable from '../components/Menu-Desplegable.vue';
 import Calendario from '../components/Calendario.vue';
 import MiEspacio from '../components/MiEspacio.vue';
+import CalendarioHome from '../components/CalendarioHome.vue';
 import { useAuthStore } from '../stores/login';
 
 const authStore = useAuthStore();
@@ -12,6 +13,8 @@ const usuarioSeleccionadoId = authStore.usuarioSeleccionadoId;
 console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 </script>
 <template>
+
+  <CalendarioHome/>
 
   <Calendario />
 
