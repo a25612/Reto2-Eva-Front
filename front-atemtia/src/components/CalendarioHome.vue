@@ -1,37 +1,3 @@
-<template>
-  <div>
-    <v-sheet class="d-flex" height="54" tile>
-      <v-select
-        v-model="type"
-        :items="types"
-        class="ma-2"
-        density="compact"
-        label="View Mode"
-        variant="outlined"
-        hide-details
-      ></v-select>
-      <v-select
-        v-model="weekday"
-        :items="weekdays"
-        class="ma-2"
-        density="compact"
-        label="weekdays"
-        variant="outlined"
-        hide-details
-      ></v-select>
-    </v-sheet>
-    <v-sheet>
-      <v-calendar
-        ref="calendar"
-        v-model="value"
-        :events="events"
-        :view-mode="type"
-        :weekdays="weekday"
-      ></v-calendar>
-    </v-sheet>
-  </div>
-</template>
-
 <script>
   import { useDate } from 'vuetify'
 
@@ -112,3 +78,62 @@
   }
 </script>
 
+
+<template>
+  <div class="calendariohome">
+    <v-sheet class="d-flex" height="40" tile>
+      <v-select
+        v-model="type"
+        :items="types"
+        class="ma-1"
+        density="compact"
+        label="View Mode"
+        variant="outlined"
+        hide-details
+      ></v-select>
+      <v-select
+        v-model="weekday"
+        :items="weekdays"
+        class="ma-1"
+        density="compact"
+        label="weekdays"
+        variant="outlined"
+        hide-details
+      ></v-select>
+    </v-sheet>
+    <v-sheet>
+      <v-calendar
+        ref="calendar"
+        v-model="value"
+        :events="events"
+        :view-mode="type"
+        :weekdays="weekday"
+      ></v-calendar>
+    </v-sheet>
+  </div>
+</template>
+
+
+<style lang="scss">
+.calendariohome {
+  margin: 50px; 
+}
+
+.v-calendar-month__days > .v-calendar-month__day {
+  min-height: 0px;
+}
+
+.v-sheet {
+  &.d-flex {
+    height: 10px; 
+    margin-top: 50px;
+    
+  }
+
+  .v-select {
+    &.ma-1 {
+      margin: 10px; 
+    }
+  }
+}
+</style>

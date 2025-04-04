@@ -254,7 +254,6 @@ function cerrarCalendarioFuera(event: Event) {
 
     .nav-calendario {
       top: 10%;
-      right: 0;
       width: 15%;
       height: 100vh;
       margin-top: 0;
