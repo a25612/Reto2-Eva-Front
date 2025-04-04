@@ -1,26 +1,29 @@
-import './assets/main.css'
-
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 
 // Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import { VCalendar } from 'vuetify/labs/VCalendar'; 
+import '@mdi/font/css/materialdesignicons.css';
 
-import App from './App.vue'
-import router from './router'
-
-const app = createApp(App)
+import App from './App.vue';
+import router from './router';
 
 const vuetify = createVuetify({
-    components,
-    directives,
-  })
+  components: {
+    ...components,
+    VCalendar,  
+  },
+  directives,
+});
 
-app.use(createPinia())
-app.use(router)
-app.use(vuetify)
+const app = createApp(App);
 
-app.mount('#app')
+app.use(createPinia());
+app.use(router);
+app.use(vuetify);
+
+app.mount('#app');

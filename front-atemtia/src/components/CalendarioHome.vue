@@ -1,136 +1,114 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import {
-  format,
-  addMonths,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-} from 'date-fns';
-import es from 'date-fns/locale/es';
-
-const hoy = new Date();
-const mesActual = ref(hoy);
-
-const eventos = ref([
-  { fecha: '2025-04-02', titulo: 'Piscina', color: '#34d399' },
-  { fecha: '2025-04-06', titulo: 'Fisoterapia', color: '#f87171' },
-  { fecha: '2025-04-07', titulo: 'Piscina', color: '#60a5fa' },
-  { fecha: '2025-04-08', titulo: 'Piscina', color: '#fbbf24' },
-  { fecha: '2025-04-09', titulo: 'Piscina', color: '#a78bfa' },
-  { fecha: '2025-04-10', titulo: 'Piscina', color: '#fb7185' },
-  { fecha: '2025-04-23', titulo: 'Piscina', color: '#34d399' },
-  { fecha: '2025-05-01', titulo: 'Piscina', color: '#60a5fa' },
-]);
-
-
-const diasDelMes = computed(() => {
-  const inicio = startOfMonth(mesActual.value);
-  const fin = endOfMonth(mesActual.value);
-  return eachDayOfInterval({ start: inicio, end: fin });
-});
-
-const eventosPorDia = (dia: Date) => {
-  const fechaFormateada = format(dia, 'yyyy-MM-dd');
-  return eventos.value.filter((evento) => evento.fecha === fechaFormateada);
-};
-
-const cambiarMes = (accion: 'anterior' | 'siguiente') => {
-  mesActual.value =
-    accion === 'siguiente'
-      ? addMonths(mesActual.value, 1)
-      : subMonths(mesActual.value, 1);
-};
-</script>
-
 <template>
-  <div class="calendario-grande">
-    <div class="calendario-grande__header">
-      <button @click="cambiarMes('anterior')">⬅</button>
-      <h2>{{ format(mesActual, 'MMMM yyyy', { locale: es }) }}</h2>
-      <button @click="cambiarMes('siguiente')">➡</button>
-    </div>
-
-    <div class="calendario-grande__grid">
-      <div class="calendario-grande__dia" v-for="dia in diasDelMes" :key="dia.toISOString()">
-        <span class="calendario-grande__numero">{{ format(dia, 'd') }}</span>
-        <div v-if="eventosPorDia(dia).length > 0" class="evento-container">
-          <div
-            v-for="(evento, index) in eventosPorDia(dia)"
-            :key="index"
-            class="evento"
-            :style="{ backgroundColor: evento.color }"
-          >
-            {{ evento.titulo }}
-          </div>
-        </div>
-      </div>
-    </div>
+  <div>
+    <v-sheet class="d-flex" height="54" tile>
+      <v-select
+        v-model="type"
+        :items="types"
+        class="ma-2"
+        density="compact"
+        label="View Mode"
+        variant="outlined"
+        hide-details
+      ></v-select>
+      <v-select
+        v-model="weekday"
+        :items="weekdays"
+        class="ma-2"
+        density="compact"
+        label="weekdays"
+        variant="outlined"
+        hide-details
+      ></v-select>
+    </v-sheet>
+    <v-sheet>
+      <v-calendar
+        ref="calendar"
+        v-model="value"
+        :events="events"
+        :view-mode="type"
+        :weekdays="weekday"
+      ></v-calendar>
+    </v-sheet>
   </div>
 </template>
 
-<style lang="scss">
-.calendario-grande {
-  max-width: 650px;
-  margin: auto;
-  text-align: center;
+<script>
+  import { useDate } from 'vuetify'
 
-  &__header {
-    display: flex;
-    margin-top: 20px;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: #f3f4f6;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-  }
+  export default {
+    data: () => ({
+      type: 'month',
+      types: ['month', 'week', 'day'],
+      weekday: [0, 1, 2, 3, 4, 5, 6],
+      weekdays: [
+        { title: 'Sun - Sat', value: [0, 1, 2, 3, 4, 5, 6] },
+        { title: 'Mon - Sun', value: [1, 2, 3, 4, 5, 6, 0] },
+        { title: 'Mon - Fri', value: [1, 2, 3, 4, 5] },
+        { title: 'Mon, Wed, Fri', value: [1, 3, 5] },
+      ],
+      value: [new Date()],
+      events: [],
+      colors: [
+        'blue',
+        'indigo',
+        'deep-purple',
+        'cyan',
+        'green',
+        'orange',
+        'grey darken-1',
+      ],
+      titles: [
+        'Meeting',
+        'Holiday',
+        'PTO',
+        'Travel',
+        'Event',
+        'Birthday',
+        'Conference',
+        'Party',
+      ],
+    }),
+    mounted() {
+      const adapter = useDate()
+      this.getEvents({
+        start: adapter.startOfDay(adapter.startOfMonth(new Date())),
+        end: adapter.endOfDay(adapter.endOfMonth(new Date())),
+      })
+    },
+    methods: {
+      getEvents({ start, end }) {
+        const events = []
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    padding: 10px;
-  }
+        const min = start
+        const max = end
+        const days = (max.getTime() - min.getTime()) / 86400000
+        const eventCount = this.rnd(days, days + 20)
 
-  &__dia {
-    border: 1px solid #ddd;
-    padding: 10px;
-    min-height: 80px;
-    position: relative;
-    background: white;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-  }
+        for (let i = 0; i < eventCount; i++) {
+          const allDay = this.rnd(0, 3) === 0
+          const firstTimestamp = this.rnd(min.getTime(), max.getTime())
+          const first = new Date(firstTimestamp - (firstTimestamp % 900000))
+          const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
+          const second = new Date(first.getTime() + secondTimestamp)
 
-  &__numero {
-    font-size: 16px;
-    font-weight: bold;
-  }
+          events.push({
+            title: this.titles[this.rnd(0, this.titles.length - 1)],
+            start: first,
+            end: second,
+            color: this.colors[this.rnd(0, this.colors.length - 1)],
+            allDay: !allDay,
+          })
+        }
 
-  .evento-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 5px;
-    position: relative;
+        this.events = events
+      },
+      getEventColor(event) {
+        return event.color
+      },
+      rnd(a, b) {
+        return Math.floor((b - a + 1) * Math.random()) + a
+      },
+    },
   }
+</script>
 
-  .evento {
-    font-size: 12px;
-    padding: 2px 5px;
-    margin-top: 3px;
-    color: white;
-    border-radius: 4px;
-    text-align: center;
-    width: 100%;
-    position: absolute;
-  }
-}
-</style>

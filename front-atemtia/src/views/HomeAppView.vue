@@ -2,7 +2,7 @@
 import Carrusel from '../components/Carrusel.vue';
 import BotonScrolltop from '../components/BotonScrolltop.vue';
 import MenuDesplegable from '../components/Menu-Desplegable.vue';
-import Calendario from '../components/Calendario.vue';
+import Calendario from '../components/CalendarioMiAgenda.vue';
 import MiEspacio from '../components/MiEspacio.vue';
 import CalendarioHome from '../components/CalendarioHome.vue';
 import { useAuthStore } from '../stores/login';
@@ -26,8 +26,6 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 
     <!-- ANUNCIOS -->
     <div class="div-mi-espacio">
-     
-
       <router-link to="/home-app-atemtia/anuncios" class="btn-anuncios">
         <button class="button type1">
         <span class="btn-txt"> Anuncios</span>
