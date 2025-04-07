@@ -167,6 +167,10 @@ export const useServiciosStore = defineStore('servicios', () => {
     showFormUpdate.value = true;
   };
 
+  const filterServiciosByTerm = (term: string) => {
+    servicioSearch.value = term;
+  };
+
   return {
     servicios,
     error,
@@ -190,5 +194,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     confirmDelete,
     cancelDelete,
     selectServicioToUpdate,
+    filterServiciosByTerm,
   };
 });
