@@ -112,6 +112,7 @@ function cerrarCalendarioFuera(event: Event) {
 .calendario-desplegable {
   position: relative;
 
+
   .btn-calendario {
     position: fixed;
     display: flex;
