@@ -227,6 +227,7 @@ export default {
   }
 }
 .v-btn.v-btn--density-default{
+  margin-top: 10px;
   height: 20px;
 }
 </style>
