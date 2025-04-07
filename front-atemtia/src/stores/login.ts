@@ -14,7 +14,8 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref('');
   const router = useRouter();
 
-  const usuarioSeleccionadoId = ref(localStorage.getItem('ultimoUsuarioSeleccionado') || '');
+  // Almacena todos los IDs de usuarios asignados al tutor
+  const usuariosAsignadosIds = ref<string[]>([]);
 
   async function login(username: string, password: string) {
     error.value = '';
@@ -41,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('userId', data.iduser);
 
       if (data.rol === 'Tutor') {
+        // Fetch de usuarios asignados al tutor
         const usuariosResponse = await fetch(`https://localhost:7163/api/Tutor/${data.iduser}/usuarios`, {
           headers: { 'Authorization': `Bearer ${data.token}`, 'Content-Type': 'application/json' },
         });
@@ -51,18 +53,12 @@ export const useAuthStore = defineStore('auth', () => {
       
         const usuariosData = await usuariosResponse.json() as Usuario[];
       
-        // Find the first user assigned to this tutor
-        const assignedUser = usuariosData.find((usuario: Usuario) => usuario.id === data.iduser.toString());
-      
-        if (assignedUser) {
-          usuarioSeleccionadoId.value = assignedUser.id;
-          localStorage.setItem('ultimoUsuarioSeleccionado', assignedUser.id);
-          console.log('Usuario asignado automáticamente:', assignedUser.id);
-        } else {
-          console.log('No se encontró un usuario asignado a este tutor');
-          usuarioSeleccionadoId.value = '';
-          localStorage.removeItem('ultimoUsuarioSeleccionado');
-        }
+        // Almacenar todos los IDs de usuarios asignados
+        usuariosAsignadosIds.value = usuariosData.map((usuario) => usuario.id);
+        console.log('Usuarios asignados:', usuariosAsignadosIds.value);
+
+        // Guardar en localStorage para persistencia
+        localStorage.setItem('usuariosAsignadosIds', JSON.stringify(usuariosAsignadosIds.value));
       }
       
       router.push('/home-app-atemtia'); 
@@ -70,27 +66,20 @@ export const useAuthStore = defineStore('auth', () => {
       error.value = err.message || 'Error al iniciar sesión';
     }
   }
-  
-  function setSelectedUser(id: string) {
-    if (rol.value !== 'Empleado') {
-      usuarioSeleccionadoId.value = id;
-      localStorage.setItem('ultimoUsuarioSeleccionado', id);
-    }
-  }
 
   function logout() {
     token.value = '';
     rol.value = '';
     userId.value = '';
-    usuarioSeleccionadoId.value = '';
+    usuariosAsignadosIds.value = [];
 
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('userId');
-    localStorage.removeItem('ultimoUsuarioSeleccionado');
+    localStorage.removeItem('usuariosAsignadosIds');
 
     router.push('/login');
   }
 
-  return { token, rol, userId, usuarioSeleccionadoId, error, login, logout, setSelectedUser };
+  return { token, rol, userId, usuariosAsignadosIds, error, login, logout };
 });
