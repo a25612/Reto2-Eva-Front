@@ -220,6 +220,8 @@ const cerrarSesionHandler = () => {
   .desplegable-izquierda {
     .nav-izquierda {
       width: 9%;
+      right: 0;
+      left: 0;
       position: fixed;
       margin-top: 80px;
     }

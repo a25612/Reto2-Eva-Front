@@ -105,12 +105,35 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+@import '../assets/styles/variables.scss';
+
 .calendariohome {
-  margin: 20px;
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
+  margin: 0; 
 }
 
-.v-calendar-month__days > .v-calendar-month__day {
-  min-height: 150px;
+@media (min-width: 768px) {
+  .v-btn-group--density-default {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    margin-top: 20px;
+  }
+
+  .v-theme--light {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    height: 100%; 
+  }
+
+  .v-calendar-month__days > .v-calendar-month__day {
+    min-height: 85px;
+  }
 }
+
 </style>
