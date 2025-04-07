@@ -55,11 +55,11 @@ const cerrarSesion = () => {
 
     <div v-if="miCuentaStore.cargandoTutor || miCuentaStore.cargandoUsuarios || miCuentaStore.cargandoEmpleados" class="loading">
       <div class="newtons-cradle">
-      <div class="newtons-cradle__dot"></div>
-      <div class="newtons-cradle__dot"></div>
-      <div class="newtons-cradle__dot"></div>
-      <div class="newtons-cradle__dot"></div>
-</div>
+        <div class="newtons-cradle__dot"></div>
+        <div class="newtons-cradle__dot"></div>
+        <div class="newtons-cradle__dot"></div>
+        <div class="newtons-cradle__dot"></div>
+      </div>
     </div>
 
     <div v-if="authStore.rol === 'Tutor' && miCuentaStore.tutor" class="mi-cuenta__info">
@@ -74,12 +74,10 @@ const cerrarSesion = () => {
         <p><strong>Usuario Seleccionado:</strong> {{ miCuentaStore.usuarios[0].nombre }}</p>
       </div>
       <div v-else-if="miCuentaStore.usuarios.length > 1" class="mi-cuenta__info">
-        <label for="usuarioSelect"><strong>Selecciona un usuario:</strong></label>
-        <select id="usuarioSelect" class="custom-select" v-model="usuarioSeleccionado">
-          <option v-for="usuario in miCuentaStore.usuarios" :key="usuario.id" :value="usuario.id">
-            {{ usuario.nombre }}
-          </option>
-        </select>
+        <p><strong>Usuarios:</strong></p>
+        <div v-for="usuario in miCuentaStore.usuarios" :key="usuario.id" class="usuario-item">
+          <p>{{ usuario.nombre }}</p>
+        </div>
       </div>
       <p v-else>No hay usuarios asignados.</p>
     </div>
@@ -90,20 +88,14 @@ const cerrarSesion = () => {
       <p><strong>Rol:</strong> Empleado</p>
     </div>
 
-    <p v-else-if="
-        !miCuentaStore.cargandoTutor &&
-        !miCuentaStore.cargandoUsuarios &&
-        !miCuentaStore.cargandoEmpleados &&
-        !miCuentaStore.tutor &&
-        miCuentaStore.empleados.length === 0 &&
-        miCuentaStore.usuarios.length === 0"
-      >
+    <p v-else-if="!miCuentaStore.cargandoTutor && !miCuentaStore.cargandoUsuarios && !miCuentaStore.cargandoEmpleados && !miCuentaStore.tutor && miCuentaStore.empleados.length === 0 && miCuentaStore.usuarios.length === 0">
       No hay información disponible.
     </p>
 
     <button class="mi-cuenta__boton" @click="cerrarSesion">Cerrar Sesión</button>
   </div>
 </template>
+
 
 
 
