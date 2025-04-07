@@ -1,3 +1,61 @@
+<template>
+  <div class="calendariohome">
+    <v-sheet class="d-flex align-center justify-space-between" tile>
+      <v-btn-toggle v-model="type" class="ma-2">
+        <v-btn value="month">Mes</v-btn>
+        <v-btn value="week">Semana</v-btn>
+        <v-btn value="day">Día</v-btn>
+      </v-btn-toggle>
+    </v-sheet>
+
+    <v-sheet>
+      <v-calendar
+        ref="calendar"
+        v-model="value"
+        :events="events"
+        :view-mode="type"
+        :weekdays="filteredWeekdays"
+        locale="es"
+        @click:event="showEventDetails"
+        :day-format="customDayFormat"
+        :event-overlap-threshold="0"
+        :event-overlap-mode="'stack'"
+      >
+        <template v-slot:event="{ event }">
+          <v-btn
+            class="event-button"
+            @click="showEventDetails(event)"
+            :color="event.color"
+            text
+          >
+            {{ event.title }}
+          </v-btn>
+        </template>
+      </v-calendar>
+    </v-sheet>
+
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-card>
+        <v-card-title class="orange--text">{{ selectedEvent.title }}</v-card-title>
+        <v-card-text>
+          <div><strong>Fecha:</strong> {{ formatDate(selectedEvent.start) }} - {{ formatDate(selectedEvent.end) }}</div>
+          <div><strong>Descripción:</strong> {{ selectedEvent.title }}</div>
+          <div>Detalles adicionales del evento pueden ir aquí.</div>
+          <v-select
+            v-model="newDate"
+            :items="availableDates"
+            label="Mover a otro día"
+          ></v-select>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn class="move-button" @click="moveEvent">Mover</v-btn>
+          <v-btn color="orange" text @click="dialog = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+
 <script>
 import { useDate } from 'vuetify'
 import { format } from 'date-fns'
@@ -11,9 +69,24 @@ export default {
     events: [],
     dialog: false,
     selectedEvent: {},
+    newDate: null,
     colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange'],
     titles: ['Reunión', 'Vacaciones', 'PTO', 'Viaje', 'Evento', 'Cumpleaños'],
   }),
+  computed: {
+    availableDates() {
+      const dates = []
+      const currentMonth = new Date().getMonth()
+      const currentYear = new Date().getFullYear()
+      for (let day = 1; day <= 31; day++) {
+        const date = new Date(currentYear, currentMonth, day)
+        if (date.getMonth() === currentMonth && date.getDay() !== 0 && date.getDay() !== 6) {
+          dates.push(format(date, 'yyyy-MM-dd'))
+        }
+      }
+      return dates
+    },
+  },
   mounted() {
     const adapter = useDate()
     this.getEvents({
@@ -71,60 +144,21 @@ export default {
       }
       return format(date, 'd'); // Para otros días, mostrar el número de día
     },
+    moveEvent() {
+      if (this.newDate) {
+        const newStartDate = new Date(this.newDate)
+        const eventIndex = this.events.findIndex(event => event === this.selectedEvent)
+        if (eventIndex !== -1) {
+          this.events[eventIndex].start = newStartDate
+          this.events[eventIndex].end = new Date(newStartDate.getTime() + (this.selectedEvent.end.getTime() - this.selectedEvent.start.getTime()))
+        }
+        this.dialog = false
+        this.newDate = null
+      }
+    },
   },
 }
 </script>
-<template>
-  <div class="calendariohome">
-    <v-sheet class="d-flex align-center justify-space-between" tile>
-      <v-btn-toggle v-model="type" class="ma-2">
-        <v-btn value="month">Mes</v-btn>
-        <v-btn value="week">Semana</v-btn>
-        <v-btn value="day">Día</v-btn>
-      </v-btn-toggle>
-    </v-sheet>
-
-    <v-sheet>
-      <v-calendar
-        ref="calendar"
-        v-model="value"
-        :events="events"
-        :view-mode="type"
-        :weekdays="filteredWeekdays"
-        locale="es"
-        @click:event="showEventDetails"
-        :day-format="customDayFormat"
-        :event-overlap-threshold="0"
-        :event-overlap-mode="'stack'"
-      >
-        <template v-slot:event="{ event }">
-          <v-btn
-            class="event-button"
-            @click="showEventDetails(event)"
-            :color="event.color"
-            text
-          >
-            {{ event.title }}
-          </v-btn>
-        </template>
-      </v-calendar>
-    </v-sheet>
-
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title class="orange--text">{{ selectedEvent.title }}</v-card-title>
-        <v-card-text>
-          <div><strong>Fecha:</strong> {{ formatDate(selectedEvent.start) }} - {{ formatDate(selectedEvent.end) }}</div>
-          <div><strong>Descripción:</strong> {{ selectedEvent.title }}</div>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="orange" text @click="dialog = false">Cerrar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
-</template>
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -178,8 +212,21 @@ export default {
     color: #000;
   }
 }
-.v-btn.v-btn--density-default {
+
+/* Estilos para el botón de mover */
+.move-button {
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  &:hover {
+    background-color: #45a049;
+  }
+}
+.v-btn.v-btn--density-default{
   height: 20px;
 }
-
 </style>
