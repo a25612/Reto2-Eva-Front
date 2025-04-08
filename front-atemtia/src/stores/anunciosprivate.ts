@@ -10,6 +10,7 @@ interface Anuncio {
 
 export const useAnunciosStore = defineStore('anuncios', () => {
   const anuncios = ref<Anuncio[]>([]);
+  const anunciosFiltrados = ref<Anuncio[]>([]);
   const error = ref<string>('');
   const showFormCreate = ref(false);
   const showFormUpdate = ref(false);
@@ -20,14 +21,14 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   const newAnuncio = ref<Omit<Anuncio, 'id'>>({
     titulo: '',
     descripcion: '',
-    activo: false // Inicializar el campo "activo"
+    activo: false 
   });
 
   const updatedAnuncio = ref<Anuncio>({
     id: 0,
     titulo: '',
     descripcion: '',
-    activo: false // Incluir el campo "activo" en la actualización
+    activo: false 
   });
 
   // Función para obtener anuncios
@@ -38,6 +39,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
         throw new Error('Error al obtener los anuncios');
       }
       anuncios.value = await response.json();
+      anunciosFiltrados.value = [...anuncios.value]; 
     } catch (err: any) {
       error.value = err.message || 'Error al obtener los anuncios';
     }
@@ -107,15 +109,19 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   };
 
   // Computada para filtrar anuncios por búsqueda
-  const filteredAnuncios = computed(() => {
-    if (anuncioSearch.value === '') {
-      return anuncios.value;
+  const filtrarAnuncios = (termino: string) => {
+    anuncioSearch.value = termino;
+    if (!termino) {
+      // Si no hay término, mostrar todos los anuncios
+      anunciosFiltrados.value = [...anuncios.value];
+    } else {
+      // Filtrar por título o descripción
+      anunciosFiltrados.value = anuncios.value.filter((anuncio) =>
+        anuncio.titulo.toLowerCase().includes(termino.toLowerCase()) ||
+        anuncio.descripcion.toLowerCase().includes(termino.toLowerCase())
+      );
     }
-    return anuncios.value.filter(anuncio =>
-      anuncio.titulo.toLowerCase().includes(anuncioSearch.value.toLowerCase()) ||
-      anuncio.descripcion.toLowerCase().includes(anuncioSearch.value.toLowerCase())
-    );
-  });
+  };
 
   // Función para mostrar/ocultar el formulario de creación
   const toggleFormCreate = () => {
@@ -179,11 +185,12 @@ export const useAnunciosStore = defineStore('anuncios', () => {
     anuncioToDelete,
     newAnuncio,
     updatedAnuncio,
+    anunciosFiltrados,
     fetchAnuncios,
     addAnuncio,
     updateAnuncio,
     deleteAnuncio,
-    filteredAnuncios,
+    filtrarAnuncios,
     toggleFormCreate,
     toggleFormUpdate,
     toggleFormDelete,

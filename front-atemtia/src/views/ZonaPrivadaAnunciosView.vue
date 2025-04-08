@@ -1,12 +1,13 @@
+text
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useAnunciosStore } from '../stores/anunciosprivate';
-import { onMounted, ref } from 'vue';
 
 const anunciosStore = useAnunciosStore();
 const searchTerm = ref('');
 
 const handleSearch = () => {
-  anunciosStore.filterAnunciosByTerm(searchTerm.value);
+  anunciosStore.filtrarAnuncios(searchTerm.value); 
 };
 
 onMounted(() => {
@@ -89,22 +90,29 @@ onMounted(() => {
     </div>
 
     <!-- Lista de anuncios filtrados -->
-    <div v-if="anunciosStore.filteredAnuncios.length > 0" class="anuncios__lista">
-      <div v-for="anuncio in anunciosStore.filteredAnuncios" :key="anuncio.id" class="anuncios__item">
-        <div class="anuncios__item-contenido">
-          <h3 class="anuncios__item-titulo">{{ anuncio.titulo }}</h3>
-          <p class="anuncios__item-descripcion">{{ anuncio.descripcion }}</p>
-        </div>
-        <div class="anuncios__item-acciones">
-          <button class="anuncios__item-boton anuncios__item-boton--editar" @click="anunciosStore.selectAnuncioToUpdate(anuncio)">
-            <i class="fa-solid fa-pencil"></i>
-          </button>
-          <button class="anuncios__item-boton anuncios__item-boton--eliminar" @click="anunciosStore.openModalDelete(anuncio.id)">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    </div>
+    <div v-if="anunciosStore.anunciosFiltrados.length > 0" class="anuncios__lista">
+     <div v-for="anuncio in anunciosStore.anunciosFiltrados" :key="anuncio.id" class="anuncios__item">
+       <div class="anuncios__item-contenido">
+         <h3 class="anuncios__item-titulo">{{ anuncio.titulo }}</h3>
+         <p class="anuncios__item-descripcion">{{ anuncio.descripcion }}</p>
+       </div>
+       <div class="anuncios__item-acciones">
+         <button
+           class="anuncios__item-boton anuncios__item-boton--editar"
+           @click="anunciosStore.selectAnuncioToUpdate(anuncio)"
+         >
+           <i class="fa-solid fa-pencil"></i>
+         </button>
+         <button
+           class="anuncios__item-boton anuncios__item-boton--eliminar"
+           @click="anunciosStore.openModalDelete(anuncio.id)"
+         >
+           <i class="fa-solid fa-trash"></i>
+         </button>
+       </div>
+     </div>
+   </div>
+
     <div v-else class="anuncios__no-resultados">
       <p>No se encontraron anuncios</p>
     </div>

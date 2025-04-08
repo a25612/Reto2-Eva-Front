@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useServiciosStore } from '../stores/Serviciosprivate';
-import { onMounted, ref } from 'vue';
 
 const serviciosStore = useServiciosStore();
 const searchTerm = ref('');
@@ -111,6 +111,8 @@ onMounted(() => {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
+@import '../assets/styles/variables.scss';
+
 .servicios {
   background-color: $color-fondo;
   padding: 20px;
@@ -126,6 +128,19 @@ onMounted(() => {
     color: $color-titulos;
   }
 
+  &__separador-abajo {
+    margin: 10px auto;
+
+    & .servicios__bar-separador {
+      display: block;
+      width: 160px;
+      height: 2px;
+      background-color: $color-principal;
+      margin: auto;
+    }
+  }
+
+  // Estilos para la barra de búsqueda
   &__buscador {
     margin: 15px 0;
 
@@ -150,6 +165,7 @@ onMounted(() => {
       color: white;
       border: none;
       cursor: pointer;
+      transition: background-color 0.3s ease;
 
       &:hover {
         background-color: darken($color-principal, 10%);
@@ -157,6 +173,7 @@ onMounted(() => {
     }
   }
 
+  // Estilos para la lista de servicios
   &__lista {
     margin: 15px 0;
     display: flex;
@@ -172,39 +189,215 @@ onMounted(() => {
     padding: 12px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+    text-align: left;
 
-  &__item-titulo {
-    font-size: 16px;
-    font-weight: bold;
-  }
-
-  &__item-boton {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-
-    &--editar {
-      background-color: $color-principal;
+    &-contenido {
+      flex: 1;
     }
 
-    &--eliminar {
-      background-color: red;
+    &-titulo {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+      color: $color-titulos;
+    }
+
+    &-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    &-boton {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: background-color 0.3s ease;
+
+      &--editar {
+        background-color: $color-principal;
+
+        &:hover {
+          background-color: darken($color-principal, 10%);
+        }
+      }
+
+      &--eliminar {
+        background-color: red;
+
+        &:hover {
+          background-color: darkred;
+        }
+      }
+    }
+  }
+
+  &__no-resultados {
+    margin: 15px 0;
+    font-style: italic;
+    color: #666;
+  }
+
+  &__botones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+
+    & .servicios__boton {
+      display: inline-block;
+      text-align: center;
+      background-color: $color-boton;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken($color-boton, 10%);
+      }
+    }
+  }
+
+  &__formulario {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    &-titulo {
+      font-size: 20px;
+      font-weight: bold;
+      color: $color-titulos;
+    }
+
+    &-contenido {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    &-grupo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-label {
+      font-size: 14px;
+      color: $color-titulos;
+      margin-bottom: 5px;
+    }
+
+    &-input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: $color-principal;
+      }
+    }
+
+    &-boton {
+      padding: 12px;
+      background-color: $color-principal;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken($color-principal, 10%);
+      }
+    }
+  }
+
+  &__modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  &__modal-contenido {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  &__modal-botones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  &__btn-confirmar, &__btn-cancelar {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  &__btn-confirmar {
+    background-color: green;
+    color: white;
+
+    &:hover {
+      background-color: darkgreen;
+    }
+  }
+
+  &__btn-cancelar {
+    background-color: gray;
+    color: white;
+
+    &:hover {
+      background-color: darkgray;
     }
   }
 }
 
 .volver-atras {
+  margin-right: 310px;
   background-color: $color-boton;
-  color: white;
+  color: $color-fondo;
+  border: none;
   border-radius: 50%;
   width: 45px;
   height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
 }
 </style>
