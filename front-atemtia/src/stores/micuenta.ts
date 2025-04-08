@@ -42,19 +42,12 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
 
     error.value = '';
 
-    try {
+     try {
       const token = authStore.token;
+      const userId = authStore.userId;  // Asegúrate de obtener también el userId del store
       let response;
 
       if (rol === 'Tutor') {
-        cargandoTutor.value = true;
-        response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        });
-        if (!response.ok) throw new Error(`Error al cargar datos del tutor: ${response.status}`);
-        tutor.value = await response.json();
-        cargandoTutor.value = false;
-
         cargandoUsuarios.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}/usuarios`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -62,10 +55,22 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar usuarios: ${response.status}`);
         usuarios.value = await response.json();
         cargandoUsuarios.value = false;
-      }
+      } else if (rol === 'Empleado') {
+        cargandoEmpleados.value = true;
+        response = await fetch(`https://localhost:7163/api/Empleado/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
+        if (!response.ok) throw new Error(`Error al cargar datos del empleado: ${response.status}`);
+        empleados.value = [await response.json()];  // Empaquetamos en un array
+        cargandoEmpleados.value = false;
+      } else {
+        throw new Error('Rol no válido');
+      }    
+
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido';
     }
+    
   }
 
   function cerrarSesion() {
