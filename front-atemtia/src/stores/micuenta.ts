@@ -91,8 +91,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
     cargandoUsuarios,
     cargandoEmpleados,
     error,
-    usuarioSeleccionadoId,
-
+    usuarioSeleccionadoId,  
     cargarTodosDatos,
     cerrarSesion,
     seleccionarUsuario, 
