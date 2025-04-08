@@ -29,7 +29,7 @@
     </div>
 
     <div class="botones">
-      <router-link to="/home-app-atemtia/zona-privada/usuarios" class="btn-accion">Usuarios Tutores</router-link>
+      <router-link to="/home-app-atemtia/zona-privada/usuarios-tutores" class="btn-accion">Usuarios Tutores</router-link>
     </div>
 
   </div>
