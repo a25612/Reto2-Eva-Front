@@ -1,9 +1,8 @@
-<script setup lang="ts">
+<script setup>
+
 </script>
 
 <template>
-    
-  
   <div class="div-mi-espacio">
     <h2>Mi Espacio</h2>
 
@@ -17,6 +16,11 @@
         <div class="icono"></div>
         <p>Mi cuenta</p>
       </router-link>
+
+      <router-link class="espacio-item mi-cuenta" to="/home-app-atemtia/Servicios">
+        <div class="icono"></div>
+        <p>Servicios</p>
+      </router-link>
     </div>
   </div>
 </template>
@@ -29,19 +33,16 @@
     margin: 0px 0px 40px 40px;
     color: $color-titulos;
     font-size: 22px;
-
   }
 
   .separador-abajo {
     display: flex;
     justify-content: center;
-    
 
     .bar-separador {
       margin-bottom: 25px;
       width: 350px;
       height: 1px;
-
     }
   }
 
@@ -100,6 +101,7 @@
     }
   }
 }
+
 @media (min-width: 768px) { 
   .div-mi-espacio {
     text-align: center;
@@ -119,6 +121,4 @@
     }
   }
 }
-
-
 </style>

@@ -31,12 +31,7 @@ const cerrarSesionHandler = () => {
             Inicio
           </a>
         </li>
-        <li>
-          <router-link to="/home-app-atemtia/servicios" class="menu-izquierda-link">
-            <i class="fas fa-cogs"></i> 
-            Servicios
-          </router-link>
-        </li>
+      
         <li>
           <router-link to="/home-app-atemtia/mi-cuenta" class="menu-izquierda-link">
             <i class="fa-solid fa-user"></i>
