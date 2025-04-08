@@ -14,8 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref('');
   const router = useRouter();
 
-  // Almacena todos los IDs de usuarios asignados al tutor
-  const usuariosAsignadosIds = ref<string[]>([]);
+  const usuariosAsignadosIds = ref<string[]>(JSON.parse(localStorage.getItem('usuariosAsignadosIds') || '[]'));
 
   async function login(username: string, password: string) {
     error.value = '';

@@ -8,7 +8,7 @@ import CalendarioHome from '../components/CalendarioHome.vue';
 import { useAuthStore } from '../stores/login';
 
 const authStore = useAuthStore();
-const usuarioSeleccionadoId = authStore.usuarioSeleccionadoId;
+const usuarioSeleccionadoId = authStore.usuariosAsignadosIds;
 
 console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 </script>

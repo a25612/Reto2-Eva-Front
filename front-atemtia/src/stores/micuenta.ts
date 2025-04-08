@@ -34,18 +34,18 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
     const authStore = useAuthStore();
     const userId = authStore.userId;
     const rol = authStore.rol;
-  
+
     if (!userId || !rol) {
       error.value = 'No se encontró información de usuario';
       return;
     }
-  
+
     error.value = '';
-  
+
     try {
       const token = authStore.token;
       let response;
-  
+
       if (rol === 'Tutor') {
         cargandoTutor.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
@@ -54,7 +54,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar datos del tutor: ${response.status}`);
         tutor.value = await response.json();
         cargandoTutor.value = false;
-  
+
         cargandoUsuarios.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}/usuarios`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -62,43 +62,20 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar usuarios: ${response.status}`);
         usuarios.value = await response.json();
         cargandoUsuarios.value = false;
-  
-          if (usuarios.value.length > 0) {
-          seleccionarUsuario(usuarios.value[0].id);
-        } else {
-          console.log('No se encontró un usuario asignado a este tutor');
-        }
-  
-      } else if (rol === 'Empleado') {
-
-      } else {
-        throw new Error('Rol no válido');
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido';
-    }
-  }
-  
-
-  function seleccionarUsuario(id: string) {
-    const authStore = useAuthStore();
-
-    if (authStore.rol !== 'Empleado') {
-      usuarioSeleccionadoId.value = id;
-      localStorage.setItem('ultimoUsuarioSeleccionado', id);
-
-      if (authStore.usuarioSeleccionadoId !== undefined) {
-        authStore.usuarioSeleccionadoId = id;
-      }
-      console.log('Usuario seleccionado:', id);
-    } else {
-      console.log('El rol empleado no tiene usuarios asignados.');
     }
   }
 
   function cerrarSesion() {
     const authStore = useAuthStore();
     authStore.logout();
+  }
+
+  function seleccionarUsuario(id: string) {
+    usuarioSeleccionadoId.value = id;
+    localStorage.setItem('ultimoUsuarioSeleccionado', id);
   }
 
   return {
@@ -112,7 +89,7 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
     usuarioSeleccionadoId,
 
     cargarTodosDatos,
-    seleccionarUsuario,
     cerrarSesion,
+    seleccionarUsuario, 
   };
 });
