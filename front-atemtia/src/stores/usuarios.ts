@@ -87,33 +87,38 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
     }
   };
 
-  // Eliminar un usuario con verificación previa de relaciones
-  const eliminarUsuario = async (id: number) => {
-    try {
-      // Paso 1: Verificar si tiene relaciones en UsuarioTutores
-      const relacionesResponse = await fetch(`https://localhost:7163/api/UsuarioTutores/usuario/${id}`);
-      if (!relacionesResponse.ok) throw new Error("Error al verificar relaciones");
+  // Eliminar un usuario con confirmación y verificación de relaciones
+const eliminarUsuario = async (id: number) => {
+  try {
+    // ✅ Confirmación antes de eliminar
+    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este usuario?");
+    if (!confirmar) return;
 
-      const relaciones = await relacionesResponse.json();
+    // Paso 1: Verificar si tiene relaciones en UsuarioTutores
+    const relacionesResponse = await fetch(`https://localhost:7163/api/UsuarioTutores/usuario/${id}`);
+    if (!relacionesResponse.ok) throw new Error("Error al verificar relaciones");
 
-      if (relaciones.length > 0) {
-        alert("Este Usuario tiene relaciones. Por favor elimine antes la relación para poder eliminarlo.");
-        return;
-      }
+    const relaciones = await relacionesResponse.json();
 
-      // Paso 2: Eliminar usuario si no tiene relaciones
-      const response = await fetch(`https://localhost:7163/api/Usuarios/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Error en la eliminación");
-
-      usuarios.value = usuarios.value.filter((user) => user.id !== id);
-      filtrarUsuarios("");
-    } catch (error) {
-      console.error("Error al eliminar usuario:", error);
+    if (relaciones.length > 0) {
+      alert("Este Usuario tiene relaciones. Por favor elimine antes la relación para poder eliminarlo.");
+      return;
     }
-  };
+
+    // Paso 2: Eliminar usuario si no tiene relaciones
+    const response = await fetch(`https://localhost:7163/api/Usuarios/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("Error en la eliminación");
+
+    usuarios.value = usuarios.value.filter((user) => user.id !== id);
+    filtrarUsuarios("");
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+  }
+};
+
 
   return {
     usuarios,
