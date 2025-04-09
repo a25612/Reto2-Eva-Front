@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useRelacionesStore } from "../stores/UsuariosTutores";
@@ -14,58 +15,57 @@ const updatedRelacion = ref<any>({ id: null, usuario: null, tutor: null });
 const newRelacion = ref<any>({ usuario: null, tutor: null });
 
 onMounted(() => {
-  relacionesStore.cargarRelaciones();
-  usuariosStore.cargarUsuarios();
-  tutoresStore.cargarTutores();
+  relacionesStore.cargarRelaciones();
+  usuariosStore.cargarUsuarios();
+  tutoresStore.cargarTutores();
 });
 
 watch(
-  () => relacionesStore.relacionActual,
-  (nuevaRelacion) => {
-    if (nuevaRelacion) {
-      updatedRelacion.value = {
-        ...nuevaRelacion,
-        usuario: usuariosStore.usuarios.find((u) => u.nombre === nuevaRelacion.usuarioNombre) || null,
-        tutor: tutoresStore.tutores.find((t) => t.nombre === nuevaRelacion.tutorNombre) || null,
-      };
-      showFormUpdate.value = true;
-    } else {
-      updatedRelacion.value = { id: null, usuario: null, tutor: null };
-      showFormUpdate.value = false;
-    }
-  },
-  { immediate: true }
+  () => relacionesStore.relacionActual,
+  (nuevaRelacion) => {
+    if (nuevaRelacion) {
+      updatedRelacion.value = {
+        ...nuevaRelacion,
+        usuario: usuariosStore.usuarios.find((u) => u.nombre === nuevaRelacion.usuarioNombre) || null,
+        tutor: tutoresStore.tutores.find((t) => t.nombre === nuevaRelacion.tutorNombre) || null,
+      };
+      showFormUpdate.value = true;
+    } else {
+      updatedRelacion.value = { id: null, usuario: null, tutor: null };
+      showFormUpdate.value = false;
+    }
+  },
+  { immediate: true }
 );
 
 const saveOrUpdateRelacion = async (relacion: any) => {
-
-  if (relacion.usuario?.id && relacion.tutor?.id) {
-    const datosRelacion = {
+  if (relacion.usuario?.id && relacion.tutor?.id) {
+    const datosRelacion = {
       idUsuario: relacion.usuario.id,
       idTutor: relacion.tutor.id,
-      ...(relacion.id && { id: relacion.id }),
-    };
+    ...(relacion.id && { id: relacion.id }),
+ };
 
-    console.log("Enviando los siguientes datos:", datosRelacion);
+    console.log("Enviando los siguientes datos:", datosRelacion);
 
-    await relacionesStore.guardarRelacion(datosRelacion);
+    await relacionesStore.guardarRelacion(datosRelacion);
 
-    // Reset form
-    if (!relacion.id) {
-      newRelacion.value = { usuario: null, tutor: null };
-      relacionesStore.mostrarFormularioCrear = false;
-    }
-    showFormUpdate.value = false;
-  } else {
-    alert("Debes seleccionar tanto un usuario como un tutor.");
-  }
+    // Reset form
+    if (!relacion.id) {
+      newRelacion.value = { usuario: null, tutor: null };
+      relacionesStore.mostrarFormularioCrear = false;
+    }
+    showFormUpdate.value = false;
+  } else {
+  alert("Debes seleccionar tanto un usuario como un tutor.");
+ }
 };
-
 
 const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
 const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
+
 
 <template>
   <div class="relacion-usuarios-tutores">
@@ -382,6 +382,19 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
         background-color: darken($color-principal, 10%);
       }
     }
+  }
+  .relacion-usuarios-tutores__boton{
+    background-color: $color-principal;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($color-principal, 10%);
+    } 
   }
 }
 </style>

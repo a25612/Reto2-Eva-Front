@@ -109,7 +109,7 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
       const data = await response.json();
   
       if (relacion.id) {
-        // Actualizar relación existente
+        // Si es una actualización, actualizar la relación existente en la lista
         relaciones.value = relaciones.value.map((r) =>
           r.id === data.id
             ? {
@@ -122,23 +122,30 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
             : r
         );
       } else {
-        // Añadir nueva relación
-        relaciones.value.push({
+        // Si es una creación, añadir la nueva relación a la lista
+        const nuevaRelacion = {
           id: data.id,
           usuarioId: data.iD_USUARIO,
           tutorId: data.iD_TUTOR,
           usuarioNombre: data.usuario?.nombre || "",
           tutorNombre: data.tutor?.nombre || "",
-        });
+        };
+        relaciones.value = [...relaciones.value, nuevaRelacion]; // Crear una nueva referencia del array
       }
   
-      filtrarRelaciones(""); // Actualizar lista filtrada
+      // Asegúrate de actualizar también las relaciones filtradas
+      relacionesFiltradas.value = [...relaciones.value]; // Esto asegura que la vista se actualice
+  
+      // Llamar a la función de filtrado para reflejar cualquier cambio en la lista
+      filtrarRelaciones(""); // Si tienes un filtro activo, lo volverá a aplicar
+  
+      // Llamar explícitamente para recargar relaciones
+      await cargarRelaciones(); // Recarga las relaciones después de crear/actualizar una relación
+  
     } catch (error) {
       console.error("Error al guardar relación:", error);
     }
   };
-  
-  
   
   
   const eliminarRelacion = async (id: number) => {
@@ -155,8 +162,6 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
       console.error("Error al eliminar relación:", err);
     }
   };
-
-  
 
   const filtrarRelaciones = (termino: string) => {
     relacionesFiltradas.value = relaciones.value.filter((relacion) =>
