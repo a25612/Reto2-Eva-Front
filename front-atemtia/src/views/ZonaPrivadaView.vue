@@ -29,7 +29,15 @@
     </div>
 
     <div class="botones">
-      <router-link to="/home-app-atemtia/zona-privada/usuarios-tutores" class="btn-accion">Usuarios Tutores</router-link>
+      <router-link to="/home-app-atemtia/zona-privada/usuarios-tutores" class="btn-accion">Usuarios-Tutores</router-link>
+    </div>
+
+    <div class="botones">
+      <router-link to="/home-app-atemtia/zona-privada/usuarios-servicios" class="btn-accion">Usuarios-Servicios</router-link>
+    </div>
+
+    <div class="botones">
+      <router-link to="/home-app-atemtia/zona-privada/empleados-servicios" class="btn-accion">Empleados-Servicios</router-link>
     </div>
 
   </div>
