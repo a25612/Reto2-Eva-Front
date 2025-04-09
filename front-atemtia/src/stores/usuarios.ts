@@ -31,16 +31,16 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
 
   // Mostrar el formulario de creación
   const toggleFormCreate = () => {
-    usuarioActual.value = { id: null, nombre: "", dni: "", codigoFacturacion: "" }; // Inicializar como un nuevo usuario
+    usuarioActual.value = { id: null, nombre: "", dni: "", codigoFacturacion: "" };
     mostrarFormularioCrear.value = true;
-    mostrarFormularioEditar.value = false; // Asegurarse de que el formulario de edición no se muestre
+    mostrarFormularioEditar.value = false; 
   };
 
   // Abrir formulario de edición
   const abrirFormularioEdicion = (usuario: any) => {
     usuarioActual.value = { ...usuario };
-    mostrarFormularioCrear.value = false; // Ocultar formulario de creación
-    mostrarFormularioEditar.value = true; // Mostrar formulario de edición
+    mostrarFormularioCrear.value = false;
+    mostrarFormularioEditar.value = true; 
   };
 
   // Guardar cambios (crear o actualizar usuario)
@@ -78,7 +78,7 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
         usuarios.value.push(newUser);
       }
 
-      filtrarUsuarios(""); // Refiltrar la lista de usuarios
+      filtrarUsuarios(""); 
       mostrarFormularioCrear.value = false;
       mostrarFormularioEditar.value = false;
       usuarioActual.value = null;
@@ -96,9 +96,8 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
 
       if (!response.ok) throw new Error("Error en la eliminación");
 
-      // Eliminar el usuario de la lista
       usuarios.value = usuarios.value.filter((user) => user.id !== id);
-      filtrarUsuarios(""); // Refiltrar la lista de usuarios
+      filtrarUsuarios("");
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
     }

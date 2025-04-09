@@ -81,47 +81,65 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
   // Guardar y eliminar relación
   // ======================
 
-  const guardarRelacion = async (relacion: { idUsuario: number, idTutor: number, id?: number }) => {
+  const guardarRelacion = async (relacion: { idUsuario: number; idTutor: number; id?: number }) => {
     try {
-      const isUpdate = !!relacion.id;
-      const url = isUpdate 
-        ? `https://localhost:7163/api/UsuarioTutores/${relacion.id}` 
-        : "https://localhost:7163/api/UsuarioTutores";
-  
-      const method = isUpdate ? "PUT" : "POST";
-  
-      const bodyData = {
-        ...(isUpdate && { id: relacion.id }),
-        idUsuario: relacion.idUsuario,
-        idTutor: relacion.idTutor,
-      };
-  
-      console.log("Datos enviados al servidor:", bodyData);
-  
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyData),
-      });
-  
-      if (!res.ok) throw new Error(isUpdate ? "Error al actualizar" : "Error al crear");
-  
-      const data = await res.json();
-  
-      if (isUpdate) {
-        const index = relaciones.value.findIndex((r) => r.id === data.id);
-        if (index !== -1) relaciones.value[index] = data;
+      let response;
+      if (relacion.id) {
+        // Actualizar relación existente
+        response = await fetch(`https://localhost:7163/api/UsuarioTutores/${relacion.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(relacion),
+        });
       } else {
-        relaciones.value.push(data);
+        // Crear una nueva relación
+        response = await fetch("https://localhost:7163/api/UsuarioTutores", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(relacion),
+        });
       }
   
-      filtrarRelaciones("");
-      relacionActual.value = null;
-      mostrarFormularioCrear.value = false;
-    } catch (err) {
-      console.error("Error al guardar relación:", err);
+      if (!response.ok) throw new Error(relacion.id ? "Error al actualizar relación" : "Error al crear relación");
+  
+      const data = await response.json();
+  
+      if (relacion.id) {
+        // Actualizar relación existente
+        relaciones.value = relaciones.value.map((r) =>
+          r.id === data.id
+            ? {
+                id: data.id,
+                usuarioId: data.iD_USUARIO,
+                tutorId: data.iD_TUTOR,
+                usuarioNombre: data.usuario?.nombre || "",
+                tutorNombre: data.tutor?.nombre || "",
+              }
+            : r
+        );
+      } else {
+        // Añadir nueva relación
+        relaciones.value.push({
+          id: data.id,
+          usuarioId: data.iD_USUARIO,
+          tutorId: data.iD_TUTOR,
+          usuarioNombre: data.usuario?.nombre || "",
+          tutorNombre: data.tutor?.nombre || "",
+        });
+      }
+  
+      filtrarRelaciones(""); // Actualizar lista filtrada
+    } catch (error) {
+      console.error("Error al guardar relación:", error);
     }
   };
+  
+  
+  
   
   const eliminarRelacion = async (id: number) => {
     try {

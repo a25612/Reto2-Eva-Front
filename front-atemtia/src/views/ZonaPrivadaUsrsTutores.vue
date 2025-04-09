@@ -38,7 +38,6 @@ watch(
 );
 
 const saveOrUpdateRelacion = async (relacion: any) => {
-  console.log("relacion:", relacion);
 
   if (relacion.usuario?.id && relacion.tutor?.id) {
     const datosRelacion = {
