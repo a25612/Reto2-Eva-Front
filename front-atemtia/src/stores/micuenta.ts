@@ -46,7 +46,15 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
       const token = authStore.token;
       const userId = authStore.userId;  // Asegúrate de obtener también el userId del store
       let response;
-
+      if (rol === 'Tutor') {
+        cargandoTutor.value = true;
+        response = await fetch(`https://localhost:7163/api/Tutor/${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
+        if (!response.ok) throw new Error(`Error al cargar datos del tutor: ${response.status}`);
+        tutor.value = await response.json();
+        cargandoTutor.value = false;
+      }
       if (rol === 'Tutor') {
         cargandoUsuarios.value = true;
         response = await fetch(`https://localhost:7163/api/Tutor/${userId}/usuarios`, {
