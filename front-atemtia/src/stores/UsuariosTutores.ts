@@ -36,10 +36,18 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
     try {
       const res = await fetch("https://localhost:7163/api/UsuarioTutores");
       if (!res.ok) throw new Error("Error al obtener relaciones");
-
+  
       const data = await res.json();
-      relaciones.value = data;
-      relacionesFiltradas.value = data;
+
+      relaciones.value = data.map((rel: any) => ({
+        id: rel.id,
+        usuarioId: rel.iD_USUARIO,
+        tutorId: rel.iD_TUTOR,
+        usuarioNombre: rel.usuario.nombre,
+        tutorNombre: rel.tutor.nombre,
+      }));
+  
+      relacionesFiltradas.value = relaciones.value;
     } catch (err) {
       console.error("Error al cargar relaciones:", err);
     }
@@ -69,11 +77,11 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
     }
   };
 
-  // ======================
+  // ====================== 
   // Guardar y eliminar relación
   // ======================
 
-  const guardarRelacion = async (relacion: Relacion) => {
+  const guardarRelacion = async (relacion: { idUsuario: number, idTutor: number, id?: number }) => {
     try {
       const isUpdate = !!relacion.id;
       const url = isUpdate 
@@ -82,12 +90,13 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
   
       const method = isUpdate ? "PUT" : "POST";
   
-      const bodyData = isUpdate
-        ? relacion
-        : {
-            usuarioId: relacion.usuarioId,
-            tutorId: relacion.tutorId,
-          };
+      const bodyData = {
+        ...(isUpdate && { id: relacion.id }),
+        idUsuario: relacion.idUsuario,
+        idTutor: relacion.idTutor,
+      };
+  
+      console.log("Datos enviados al servidor:", bodyData);
   
       const res = await fetch(url, {
         method,
@@ -100,21 +109,20 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
       const data = await res.json();
   
       if (isUpdate) {
-        // Mejorar la actualización de relaciones
         const index = relaciones.value.findIndex((r) => r.id === data.id);
         if (index !== -1) relaciones.value[index] = data;
       } else {
         relaciones.value.push(data);
       }
   
-      filtrarRelaciones(""); // actualizar filtro
+      filtrarRelaciones("");
       relacionActual.value = null;
       mostrarFormularioCrear.value = false;
     } catch (err) {
       console.error("Error al guardar relación:", err);
     }
   };
-
+  
   const eliminarRelacion = async (id: number) => {
     try {
       const res = await fetch(`https://localhost:7163/api/UsuarioTutores/${id}`, {
@@ -124,7 +132,7 @@ export const useRelacionesStore = defineStore("relacionesStore", () => {
       if (!res.ok) throw new Error("Error al eliminar relación");
 
       relaciones.value = relaciones.value.filter((rel) => rel.id !== id);
-      filtrarRelaciones(""); // Refiltrar después de eliminar
+      filtrarRelaciones(""); 
     } catch (err) {
       console.error("Error al eliminar relación:", err);
     }

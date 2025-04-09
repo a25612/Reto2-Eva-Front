@@ -8,20 +8,17 @@ const relacionesStore = useRelacionesStore();
 const usuariosStore = useUsuariosStore();
 const tutoresStore = useTutoresStore();
 
-// Estado
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
 const updatedRelacion = ref<any>({ id: null, usuario: null, tutor: null });
 const newRelacion = ref<any>({ usuario: null, tutor: null });
 
-// Cargar datos iniciales
 onMounted(() => {
   relacionesStore.cargarRelaciones();
   usuariosStore.cargarUsuarios();
   tutoresStore.cargarTutores();
 });
 
-// Observador para la relación actual
 watch(
   () => relacionesStore.relacionActual,
   (nuevaRelacion) => {
@@ -40,51 +37,36 @@ watch(
   { immediate: true }
 );
 
-// Función común para guardar o actualizar relación
 const saveOrUpdateRelacion = async (relacion: any) => {
-  if (relacion.usuario && relacion.tutor) {
-    try {
-      const datosRelacion = {
-        usuarioNombre: relacion.usuario.nombre,
-        tutorNombre: relacion.tutor.nombre,
-        ...(relacion.id && { id: relacion.id }), // Solo incluye el id si existe
-      };
-      
-      // Mostrar los datos que se van a enviar
-      console.log("Enviando los siguientes datos:", datosRelacion);
-      
-      await relacionesStore.guardarRelacion(datosRelacion);
+  console.log("relacion:", relacion);
 
-      // Restablecer formulario si es necesario
-      if (!relacion.id) {
-        newRelacion.value = { usuario: null, tutor: null };
-        relacionesStore.mostrarFormularioCrear = false;
-      }
-      showFormUpdate.value = false;
-    } catch (error) {
-      console.error("Error al guardar/actualizar la relación:", error);
+  if (relacion.usuario?.id && relacion.tutor?.id) {
+    const datosRelacion = {
+      idUsuario: relacion.usuario.id,
+      idTutor: relacion.tutor.id,
+      ...(relacion.id && { id: relacion.id }),
+    };
+
+    console.log("Enviando los siguientes datos:", datosRelacion);
+
+    await relacionesStore.guardarRelacion(datosRelacion);
+
+    // Reset form
+    if (!relacion.id) {
+      newRelacion.value = { usuario: null, tutor: null };
+      relacionesStore.mostrarFormularioCrear = false;
     }
+    showFormUpdate.value = false;
   } else {
-    console.warn("Se deben seleccionar tanto el usuario como el tutor.");
+    alert("Debes seleccionar tanto un usuario como un tutor.");
   }
 };
 
-// Funciones específicas para actualizar y guardar
-const updateRelacion = async () => {
-  await saveOrUpdateRelacion(updatedRelacion.value);
-};
 
-const saveRelacion = async () => {
-  await saveOrUpdateRelacion(newRelacion.value);
-};
-
-// Manejar búsqueda
-const handleSearch = () => {
-  relacionesStore.filtrarRelaciones(searchTerm.value);
-};
+const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
+const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
+const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
-
-
 
 <template>
   <div class="relacion-usuarios-tutores">
