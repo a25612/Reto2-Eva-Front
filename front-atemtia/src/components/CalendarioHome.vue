@@ -1,3 +1,156 @@
+<script>
+import { useDate } from 'vuetify'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+
+export default {
+  data: () => ({
+    type: 'month',
+    filteredWeekdays: [1, 2, 3, 4, 5], // Solo lunes a viernes
+    value: [new Date()],
+    events: [],
+    dialog: false,
+    selectedEvent: {},
+    newDate: null,
+    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange'],
+    titles: ['Reunión', 'Vacaciones', 'PTO', 'Viaje', 'Evento', 'Cumpleaños'],
+    userRole: 'empleado', // Cambiar a 'empleado' o 'no empleado' según el rol
+    confirmationDialog: false, // Diálogo de confirmación de mover
+    confirmationMessage: '',
+    isMovingEvent: false,
+  }),
+  computed: {
+    availableDates() {
+      const dates = []
+      const currentMonth = new Date().getMonth()
+      const currentYear = new Date().getFullYear()
+      const today = new Date()
+
+      // Itera solo por días desde hoy hasta el final del mes
+      for (let day = today.getDate(); day <= 31; day++) {
+        const date = new Date(currentYear, currentMonth, day)
+        if (date.getMonth() === currentMonth && date.getDay() !== 0 && date.getDay() !== 6) {
+          dates.push(format(date, 'yyyy-MM-dd'))
+        }
+      }
+      return dates
+    },
+  },
+  mounted() {
+    const adapter = useDate()
+    this.getEvents({
+      start: adapter.startOfDay(adapter.startOfMonth(new Date())),
+      end: adapter.endOfDay(adapter.endOfMonth(new Date())),
+    })
+  },
+  methods: {
+    getEvents({ start, end }) {
+      const events = []
+      const min = start
+      const max = end
+      const days = (max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24)
+      const eventCount = this.rnd(days / 2, days)
+
+      for (let i = 0; i < eventCount; i++) {
+        const allDay = this.rnd(0, 3) === 0
+        const firstTimestamp = this.rnd(min.getTime(), max.getTime())
+        const first = new Date(firstTimestamp)
+
+        // Asegurarse de que el evento no caiga en sábado o domingo
+        if (first.getDay() === 0 || first.getDay() === 6) {
+          continue; // Saltar sábado (0) o domingo (6)
+        }
+
+        const secondTimestamp = this.rnd(2, allDay ? (24 * 60) : (8 * 60)) * (60 * 1000)
+        const second = new Date(first.getTime() + secondTimestamp)
+
+        events.push({
+          title: this.titles[this.rnd(0, this.titles.length - 1)],
+          start: first,
+          end: second,
+          color: this.colors[this.rnd(0, this.colors.length - 1)],
+          allDay,
+        })
+      }
+
+      this.events = events
+    },
+    rnd(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min
+    },
+    showEventDetails(event) {
+      this.selectedEvent = event
+      this.dialog = true
+    },
+    formatDate(date) {
+      return format(new Date(date), "PPPP p", { locale: es })
+    },
+    customDayFormat(date) {
+      const day = date.getDay()
+      // Si es sábado o domingo, no mostrar el día
+      if (day === 0 || day === 6) {
+        return ''; // Devolver una cadena vacía para sábado y domingo
+      }
+      return format(date, 'd'); // Para otros días, mostrar el número de día
+    },
+    requestMoveEvent() {
+      if (this.userRole === 'empleado') {
+        // Si es empleado, muestra la ventana de confirmación directamente
+        this.confirmationMessage = `Se ha solicitado mover el evento "${this.selectedEvent.title}" al día ${format(new Date(this.newDate), 'dd/MM/yyyy')}.`;
+        this.confirmationDialog = true;
+      } else {
+        // Si no es empleado, solicita mover y luego muestra una ventana con el mensaje de confirmación
+        this.moveEvent();
+      }
+    },
+    moveEvent() {
+      if (this.newDate) {
+        const newStartDate = new Date(this.newDate)
+        
+        // Asegúrate de que la fecha seleccionada para mover el evento sea válida
+        if (newStartDate < new Date()) {
+          alert("No puedes mover el evento a una fecha anterior al día de hoy.");
+          return;
+        }
+
+        // Busca el índice del evento seleccionado y actualízalo
+        const eventIndex = this.events.findIndex(event => event === this.selectedEvent)
+        if (eventIndex !== -1) {
+          const event = this.events[eventIndex]
+          
+          // Calcula la nueva fecha de finalización basado en la duración del evento original
+          const eventDuration = event.end.getTime() - event.start.getTime()
+          
+          // Actualiza la fecha de inicio y fin
+          this.events[eventIndex].start = newStartDate
+          this.events[eventIndex].end = new Date(newStartDate.getTime() + eventDuration)
+          
+          // Cierra el diálogo y resetea la nueva fecha
+          this.dialog = false
+          this.newDate = null
+          this.confirmationMessage = `Se ha movido el evento "${event.title}" al día ${format(new Date(this.newDate), 'dd/MM/yyyy')}.`
+          this.confirmationDialog = true;
+        }
+      }
+    },
+    deleteEvent() {
+      const eventIndex = this.events.findIndex(event => event === this.selectedEvent)
+      if (eventIndex !== -1) {
+        this.events.splice(eventIndex, 1); // Elimina el evento de la lista
+      }
+      this.dialog = false;
+    },
+    confirmMove() {
+      this.moveEvent();
+      this.confirmationDialog = false;
+    },
+    cancelMove() {
+      this.confirmationDialog = false;
+    }
+  },
+}
+</script>
+
 <template>
   <div class="calendariohome">
     <v-sheet class="d-flex align-center justify-space-between" tile>
@@ -48,117 +201,27 @@
           ></v-select>
         </v-card-text>
         <v-card-actions>
-          <v-btn class="move-button" @click="moveEvent">Mover</v-btn>
+          <v-btn class="move-button" @click="requestMoveEvent">Mover</v-btn>
+          <v-btn color="red" @click="deleteEvent">Eliminar</v-btn>
           <v-btn color="orange" text @click="dialog = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="confirmationDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="orange--text">Confirmar Movimiento</v-card-title>
+        <v-card-text>
+          <div>{{ confirmationMessage }}</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="green" @click="confirmMove">Sí</v-btn>
+          <v-btn color="red" @click="cancelMove">No</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
 </template>
-
-<script>
-import { useDate } from 'vuetify'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-
-export default {
-  data: () => ({
-    type: 'month',
-    filteredWeekdays: [1, 2, 3, 4, 5], // Solo lunes a viernes
-    value: [new Date()],
-    events: [],
-    dialog: false,
-    selectedEvent: {},
-    newDate: null,
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange'],
-    titles: ['Reunión', 'Vacaciones', 'PTO', 'Viaje', 'Evento', 'Cumpleaños'],
-  }),
-  computed: {
-    availableDates() {
-      const dates = []
-      const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
-      for (let day = 1; day <= 31; day++) {
-        const date = new Date(currentYear, currentMonth, day)
-        if (date.getMonth() === currentMonth && date.getDay() !== 0 && date.getDay() !== 6) {
-          dates.push(format(date, 'yyyy-MM-dd'))
-        }
-      }
-      return dates
-    },
-  },
-  mounted() {
-    const adapter = useDate()
-    this.getEvents({
-      start: adapter.startOfDay(adapter.startOfMonth(new Date())),
-      end: adapter.endOfDay(adapter.endOfMonth(new Date())),
-    })
-  },
-  methods: {
-    getEvents({ start, end }) {
-      const events = []
-      const min = start
-      const max = end // Definir correctamente la variable max
-      const days = (max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24)
-      const eventCount = this.rnd(days / 2, days)
-
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-        const first = new Date(firstTimestamp)
-
-        // Asegurarse de que el evento no caiga en sábado o domingo
-        if (first.getDay() === 0 || first.getDay() === 6) {
-          continue; // Saltar sábado (0) o domingo (6)
-        }
-
-        const secondTimestamp = this.rnd(2, allDay ? (24 * 60) : (8 * 60)) * (60 * 1000)
-        const second = new Date(first.getTime() + secondTimestamp)
-
-        events.push({
-          title: this.titles[this.rnd(0, this.titles.length - 1)],
-          start: first,
-          end: second,
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          allDay,
-        })
-      }
-
-      this.events = events
-    },
-    rnd(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min
-    },
-    showEventDetails(event) {
-      this.selectedEvent = event
-      this.dialog = true
-    },
-    formatDate(date) {
-      return format(new Date(date), "PPPP p", { locale: es })
-    },
-    customDayFormat(date) {
-      const day = date.getDay()
-      // Si es sábado o domingo, no mostrar el día
-      if (day === 0 || day === 6) {
-        return ''; // Devolver una cadena vacía para sábado y domingo
-      }
-      return format(date, 'd'); // Para otros días, mostrar el número de día
-    },
-    moveEvent() {
-      if (this.newDate) {
-        const newStartDate = new Date(this.newDate)
-        const eventIndex = this.events.findIndex(event => event === this.selectedEvent)
-        if (eventIndex !== -1) {
-          this.events[eventIndex].start = newStartDate
-          this.events[eventIndex].end = new Date(newStartDate.getTime() + (this.selectedEvent.end.getTime() - this.selectedEvent.start.getTime()))
-        }
-        this.dialog = false
-        this.newDate = null
-      }
-    },
-  },
-}
-</script>
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -231,3 +294,4 @@ export default {
   height: 20px;
 }
 </style>
+  
