@@ -87,9 +87,21 @@ export const useUsuariosStore = defineStore("usuariosStore", () => {
     }
   };
 
-  // Eliminar un usuario
+  // Eliminar un usuario con verificación previa de relaciones
   const eliminarUsuario = async (id: number) => {
     try {
+      // Paso 1: Verificar si tiene relaciones en UsuarioTutores
+      const relacionesResponse = await fetch(`https://localhost:7163/api/UsuarioTutores/usuario/${id}`);
+      if (!relacionesResponse.ok) throw new Error("Error al verificar relaciones");
+
+      const relaciones = await relacionesResponse.json();
+
+      if (relaciones.length > 0) {
+        alert("Este Usuario tiene relaciones. Por favor elimine antes la relación para poder eliminarlo.");
+        return;
+      }
+
+      // Paso 2: Eliminar usuario si no tiene relaciones
       const response = await fetch(`https://localhost:7163/api/Usuarios/${id}`, {
         method: "DELETE",
       });
