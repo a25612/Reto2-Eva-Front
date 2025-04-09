@@ -82,58 +82,7 @@ function abrirCalendario() {
   }
 }
 
-function handleFechaHoraSeleccionada(fechaHora: { fecha: string; hora: string }) {
-  const fechaSeleccionada = new Date(fechaHora.fecha);
-  const diaSemana = fechaSeleccionada.getDay(); 
-  const horaSeleccionada = parseInt(fechaHora.hora.split(':')[0]);
 
-  if (diaSemana === 0 || diaSemana === 6) {
-    alert('Solo se pueden seleccionar días laborables (lunes a viernes).');
-    return;
-  }
-
-  const esHoraValida =
-    (horaSeleccionada >= 9 && horaSeleccionada <= 13) ||
-    (horaSeleccionada >= 16 && horaSeleccionada <= 20);
-
-  if (!esHoraValida) {
-    alert('Las reservas solo están permitidas entre las 9:00-13:00 y 16:00-20:00 en horas exactas.');
-    return;
-  }
-
-  const fechaHoraISO = `${fechaHora.fecha}T${fechaHora.hora}:00.000Z`;
-
-  seleccionarFechaHora(fechaHoraISO);
-
-  const datosReserva = {
-    fechaHora: fechaHoraISO,
-    idCentro: Number(centroSeleccionado.value),
-    idServicio: servicioSeleccionadoId.value,
-    idOpcionServicio: idOpcionServicio.value,
-    idUsuario: 1,
-    idTutor: 1,
-    idEmpleado: 1
-  };
-
-  fetch('https://localhost:7163/api/Sesion', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(datosReserva),
-  })
-    .then(response => response.json())
-    .then(data => {
-      reservaConfirmada.value = true;
-      fechaReserva.value = fechaHora.fecha;
-      horaReserva.value = fechaHora.hora;
-      mostrarCalendario.value = false;
-      alert('Reserva confirmada exitosamente!');
-    })
-    .catch(error => {
-      alert('Error al confirmar la reserva: ' + error.message);
-    });
-}
 
 function handleCancelarFechaHora() {
   mostrarCalendario.value = false;
@@ -193,10 +142,6 @@ function irHome() {
             <p class="duracion">{{ formatDuracion(opcion.duracionMinutos) }}</p>
             <div class="precio-container">
               <p class="precio">{{ formatPrecio(opcion.precio) }}</p>
-              <button class="btn-reservar" v-if="rol !== 'Empleado'"
-                @click="mostrarConfirmacion(servicio.nombre, servicio.id, opcion.id)">
-                RESERVAR
-              </button>
             </div>
           </div>
         </div>
@@ -204,23 +149,7 @@ function irHome() {
     </div>
   </div>
 
-  <div v-if="servicioSeleccionado && !mostrarCalendario && !reservaConfirmada" class="modal"
-    @click.self="cerrarConfirmacion">
-    <div class="modal-content">
-      <p>¿Quieres reservar el servicio: <strong>{{ servicioSeleccionado }}</strong>?</p>
-      <div class="modal-buttons">
-        <button class="boton-si" @click="abrirCalendario">SI</button>
-        <button class="boton-no" @click="cerrarConfirmacion">NO</button>
-      </div>
-    </div>
-  </div>
-
-  <div v-if="mostrarCalendario" class="modal">
-    <div class="modal-content">
-      <CalendarioReservas @confirmarFechaHora="handleFechaHoraSeleccionada"
-        @cancelarFechaHora="handleCancelarFechaHora" />
-    </div>
-  </div>
+  
 
   <div v-if="reservaConfirmada" class="modal">
     <div class="modal-content">
