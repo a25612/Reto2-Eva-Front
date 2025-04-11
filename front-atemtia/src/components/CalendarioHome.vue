@@ -5,18 +5,33 @@ import { es } from 'date-fns/locale'
 
 export default {
   data: () => ({
-    type: 'month', // Mes por defecto
-    filteredWeekdays: [1, 2, 3, 4, 5], // Solo lunes a viernes
-    value: [new Date()], // Fecha actual por defecto
+    type: 'month',
+    filteredWeekdays: [1, 2, 3, 4, 5],
+    value: [new Date()],
     events: [],
     dialog: false,
     selectedEvent: {},
     newDate: null,
-    userRole: 'empleado', // Cambiar a 'empleado' o 'no empleado' según el rol
+    userRole: 'empleado',
     confirmationDialog: false,
     confirmationMessage: '',
     isMovingEvent: false,
+    availableDates: [
+      '2025-04-15',
+      '2025-04-16',
+      '2025-04-17',
+      '2025-04-18',
+      '2025-04-19',
+    ],
   }),
+  computed: {
+    formattedAvailableDates() {
+      return this.availableDates.map(date => ({
+        value: date,
+        text: `(${format(new Date(date), 'dd/MM/yy')})`,  // Formato de fecha modificado
+      }))
+    },
+  },
   mounted() {
     const adapter = useDate()
     const start = adapter.startOfDay(adapter.startOfMonth(new Date()))
@@ -28,39 +43,23 @@ export default {
       try {
         const res = await fetch('https://localhost:7163/api/Sesion/Usuario/1/PorFecha?fecha=2025-04-10T07%3A30%3A44.624Z')
         const data = await res.json()
-        console.log('Respuesta cruda de la API:', data)
-
         this.events = data.map(evento => {
           const servicioNombre = evento.servicio ? evento.servicio.nombre : 'Servicio sin nombre'
           const servicioDescripcion = evento.servicio ? evento.servicio.descripcion : 'Descripción no disponible'
-
           const startDate = evento.fecha_inicio ? new Date(evento.fecha_inicio) : new Date()
           const endDate = evento.fecha_fin ? new Date(evento.fecha_fin) : new Date()
-
-          if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            console.error('Fecha inválida para el evento:', evento)
-            return null
-          }
-
-          const nombreEvento = `${servicioNombre}: ${servicioDescripcion}`
-
-          const usuarioNombre = evento.usuario ? evento.usuario.nombre : 'Usuario sin nombre'
-          const empleadoNombre = evento.empleado ? evento.empleado.nombre : 'Empleado sin nombre'
-          const centroNombre = evento.centro ? evento.centro.nombre : 'Centro sin nombre'
+          if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return null
 
           return {
             nombre: servicioNombre,
             descripcion: servicioDescripcion,
             start: startDate,
             end: endDate,
-            usuario: usuarioNombre,
-            empleado: empleadoNombre,
-            centro: centroNombre,
+            usuario: evento.usuario?.nombre || 'Usuario sin nombre',
+            empleado: evento.empleado?.nombre || 'Empleado sin nombre',
+            centro: evento.centro?.nombre || 'Centro sin nombre',
           }
         }).filter(event => event !== null)
-
-        console.log('Eventos cargados en el calendario:', this.events)
-
       } catch (error) {
         console.error('Error al obtener eventos:', error)
       }
@@ -70,7 +69,7 @@ export default {
       this.dialog = true
     },
     formatDate(date) {
-      return format(new Date(date), "PPPP p", { locale: es })
+      return format(new Date(date), "dd/MM/yy", { locale: es })  // Formato de fecha modificado
     },
     customDayFormat(date) {
       const day = date.getDay()
@@ -79,7 +78,7 @@ export default {
     },
     requestMoveEvent() {
       if (this.userRole === 'empleado') {
-        this.confirmationMessage = `Se ha solicitado mover el evento "${this.selectedEvent.nombre}" al día ${format(new Date(this.newDate), 'dd/MM/yyyy')}.`
+        this.confirmationMessage = `Se ha solicitado mover el evento "${this.selectedEvent.nombre}" al día ${this.formatDate(this.newDate)}.`
         this.confirmationDialog = true
       } else {
         this.moveEvent()
@@ -99,7 +98,7 @@ export default {
           this.events[index].end = new Date(newStartDate.getTime() + duracion)
           this.dialog = false
           this.newDate = null
-          this.confirmationMessage = `Se ha movido el evento "${this.events[index].nombre}" al día ${format(newStartDate, 'dd/MM/yyyy')}.`
+          this.confirmationMessage = `Se ha movido el evento "${this.events[index].nombre}" al día ${this.formatDate(newStartDate)}.`
           this.confirmationDialog = true
         }
       }
@@ -117,18 +116,18 @@ export default {
       this.confirmationDialog = false
     },
     handleViewChange() {
-      // Cuando se cambia de vista, debemos actualizar los eventos según la vista seleccionada
       const startDate = new Date(this.value[0])
       let endDate
 
       if (this.type === 'month') {
+        startDate.setDate(1)
         endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0)
       } else if (this.type === 'week') {
-        const dayOfWeek = startDate.getDay()
-        const daysToAdd = dayOfWeek === 0 ? 6 : 1 - dayOfWeek
-        startDate.setDate(startDate.getDate() + daysToAdd)
+        const day = startDate.getDay()
+        const diff = startDate.getDate() - day + (day === 0 ? -6 : 1)
+        startDate.setDate(diff)
         endDate = new Date(startDate)
-        endDate.setDate(startDate.getDate() + 6) // Fin de semana
+        endDate.setDate(startDate.getDate() + 6)
       } else if (this.type === 'day') {
         endDate = new Date(startDate)
       }
@@ -137,13 +136,13 @@ export default {
     }
   },
   watch: {
-    type(newValue) {
+    type() {
       this.handleViewChange()
     },
-    value(newValue) {
+    value() {
       this.handleViewChange()
     }
-  },
+  }
 }
 </script>
 
@@ -185,17 +184,19 @@ export default {
 
     <v-dialog v-model="dialog" max-width="500px">
       <v-card>
-        <v-card-title class="orange--text">{{ selectedEvent.nombre }}</v-card-title> 
+        <v-card-title class="orange--text">{{ selectedEvent.nombre }}</v-card-title>
         <v-card-text>
           <div><strong>Fecha:</strong> {{ formatDate(selectedEvent.start) }} - {{ formatDate(selectedEvent.end) }}</div>
           <div><strong>Descripción:</strong> {{ selectedEvent.descripcion }}</div>
           <div><strong>Usuario:</strong> {{ selectedEvent.usuario }}</div>
           <div><strong>Empleado:</strong> {{ selectedEvent.empleado }}</div>
           <div><strong>Centro:</strong> {{ selectedEvent.centro }}</div>
- 
+
           <v-select
             v-model="newDate"
-            :items="availableDates"
+            :items="formattedAvailableDates"
+            item-text="text"
+            item-value="value"
             label="Mover a otro día"
           ></v-select>
         </v-card-text>
@@ -207,6 +208,8 @@ export default {
       </v-card>
     </v-dialog>
 
+    <template>
+  <div class="calendariohome">
     <v-dialog v-model="confirmationDialog" max-width="500px">
       <v-card>
         <v-card-title class="orange--text">Confirmar Movimiento</v-card-title>
@@ -222,10 +225,8 @@ export default {
   </div>
 </template>
 
-
-
-
-
+  </div>
+</template>
 
 
 
