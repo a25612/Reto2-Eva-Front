@@ -68,19 +68,17 @@ const fetchSesiones = async () => {
       throw new Error('Error al obtener las sesiones')
     }
     const data = await response.json()
-    // Filtrar las sesiones para el día actual
-    const todayDate = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`
-    sesiones.value = data.filter((sesion: any) => sesion.fecha.startsWith(todayDate))
-
-    // Asegurarse de que cada sesión tenga nombre del servicio e id
-    sesiones.value = sesiones.value.map((sesion: any) => ({
-      ...sesion,
-      nombreServicio: sesion.servicio?.nombre || 'Servicio no disponible',
-      idServicio: sesion.servicio?.id || 'ID no disponible'
-    }))
+    sesiones.value = data
   } catch (error) {
     console.error('Error:', error)
   }
+}
+
+const sesionesPorDia = (dia: number) => {
+  const mes = String(month.value + 1).padStart(2, '0')
+  const diaStr = String(dia).padStart(2, '0')
+  const fecha = `${year.value}-${mes}-${diaStr}`
+  return sesiones.value.filter(s => s.fecha?.startsWith(fecha))
 }
 
 onMounted(() => {
@@ -91,6 +89,7 @@ onMounted(() => {
 <template>
   <div class="app">
     <div class="calendar container">
+      <!-- Encabezado con mes y año -->
       <div class="calendar-date-header">
         <h1>{{ monthName }} {{ year }}</h1>
 
@@ -101,37 +100,54 @@ onMounted(() => {
         </select>
       </div>
 
+      <!-- Tabla del calendario -->
       <table class="table calendar-table">
+        <!-- Cabecera con los días de la semana -->
         <tr class="calendar-header">
-          <td v-for="day in dayNamesShort" :key="day" class="calendar-header-day">{{ day }}</td>
+          <td v-for="day in dayNamesShort" :key="day" class="calendar-header-day">
+            {{ day }}
+          </td>
         </tr>
+
+        <!-- Días del mes -->
         <tr v-for="(row, i) in calendarDayMatrix" :key="i">
-          <td v-for="(cell, j) in row" :key="j" class="calendar-day" :class="{ dead: !cell }">
-            <span v-if="cell" :class="{
-              'day-number': true,
-              'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
-            }">
-              {{ cell }}
-            </span>
+          <td
+            v-for="(cell, j) in row"
+            :key="j"
+            class="calendar-day"
+            :class="{ dead: !cell }"
+          >
+            <div v-if="cell" class="calendar-cell-content">
+              <!-- Número del día -->
+              <span
+                :class="{
+                  'day-number': true,
+                  'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
+                }"
+              >
+                {{ cell }}
+              </span>
+
+              <!-- Lista de sesiones para el día -->
+              <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
+                  <li
+                    v-for="(sesion, index) in sesionesPorDia(cell)"
+                    :key="index"
+                    class="sesion-item"
+                  >
+                <div class="sesion-name">
+                  {{ sesion.servicio.nombre }}
+                 </div>
+                 </li>
+              </ul>
+            </div>
           </td>
         </tr>
       </table>
-
-      <!-- Mostrar sesiones del día -->
-      <div v-if="sesiones.length">
-        <h2>Sesiones del día</h2>
-        <ul>
-          <li v-for="(sesion, index) in sesiones" :key="index">
-            {{ sesion.nombre }} - {{ sesion.hora }} - Sala: {{ sesion.sala }} - Servicio: {{ sesion.nombreServicio }} - ID: {{ sesion.idServicio }}
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <p>No hay sesiones para hoy.</p>
-      </div>
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 html, body {
@@ -218,9 +234,30 @@ html, body {
       }
     }
   }
+}
+.calendar-cell-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 
-  .sesiones-list {
-    margin-top: 2rem;
+.sesion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #333;
+
+  li {
+    background-color: #e6f0ff; /* color de fondo azul */
+    padding: 4px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+    font-weight: 500;
   }
 }
+
+
+
 </style>
