@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const dayNamesShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const monthNamesLong = [
@@ -58,6 +58,34 @@ const yearsRange = computed(() => {
   const base = currentYear
   return Array.from({ length: 4 }, (_, i) => base + i)
 })
+
+const sesiones = ref<any[]>([])
+
+const fetchSesiones = async () => {
+  try {
+    const response = await fetch('https://localhost:7163/api/Sesion')
+    if (!response.ok) {
+      throw new Error('Error al obtener las sesiones')
+    }
+    const data = await response.json()
+    // Filtrar las sesiones para el día actual
+    const todayDate = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`
+    sesiones.value = data.filter((sesion: any) => sesion.fecha.startsWith(todayDate))
+
+    // Asegurarse de que cada sesión tenga nombre del servicio e id
+    sesiones.value = sesiones.value.map((sesion: any) => ({
+      ...sesion,
+      nombreServicio: sesion.servicio?.nombre || 'Servicio no disponible',
+      idServicio: sesion.servicio?.id || 'ID no disponible'
+    }))
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+onMounted(() => {
+  fetchSesiones()
+})
 </script>
 
 <template>
@@ -67,7 +95,6 @@ const yearsRange = computed(() => {
         <h1>{{ monthName }} {{ year }}</h1>
 
         <select class="month-select" v-model="month">
-          
           <option v-for="(name, index) in monthNamesLong" :key="index" :value="index">
             {{ name }}
           </option>
@@ -79,20 +106,29 @@ const yearsRange = computed(() => {
           <td v-for="day in dayNamesShort" :key="day" class="calendar-header-day">{{ day }}</td>
         </tr>
         <tr v-for="(row, i) in calendarDayMatrix" :key="i">
-          <td v-for="(cell, j) in row" :key="j" class="calendar-day"
-              :class="{ dead: !cell }">
-            <span
-              v-if="cell"
-              :class="{
-                'day-number': true,
-                'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
-              }"
-            >
+          <td v-for="(cell, j) in row" :key="j" class="calendar-day" :class="{ dead: !cell }">
+            <span v-if="cell" :class="{
+              'day-number': true,
+              'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
+            }">
               {{ cell }}
             </span>
           </td>
         </tr>
       </table>
+
+      <!-- Mostrar sesiones del día -->
+      <div v-if="sesiones.length">
+        <h2>Sesiones del día</h2>
+        <ul>
+          <li v-for="(sesion, index) in sesiones" :key="index">
+            {{ sesion.nombre }} - {{ sesion.hora }} - Sala: {{ sesion.sala }} - Servicio: {{ sesion.nombreServicio }} - ID: {{ sesion.idServicio }}
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No hay sesiones para hoy.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -135,11 +171,6 @@ html, body {
       border-radius: 8px;
     }
   }
-  select {
-  -webkit-appearance: auto;
-  -moz-appearance: auto;
-  appearance: auto;
-}
 
   .calendar-table {
     width: 100%;
@@ -186,6 +217,10 @@ html, body {
         font-weight: bold;
       }
     }
+  }
+
+  .sesiones-list {
+    margin-top: 2rem;
   }
 }
 </style>
