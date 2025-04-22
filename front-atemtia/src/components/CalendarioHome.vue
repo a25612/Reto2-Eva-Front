@@ -60,6 +60,8 @@ const yearsRange = computed(() => {
 })
 
 const sesiones = ref<any[]>([])
+const selectedSesion = ref<any>(null)
+const showModal = ref(false)
 
 const fetchSesiones = async () => {
   try {
@@ -79,6 +81,16 @@ const sesionesPorDia = (dia: number) => {
   const diaStr = String(dia).padStart(2, '0')
   const fecha = `${year.value}-${mes}-${diaStr}`
   return sesiones.value.filter(s => s.fecha?.startsWith(fecha))
+}
+
+const openModal = (sesion: any) => {
+  selectedSesion.value = sesion
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  selectedSesion.value = null
 }
 
 onMounted(() => {
@@ -130,24 +142,33 @@ onMounted(() => {
 
               <!-- Lista de sesiones para el día -->
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
-                  <li
-                    v-for="(sesion, index) in sesionesPorDia(cell)"
-                    :key="index"
-                    class="sesion-item"
-                  >
-                <div class="sesion-name">
-                  {{ sesion.servicio.nombre }}
-                 </div>
-                 </li>
+                <li
+                  v-for="(sesion, index) in sesionesPorDia(cell)"
+                  :key="index"
+                  class="sesion-item"
+                  @click="openModal(sesion)"
+                >
+                  <div class="sesion-name">
+                    {{ sesion.servicio.nombre }}
+                  </div>
+                </li>
               </ul>
             </div>
           </td>
         </tr>
       </table>
     </div>
+
+    <!-- Modal de información -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h2>Información de la Sesión</h2>
+        <p>Servicio: {{ selectedSesion?.servicio.nombre }}</p>
+        <button @click="closeModal">Cerrar</button>
+      </div>
+    </div>
   </div>
 </template>
-
 
 <style scoped lang="scss">
 html, body {
@@ -235,6 +256,7 @@ html, body {
     }
   }
 }
+
 .calendar-cell-content {
   display: flex;
   flex-direction: column;
@@ -246,6 +268,7 @@ html, body {
   padding: 0;
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
+  
   color: #333;
 
   li {
@@ -253,11 +276,57 @@ html, body {
     padding: 4px 6px;
     border-radius: 4px;
     line-height: 1.2;
+    margin-top: 10px;
     overflow-wrap: break-word;
     font-weight: 500;
+    cursor: pointer;
   }
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+ 
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+
+  h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+
+  p {
+    margin: 1rem 0;
+    font-size: 1rem;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}
 
 </style>
