@@ -93,6 +93,24 @@ const closeModal = () => {
   selectedSesion.value = null
 }
 
+const getColorForService = (serviceName: string) => {
+  const colors: { [key: string]: string } = {
+    'matronatación': '#ADD8E6',
+    'iniciación': '#90EE90',
+    'natación y natación adaptada': '#00008B',
+    'natación adultos': '#FFA500',
+    'aquagym': '#FF69B4',
+    'natación individual niños y adultos': '#FFFF00',
+    'reserva de calle libre': '#808080',
+    'fisioterapia': '#800080',
+    'psicología': '#FF0000',
+    'logopedia': '#A52A2A',
+    'grupo de habilidades sociales': '#006400',
+    'grupo de comunicación': '#87CEEB'
+  }
+  return colors[serviceName.toLowerCase()] || '#FFFFFF'
+}
+
 onMounted(() => {
   fetchSesiones()
 })
@@ -147,6 +165,7 @@ onMounted(() => {
                   :key="index"
                   class="sesion-item"
                   @click="openModal(sesion)"
+                  :style="{ backgroundColor: getColorForService(sesion.servicio.nombre) }"
                 >
                   <div class="sesion-name">
                     {{ sesion.servicio.nombre }}
@@ -206,6 +225,12 @@ html, body {
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 8px;
+    }
+    select {
+      -webkit-appearance: auto;
+      -moz-appearance: auto;
+      appearance: auto;
+      margin-right: 10px;
     }
   }
 
@@ -268,17 +293,15 @@ html, body {
   padding: 0;
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
-  
   color: #333;
 
   li {
-    background-color: #e6f0ff; /* color de fondo azul */
     padding: 4px 6px;
     border-radius: 4px;
     line-height: 1.2;
-    margin-top: 10px;
     overflow-wrap: break-word;
     font-weight: 500;
+    margin-top: 10px;
     cursor: pointer;
   }
 }
@@ -289,16 +312,17 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal-content {
- 
+  background: white;
   padding: 2rem;
   border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
   text-align: center;
@@ -328,5 +352,4 @@ html, body {
     }
   }
 }
-
 </style>
