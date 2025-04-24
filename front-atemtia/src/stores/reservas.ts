@@ -1,81 +1,82 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export interface Reserva {
-  id: number;
-  fecha: string;
+  id: number
+  fecha: string
   usuario: {
-    nombre: string; 
-  };
-  servicio: {
-    nombre: string;
-  };
-  empleado: {
-    nombre: string;
-  };
-  centro: {
-    nombre: string;
-  };
-  tarifa: {
-    precio: number;
-  };
-  facturar: boolean;
+    id: number
+    nombre: string
+  }
+  servicio: { nombre: string }
+  empleado: { nombre: string }
+  centro: { nombre: string }
+  tarifa: { precio: number }
+  facturar: boolean
 }
 
 export const useReservasStore = defineStore('reservas', () => {
-  const reservas = ref<Reserva[]>([]);
-  const cargando = ref(false);
-  const error = ref('');
+  const reservas = ref<Reserva[]>([])
+  const cargando = ref(false)
+  const error = ref('')
+  const usuariosAsignados = ref<{ id: number; nombre: string }[]>([])
 
   async function cargarReservas() {
-  const userId =
-    localStorage.getItem('ultimoUsuarioSeleccionado') ||
-    localStorage.getItem('userId');
-  const rol = localStorage.getItem('rol');
+    const rol = localStorage.getItem('rol')
+    cargando.value = true
+    error.value = ''
+    reservas.value = []
+    usuariosAsignados.value = []
 
-  if (!userId || !rol) {
-    error.value = 'No se encontró información de usuario o rol';
-    return;
+    try {
+      if (rol === 'Tutor') {
+        // Obtén los IDs de los hijos asignados (ajusta el nombre de la variable según tu auth)
+        const usuariosIds = JSON.parse(localStorage.getItem('usuariosAsignadosIds') || '[]')
+        if (!usuariosIds.length) {
+          error.value = 'No tienes hijos asignados.'
+          return
+        }
+        // Carga reservas de todos los hijos
+        const peticiones = usuariosIds.map((id: number) =>
+          fetch(`https://localhost:7163/api/Sesion/Usuario/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            },
+          }).then(res => res.json().then(data => ({ id, data })))
+        )
+        const resultados = await Promise.all(peticiones)
+        reservas.value = resultados.flatMap(r => r.data)
+        usuariosAsignados.value = resultados.map(r => ({
+          id: r.id,
+          nombre: r.data?.[0]?.usuario?.nombre || `Usuario ${r.id}`,
+        }))
+      } else if (rol === 'Empleado') {
+        const userId = localStorage.getItem('userId')
+        if (!userId) {
+          error.value = 'No se encontró el usuario'
+          return
+        }
+        const response = await fetch(`https://localhost:7163/api/Sesion/Empleado/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        reservas.value = await response.json()
+        // Solo para compatibilidad, aquí solo hay un usuario
+        usuariosAsignados.value = reservas.value.length
+          ? [{ id: reservas.value[0].usuario.id, nombre: reservas.value[0].usuario.nombre }]
+          : []
+      } else {
+        error.value = 'Rol no válido'
+      }
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error desconocido'
+    } finally {
+      cargando.value = false
+    }
   }
 
-  cargando.value = true;
-  error.value = '';
-
-  try {
-    let url = '';
-    if (rol === 'Tutor') {
-      url = `https://localhost:7163/api/Sesion/Usuario/${userId}`;
-    } else if (rol === 'Empleado') {
-      url = `https://localhost:7163/api/Sesion/Empleado/${userId}`;
-    } else {
-      throw new Error('Rol no válido');
-    }
-
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.status === 404) {
-      reservas.value = [];
-      error.value = 'No hay reservas registradas de este usuario';
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error(`Error al cargar reservas: ${response.status}`);
-    }
-
-    reservas.value = await response.json();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Error desconocido';
-  } finally {
-    cargando.value = false;
-  }
-}
-
-
-  return { reservas, cargando, error, cargarReservas };
-});
+  return { reservas, cargando, error, cargarReservas, usuariosAsignados }
+})
