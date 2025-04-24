@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useCalendarioHomeStore } from '../stores/calendariohome'
 
+const calendarioStore = useCalendarioHomeStore()
+
+onMounted(() => {
+  calendarioStore.fetchSesiones()
+})
+
+const today = new Date()
+const month = ref(today.getMonth())
+const year = ref(today.getFullYear())
+const currentDay = today.getDate()
+const currentMonth = today.getMonth()
+const currentYear = today.getFullYear()
 const dayNamesShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const monthNamesLong = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
-
 const daysInMonthDefault = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-const today = new Date()
-const month = ref(today.getMonth())
-const year = ref(today.getFullYear())
-
-const currentDay = today.getDate()
-const currentMonth = today.getMonth()
-const currentYear = today.getFullYear()
-
-const isLeapYear = (year: number): boolean => {
-  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
-}
+const isLeapYear = (year: number): boolean =>
+  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 
 const daysInMonth = computed(() => {
   const days = [...daysInMonthDefault]
@@ -50,32 +53,10 @@ const calendarDayMatrix = computed(() => {
     }
     matrix.push(row)
   }
-
   return matrix
 })
 
-const yearsRange = computed(() => {
-  const base = currentYear
-  return Array.from({ length: 4 }, (_, i) => base + i)
-})
-
-const sesiones = ref<any[]>([])
-const selectedSesion = ref<any>(null)
-const showModal = ref(false)
-
-const fetchSesiones = async () => {
-  try {
-    const response = await fetch('https://localhost:7163/api/Sesion')
-    if (!response.ok) {
-      throw new Error('Error al obtener las sesiones')
-    }
-    const data = await response.json()
-    sesiones.value = data
-  } catch (error) {
-    console.error('Error:', error)
-  }
-}
-
+const sesiones = computed(() => calendarioStore.sesiones)
 const sesionesPorDia = (dia: number) => {
   const mes = String(month.value + 1).padStart(2, '0')
   const diaStr = String(dia).padStart(2, '0')
@@ -83,11 +64,12 @@ const sesionesPorDia = (dia: number) => {
   return sesiones.value.filter(s => s.fecha?.startsWith(fecha))
 }
 
+const selectedSesion = ref<any>(null)
+const showModal = ref(false)
 const openModal = (sesion: any) => {
   selectedSesion.value = sesion
   showModal.value = true
 }
-
 const closeModal = () => {
   showModal.value = false
   selectedSesion.value = null
@@ -95,51 +77,41 @@ const closeModal = () => {
 
 const getColorForService = (serviceName: string) => {
   const colors: { [key: string]: string } = {
-    'matronatación': '#ADD8E6',
-    'iniciación': '#90EE90',
-    'natación y natación adaptada': '#00008B',
-    'natación adultos': '#FFA500',
-    'aquagym': '#FF69B4',
-    'natación individual niños y adultos': '#FFFF00',
-    'reserva de calle libre': '#808080',
-    'fisioterapia': '#800080',
-    'psicología': '#FF0000',
-    'logopedia': '#A52A2A',
-    'grupo de habilidades sociales': '#006400',
-    'grupo de comunicación': '#87CEEB'
+    'matronatación': '#B5E3FF',
+    'iniciación': '#D6F5D6',
+    'natación y natación adaptada': '#E2E2FF',
+    'natación': '#FFE5A3',
+    'aquagym': '#FFD6F5',
+    'natación individual niños y adultos': '#FFFFC2',
+    'reserva de calle libre': '#E0E0E0',
+    'fisioterapia': '#E5C6FF',
+    'psicología': '#FFC2C2',
+    'logopedia': '#FFD6B3',
+    'grupo de habilidades sociales': '#B3FFD6',
+    'grupo de comunicación': '#C2F0FF'
   }
-  return colors[serviceName.toLowerCase()] || '#FFFFFF'
+  return colors[serviceName?.toLowerCase()] || '#FFFFFF'
 }
-
-onMounted(() => {
-  fetchSesiones()
-})
 </script>
+
 
 <template>
   <div class="app">
     <div class="calendar container">
-      <!-- Encabezado con mes y año -->
       <div class="calendar-date-header">
         <h1>{{ monthName }} {{ year }}</h1>
-
         <select class="month-select" v-model="month">
           <option v-for="(name, index) in monthNamesLong" :key="index" :value="index">
             {{ name }}
           </option>
         </select>
       </div>
-
-      <!-- Tabla del calendario -->
       <table class="table calendar-table">
-        <!-- Cabecera con los días de la semana -->
         <tr class="calendar-header">
           <td v-for="day in dayNamesShort" :key="day" class="calendar-header-day">
             {{ day }}
           </td>
         </tr>
-
-        <!-- Días del mes -->
         <tr v-for="(row, i) in calendarDayMatrix" :key="i">
           <td
             v-for="(cell, j) in row"
@@ -148,7 +120,6 @@ onMounted(() => {
             :class="{ dead: !cell }"
           >
             <div v-if="cell" class="calendar-cell-content">
-              <!-- Número del día -->
               <span
                 :class="{
                   'day-number': true,
@@ -157,18 +128,16 @@ onMounted(() => {
               >
                 {{ cell }}
               </span>
-
-              <!-- Lista de sesiones para el día -->
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
                 <li
                   v-for="(sesion, index) in sesionesPorDia(cell)"
                   :key="index"
                   class="sesion-item"
                   @click="openModal(sesion)"
-                  :style="{ backgroundColor: getColorForService(sesion.servicio.nombre) }"
+                  :style="{ backgroundColor: getColorForService(sesion.servicio?.nombre) }"
                 >
                   <div class="sesion-name">
-                    {{ sesion.servicio.nombre }}
+                    {{ sesion.servicio?.nombre }}
                   </div>
                 </li>
               </ul>
@@ -178,28 +147,18 @@ onMounted(() => {
       </table>
     </div>
 
-    <!-- Modal de información -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <h2>Información de la Sesión</h2>
-        <p>Servicio: {{ selectedSesion?.servicio.nombre }}</p>
+        <p>Servicio: {{ selectedSesion?.servicio?.nombre }}</p>
         <button @click="closeModal">Cerrar</button>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Open Sans", sans-serif;
-  background-color: #ffffff;
-  color: #2c2c2c;
-}
 
+<style scoped lang="scss">
 .app {
   padding: 2rem;
   max-width: 900px;
