@@ -92,8 +92,20 @@ const getColorForService = (serviceName: string) => {
   }
   return colors[serviceName?.toLowerCase()] || '#FFFFFF'
 }
-</script>
 
+// Función para formatear la fecha
+const formatFecha = (fechaStr?: string) => {
+  if (!fechaStr) return ''
+  const fecha = new Date(fechaStr)
+  return fecha.toLocaleString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+</script>
 
 <template>
   <div class="app">
@@ -147,10 +159,14 @@ const getColorForService = (serviceName: string) => {
       </table>
     </div>
 
+    <!-- MODAL CON INFORMACIÓN DETALLADA -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <h2>Información de la Sesión</h2>
-        <p>Servicio: {{ selectedSesion?.servicio?.nombre }}</p>
+        <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
+        <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
+        <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
+        <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
         <button @click="closeModal">Cerrar</button>
       </div>
     </div>
@@ -158,8 +174,11 @@ const getColorForService = (serviceName: string) => {
 </template>
 
 
+
 <style scoped lang="scss">
+@import '../assets/styles/variables.scss';
 .app {
+  font-family: $fuente-principal;
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
@@ -278,6 +297,7 @@ const getColorForService = (serviceName: string) => {
 }
 
 .modal-content {
+  font-family: $fuente-principal;
   background: white;
   padding: 2rem;
   border-radius: 8px;
