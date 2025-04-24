@@ -93,7 +93,13 @@ const getColorForService = (serviceName: string) => {
   return colors[serviceName?.toLowerCase()] || '#FFFFFF'
 }
 
-// Función para formatear la fecha
+// Figura según el id del usuario
+const getFiguraByUsuario = (usuarioId: number) => {
+  const figuras = ['cuadrado', 'rombo', 'triangulo', 'circulo']
+  return figuras[usuarioId % figuras.length]
+}
+
+// Formatear fecha
 const formatFecha = (fechaStr?: string) => {
   if (!fechaStr) return ''
   const fecha = new Date(fechaStr)
@@ -106,6 +112,8 @@ const formatFecha = (fechaStr?: string) => {
   })
 }
 </script>
+
+
 
 <template>
   <div class="app">
@@ -150,6 +158,11 @@ const formatFecha = (fechaStr?: string) => {
                 >
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
+                    <span
+                      v-if="sesion.usuario?.id"
+                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
+                      title="Identificador de usuario"
+                    ></span>
                   </div>
                 </li>
               </ul>
@@ -172,6 +185,7 @@ const formatFecha = (fechaStr?: string) => {
     </div>
   </div>
 </template>
+
 
 
 
@@ -331,4 +345,44 @@ const formatFecha = (fechaStr?: string) => {
     }
   }
 }
+.figura {
+  display: inline-block;
+  vertical-align: middle;
+  width: 12px;
+  height: 12px;
+  background: transparent;
+}
+
+
+.figura.cuadrado {
+  background: #333;
+  border-radius: 4px;
+}
+
+
+.figura.circulo {
+  background: #3498db;
+  border-radius: 50%;
+}
+
+
+.figura.rombo {
+  background: #e67e22;
+  transform: rotate(45deg);
+  border-radius: 4px;
+}
+
+
+.figura.triangulo {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 16px solid #0dac35;
+
+  border-radius: 0;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
 </style>
