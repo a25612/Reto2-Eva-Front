@@ -16,7 +16,7 @@ export interface Reserva {
   centro: {
     nombre: string;
   };
-  opcionServicio: {
+  tarifa: {
     precio: number;
   };
   facturar: boolean;

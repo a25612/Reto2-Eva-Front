@@ -33,7 +33,7 @@ onMounted(() => {
         <p><strong>Servicio:</strong> {{ reserva.servicio.nombre }}</p>
         <p><strong>Empleado:</strong> {{ reserva.empleado.nombre }}</p>
         <p><strong>Centro:</strong> {{ reserva.centro.nombre }}</p>
-        <p><strong>Precio:</strong> {{ reserva.opcionServicio.precio }} €</p>
+        <p><strong>Precio:</strong> {{ reserva.tarifa.precio }} €</p>
         <p><strong>Fecha:</strong> {{ new Date(reserva.fecha).toLocaleString() }}</p>
         <p><strong>Facturado:</strong> {{ reserva.facturar ? "Sí" : "No" }}</p>
       </div>
