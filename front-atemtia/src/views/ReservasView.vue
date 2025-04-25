@@ -91,6 +91,7 @@ const meses = [
 @import '../assets/styles/variables.scss';
 
 .reservas {
+  font-family: $fuente-principal;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -122,7 +123,6 @@ const meses = [
 
   &__lista {
     display: flex;
-    flex-direction: column;
     gap: 15px;
 
     .reserva-card {
@@ -139,7 +139,7 @@ const meses = [
 
       p {
         margin-bottom: 5px;
-        color:black;
+        color:rgb(0, 0, 0);
 
         strong {
           color: $color-titulos;
@@ -224,4 +224,24 @@ const meses = [
   margin-bottom: 1.2rem;
 }
 }
+@media (max-width: 768px) {
+  .reservas {
+    &__lista {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sesion-list {
+      justify-content: center;
+    }
+
+    .reserva-card {
+      width: 100%;
+      max-width: 320px;
+    }
+  }
+}
+
+
+
 </style>
