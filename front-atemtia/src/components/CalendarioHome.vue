@@ -77,6 +77,26 @@ const closeModal = () => {
   selectedSesion.value = null
 }
 
+// NUEVO: Estados para mover sesión
+const showDatePicker = ref(false)
+const newDate = ref('')
+
+// NUEVO: Función para mover la sesión
+const moverSesion = async () => {
+  if (!newDate.value || !selectedSesion.value) return
+  // Ajusta este método según tu API/store
+  await calendarioStore.moverSesion(selectedSesion.value.id, newDate.value)
+  showDatePicker.value = false
+  showModal.value = false
+  newDate.value = ''
+}
+
+// NUEVO: Cancelar mover
+const cancelarMover = () => {
+  showDatePicker.value = false
+  newDate.value = ''
+}
+
 const getColorForService = (serviceName: string) => {
   const colors: { [key: string]: string } = {
     'matronatación': '#B5E3FF',
@@ -95,13 +115,11 @@ const getColorForService = (serviceName: string) => {
   return colors[serviceName?.toLowerCase()] || '#FFFFFF'
 }
 
-// Figura según el id del usuario
 const getFiguraByUsuario = (usuarioId: number) => {
   const figuras = ['cuadrado', 'rombo', 'triangulo', 'circulo']
   return figuras[usuarioId % figuras.length]
 }
 
-// Formatear fecha
 const formatFecha = (fechaStr?: string) => {
   if (!fechaStr) return ''
   const fecha = new Date(fechaStr)
@@ -114,8 +132,6 @@ const formatFecha = (fechaStr?: string) => {
   })
 }
 </script>
-
-
 
 <template>
   <div class="app">
@@ -183,7 +199,23 @@ const formatFecha = (fechaStr?: string) => {
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
         <div class="botones-modal">
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="mover">Mover</button>
+          <!-- Botón Mover y selector de fecha -->
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="showDatePicker = true"> Mover </button>
+          
+
+          <div v-if="showDatePicker" style="margin: 1rem 0; width: 100%;">
+            <label for="nueva-fecha">Selecciona la nueva fecha:</label>
+            <input id="nueva-fecha" type="date" v-model="newDate" style="margin-left: 8px;" />
+          </div>
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker"
+            class="mover"
+            :disabled="!newDate"
+            @click="moverSesion"
+          >
+            Mover a fecha
+          </button>
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar">Cancelar</button>
           <button class="cerrar" @click="closeModal">Cerrar</button>
         </div>
@@ -332,15 +364,12 @@ const formatFecha = (fechaStr?: string) => {
     margin: 1rem 0;
     font-size: 1rem;
   }
-
   .botones-modal {
     display: flex;
     justify-content: center;
     gap: 1rem; 
     margin-top: 25px; 
  }
-
-
  .mover {
   background-color: #f5a01b; 
   color: #ffffff;
@@ -356,7 +385,6 @@ const formatFecha = (fechaStr?: string) => {
     color: #ffffff;
   }
 }
-
 .cancelar {
   background-color: #E53935; 
   color: #fff;
@@ -372,7 +400,6 @@ const formatFecha = (fechaStr?: string) => {
     color: #fff;
   }
 }
-
 .cerrar {
   background-color: $color-boton; 
   color: white;
@@ -387,7 +414,6 @@ const formatFecha = (fechaStr?: string) => {
     background-color: #0056b3;
   }
 }
-
 }
 .figura {
   display: inline-block;
@@ -396,37 +422,58 @@ const formatFecha = (fechaStr?: string) => {
   height: 12px;
   background: transparent;
 }
-
-
 .figura.cuadrado {
   background: #333;
   border-radius: 4px;
 }
-
-
 .figura.circulo {
   background: #3498db;
   border-radius: 50%;
 }
-
-
 .figura.rombo {
   background: #e67e22;
   transform: rotate(45deg);
   border-radius: 4px;
 }
-
-
 .figura.triangulo {
   width: 0;
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-bottom: 16px solid #0dac35;
-
   border-radius: 0;
   margin-left: 10px;
   vertical-align: middle;
+}
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1rem;
+    max-width: 95vw;
+    width: 98vw;
+    border-radius: 0;
+    font-size: 0.95rem;
+
+    h2 {
+      font-size: 1.1rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+
+    .botones-modal {
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+    .mover,
+    .cancelar,
+    .cerrar {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.75rem 0.5rem;
+    }
+  }
 }
 
 </style>
