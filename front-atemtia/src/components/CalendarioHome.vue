@@ -180,14 +180,15 @@ const formatFecha = (fechaStr?: string) => {
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
-        <button @click="closeModal">Cerrar</button>
+        <div class="botones-modal">
+          <button class="mover">Mover</button>
+          <button class="cancelar">Cancelar</button>
+          <button class="cerrar" @click="closeModal">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-
-
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
@@ -330,20 +331,61 @@ const formatFecha = (fechaStr?: string) => {
     font-size: 1rem;
   }
 
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
+  .botones-modal {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; 
+    margin-top: 25px; 
+ }
 
-    &:hover {
-      background-color: #0056b3;
-    }
+
+ .mover {
+  background-color: #f5a01b; 
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s, color 0.3s;
+  &:hover {
+    background-color: #c77800; 
+    color: #ffffff;
   }
+}
+
+.cancelar {
+  background-color: #E53935; 
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: #B71C1C; 
+    color: #fff;
+  }
+}
+
+.cerrar {
+  background-color: $color-boton; 
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
 }
 .figura {
   display: inline-block;
