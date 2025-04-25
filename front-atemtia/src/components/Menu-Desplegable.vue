@@ -106,6 +106,7 @@ const cerrarSesionHandler = () => {
   position: relative;
 
   .nav-tutor {
+    font-family: $fuente-principal;
     position: fixed;
     top: 1px;
     left: -44%;
@@ -122,6 +123,7 @@ const cerrarSesionHandler = () => {
   }
 
   .nav-empleado {
+    font-family: $fuente-principal;
     position: fixed;
     top: 1px;
     left: -44%;

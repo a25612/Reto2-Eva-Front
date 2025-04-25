@@ -31,6 +31,7 @@ const irAHome = () => {
 @import '../assets/styles/variables.scss';
 
 .header {
+  font-family: $fuente-principal;
   background-color: $color-fondo;
   color: $color-titulos; 
   padding: 19px;

@@ -73,6 +73,7 @@ const anunciosOrdenados = computed(() => {
 @import "../assets/styles/variables.scss";
 
 .carrusel {
+  font-family: $fuente-principal;
   margin-top: -95px;
   overflow: hidden;
   padding: 90px 10px 0;

@@ -36,6 +36,7 @@ const login = async () => {
 @import '../assets/styles/variables.scss';
 
 .login-container {
+  font-family: $fuente-principal;
   background-color: $color-fondo;
   width: 90%;
   max-width: 350px;

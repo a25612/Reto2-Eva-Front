@@ -38,6 +38,7 @@ const mostrarServicios = computed(() => authStore.rol !== 'Tutor');
 @import '../assets/styles/variables.scss';
 
 .div-mi-espacio {
+  font-family: $fuente-principal;
   h2 {
     margin: 0px 0px 40px 40px;
     color: $color-titulos;

@@ -29,6 +29,7 @@ onMounted(() => {
 @import '../assets/styles/variables.scss';
 
 .contenedor-anuncios {
+  font-family: $fuente-principal;
   text-align: center;
   padding: 20px;
 }

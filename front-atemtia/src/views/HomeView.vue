@@ -53,6 +53,7 @@
 @import '../assets/styles/variables.scss';
 
 .home {
+  font-family: $fuente-principal;
   text-align: center;
 }
 

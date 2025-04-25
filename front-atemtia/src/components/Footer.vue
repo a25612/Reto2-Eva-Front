@@ -47,6 +47,7 @@
 @import '../assets/styles/variables.scss';
 
 .footer {
+  font-family: $fuente-principal;
   margin-top: 20px;
   border-top: 2px solid $color-boton;
   background-color: $color-fondo;
