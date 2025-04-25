@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useCalendarioHomeStore } from '../stores/calendariohome'
+import { useAuthStore } from '../stores/login' 
 
 const calendarioStore = useCalendarioHomeStore()
+const authStore = useAuthStore()
 
 onMounted(() => {
   calendarioStore.fetchSesiones()
@@ -181,8 +183,8 @@ const formatFecha = (fechaStr?: string) => {
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
         <div class="botones-modal">
-          <button class="mover">Mover</button>
-          <button class="cancelar">Cancelar</button>
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="mover">Mover</button>
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar">Cancelar</button>
           <button class="cerrar" @click="closeModal">Cerrar</button>
         </div>
       </div>
