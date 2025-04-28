@@ -20,6 +20,7 @@ import ZonaPrivadaAnunciosView from '../views/ZonaPrivadaAnunciosView.vue';
 import ZonaPrivadaUsrsTutores from '../views/ZonaPrivadaUsrsTutores.vue';
 import ZonaPrivadaUsrsService from '../views/ZonaPrivadaUsrsService.vue';
 import ZonaPrivadaEmpleadoServicios from '../views/ZonaPrivadaEmpleadoServicios.vue';
+import MensajesView from '@/views/MensajesView.vue';
 
 // Creación del router
 const router = createRouter({
@@ -42,7 +43,7 @@ const router = createRouter({
     { path: '/home-app-atemtia/zona-privada/usuarios-tutores', name: 'zona-privadaUsrsTutores', component: ZonaPrivadaUsrsTutores },
     { path: '/home-app-atemtia/zona-privada/usuarios-servicios', name: 'zona-privadaUsrsService', component: ZonaPrivadaUsrsService},
     { path: '/home-app-atemtia/zona-privada/empleados-servicios', name: 'zona-privadaEmpleadoServicios', component: ZonaPrivadaEmpleadoServicios},
-
+    { path: '/home-app-atemtia/mis-mensajes', name: 'mis-mensajes', component: MensajesView},
     
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],

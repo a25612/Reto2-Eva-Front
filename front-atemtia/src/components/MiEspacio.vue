@@ -1,11 +1,10 @@
 <script setup>
-import { useAuthStore } from '@/stores/login';  // Ajusta la ruta al archivo de tu store
+import { useAuthStore } from '@/stores/login';  
 import { computed } from 'vue';
 
 const authStore = useAuthStore();
 
-// Computed property para determinar si mostrar el botón de "Servicios"
-const mostrarServicios = computed(() => authStore.rol !== 'Tutor');
+const mostrarServiciosTutor = computed(() => authStore.rol !== 'Tutor');
 </script>
 
 
@@ -24,10 +23,14 @@ const mostrarServicios = computed(() => authStore.rol !== 'Tutor');
         <p>Mi cuenta</p>
       </router-link>
 
-      <!-- Mostrar solo si el rol no es 'Tutor' -->
-      <router-link v-if="mostrarServicios" class="espacio-item mi-cuenta" to="/home-app-atemtia/Servicios">
+      <router-link v-if="mostrarServiciosTutor" class="espacio-item mi-cuenta" to="/home-app-atemtia/Servicios">
         <div class="icono"></div>
         <p>Servicios</p>
+      </router-link>
+
+      <router-link class="espacio-item mi-cuenta" to="/home-app-atemtia/mis-mensajes">
+        <div class="icono"></div>
+        <p>Mis Mensajes</p>
       </router-link>
     </div>
   </div>
