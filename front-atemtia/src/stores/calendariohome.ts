@@ -51,7 +51,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  // SOLO los campos que espera el DTO: FECHA y ESTADO (en mayúsculas)
   function limpiarSesionParaPut(sesion: any) {
     return {
       FECHA: sesion.fecha,
@@ -59,11 +58,10 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  // Cambia solo el estado a 0 (PENDIENTE), NO cambia la fecha
   async function moverSesion(id: number) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
-      const dto = limpiarSesionParaPut({ ...sesion, estado: 0 }) // fecha original, estado pendiente
+      const dto = limpiarSesionParaPut({ ...sesion, estado: 0 }) 
       console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
       try {
         const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {

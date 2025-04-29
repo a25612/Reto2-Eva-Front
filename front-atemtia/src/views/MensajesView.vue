@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../stores/login'
-import { useMensajeConfirmacionStore, MensajeConfirmacion } from '../stores/mensajeConfirmacion'
+import { useMensajeConfirmacionStore } from '../stores/mensajeConfirmacion'
+import type { MensajeConfirmacionAdaptado } from '../stores/mensajeConfirmacion'
 
 const authStore = useAuthStore()
 const mensajeStore = useMensajeConfirmacionStore()
 
 const mesSeleccionado = ref<number | null>(null)
 
-// Cargar mensajes del empleado autenticado al montar el componente
 onMounted(async () => {
   const empleadoId = authStore.userId
   if (empleadoId) {
-    await mensajeStore.cargarMensajesPorEmpleado(empleadoId)
+    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId))
   }
 })
 
-// Filtrado por mes
 const mensajesFiltrados = computed(() => {
-  return mensajeStore.mensajes.filter((mensaje: MensajeConfirmacion) => {
+  return mensajeStore.mensajes.filter((mensaje: MensajeConfirmacionAdaptado) => {
     const fecha = new Date(mensaje.fechaEnvio)
     const coincideMes = mesSeleccionado.value !== null
       ? fecha.getMonth() === mesSeleccionado.value
@@ -36,68 +35,63 @@ const meses = [
 const aceptarSolicitud = async (mensajeId: number) => {
   const empleadoId = authStore.userId
   if (empleadoId) {
-    await mensajeStore.aceptarMovimiento(mensajeId, empleadoId)
+    await mensajeStore.aceptarMovimiento(mensajeId, Number(empleadoId))
   }
 }
 const cancelarSolicitud = async (mensajeId: number) => {
   const empleadoId = authStore.userId
   if (empleadoId) {
-    await mensajeStore.cancelarMovimiento(mensajeId, empleadoId)
+    await mensajeStore.cancelarMovimiento(mensajeId, Number(empleadoId))
   }
 }
 </script>
 
 <template>
-  <div class="reservas">
-    <router-link to="/home-app-atemtia" class="volver-atras">
-      <i class="fa-solid fa-arrow-left"></i>
-    </router-link>
-
-    <h2 class="reservas__titulo">Mensajes de Confirmación</h2>
-
-    <div v-if="mensajeStore.cargando" class="mensaje">Cargando mensajes...</div>
-    <div v-if="mensajeStore.error" class="mensaje error">{{ mensajeStore.error }}</div>
-
-    <!-- Filtro mes -->
-    <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__filtros">
-      <div class="sesion-list">
-        <label>Filtrar por mes</label>
-        <select v-model="mesSeleccionado">
-          <option :value="null">Todos</option>
-          <option v-for="(mes, i) in meses" :key="i" :value="i">{{ mes }}</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Lista de mensajes -->
-    <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
-      <div
-        v-for="mensaje in mensajesFiltrados"
-        :key="mensaje.id"
-        class="reserva-card"
-      >
-        <h3>{{ mensaje.empleado.nombre }}</h3>
-        <p><strong>Fecha envío:</strong> {{ new Date(mensaje.fechaEnvio).toLocaleString() }}</p>
-        <p><strong>Tipo:</strong> 
-          <span v-if="mensaje.tipoAccion === 'MOVIDA'">Solicitud de mover sesión</span>
-          <span v-else>Cancelación</span>
-        </p>
-        <p><strong>Mensaje:</strong> {{ mensaje.mensaje }}</p>
-        <div v-if="mensaje.tipoAccion === 'MOVIDA'" class="acciones">
-          <button class="btn-aceptar" @click="aceptarSolicitud(mensaje.id)">Aceptar</button>
-          <button class="btn-cancelar" @click="cancelarSolicitud(mensaje.id)">Cancelar</button>
-        </div>
-        <div v-else class="info-cancelada">
-          <i class="fa-solid fa-ban"></i> Este usuario ya no asistirá a la clase.
+    <div class="reservas">
+      <router-link to="/home-app-atemtia" class="volver-atras">
+        <i class="fa-solid fa-arrow-left"></i>
+      </router-link>
+  
+      <h2 class="reservas__titulo">Mensajes de Confirmación</h2>
+  
+      <div v-if="mensajeStore.cargando" class="mensaje">Cargando mensajes...</div>
+      <div v-if="mensajeStore.error" class="mensaje error">{{ mensajeStore.error }}</div>
+  
+      <!-- Filtro mes -->
+      <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__filtros">
+        <div class="sesion-list">
+          <label>Filtrar por mes</label>
+          <select v-model="mesSeleccionado">
+            <option :value="null">Todos</option>
+            <option v-for="(mes, i) in meses" :key="i" :value="i">{{ mes }}</option>
+          </select>
         </div>
       </div>
+  
+      <!-- Lista de mensajes -->
+      <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
+        <div
+          v-for="mensaje in mensajesFiltrados"
+          :key="mensaje.id"
+          class="reserva-card"
+        >
+          <p><strong>Usuario:</strong> {{ mensaje.usuarioNombre }}</p>
+          <p><strong>Tutor:</strong> {{ mensaje.tutorNombre }}</p>
+          <p><strong>Servicio:</strong> {{ mensaje.servicioNombre }}</p>
+          <p><strong>Fecha envío:</strong> {{ new Date(mensaje.fechaEnvio).toLocaleString() }}</p>
+          <p><strong>Mensaje:</strong> {{ mensaje.mensaje }}</p>
+          <div class="acciones">
+            <button class="btn-aceptar" @click="aceptarSolicitud(mensaje.id)">Aceptar</button>
+            <button class="btn-cancelar" @click="cancelarSolicitud(mensaje.id)">Cancelar</button>
+          </div>
+        </div>
+      </div>
+  
+      <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
+        No hay mensajes en este mes
+      </div>
     </div>
-
-    <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
-      No hay mensajes en este mes
-    </div>
-  </div>
-</template>
+  </template>     
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -187,18 +181,6 @@ const cancelarSolicitud = async (mensajeId: number) => {
           cursor: pointer;
           transition: background 0.18s;
           &:hover { background: #e53935; }
-        }
-      }
-
-      .info-cancelada {
-        margin-top: 10px;
-        color: #b71c1c;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        i {
-          font-size: 18px;
         }
       }
     }

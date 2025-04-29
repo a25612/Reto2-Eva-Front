@@ -82,11 +82,12 @@ const openModal = (sesion: any) => {
 const closeModal = () => {
   showModal.value = false
   selectedSesion.value = null
+  showDatePicker.value = false   
+  newDate.value = ''            
 }
 
 const showDatePicker = ref(false)
 const newDate = ref('')
-
 
 const getFechaInputValue = (fechaStr?: string) => {
   if (!fechaStr) return ''
