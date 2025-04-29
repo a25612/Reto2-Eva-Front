@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useCalendarioHomeStore } from '../stores/calendariohome'
 import { useAuthStore } from '../stores/login'
 
-
 enum EstadoSesion {
   PENDIENTE = 0,
   CONFIRMADA = 1,
@@ -82,12 +81,22 @@ const openModal = (sesion: any) => {
 const closeModal = () => {
   showModal.value = false
   selectedSesion.value = null
-  showDatePicker.value = false   
-  newDate.value = ''            
+  showDatePicker.value = false
+  newDate.value = ''
+  motivo.value = ''
 }
 
 const showDatePicker = ref(false)
 const newDate = ref('')
+
+const motivo = ref('')
+const motivos = [
+  { value: '', text: 'Selecciona un motivo', disabled: true },
+  { value: 'ENFERMEDAD', text: 'Enfermedad' },
+  { value: 'LESION', text: 'Lesión' },
+  { value: 'FAMILIAR', text: 'Familiar' },
+  { value: 'OTROS', text: 'Otros' }
+]
 
 const getFechaInputValue = (fechaStr?: string) => {
   if (!fechaStr) return ''
@@ -100,8 +109,8 @@ const getFechaInputValue = (fechaStr?: string) => {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`
 }
 
-const solicitarMoverSesion = () => {
-  if (!newDate.value || !selectedSesion.value) return
+const solicitarMoverSesion = async () => {
+  if (!newDate.value || !motivo.value || !selectedSesion.value) return
 
   const nuevaFecha = new Date(newDate.value)
   const fechaReservaActual = new Date(selectedSesion.value.fecha)
@@ -111,16 +120,18 @@ const solicitarMoverSesion = () => {
     return
   }
 
-  calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value)
+  await calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value, motivo.value)
   alert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.')
   showDatePicker.value = false
   showModal.value = false
   newDate.value = ''
+  motivo.value = ''
 }
 
 const cancelarMover = () => {
   showDatePicker.value = false
   newDate.value = ''
+  motivo.value = ''
 }
 
 const getColorForService = (serviceName: string) => {
@@ -158,7 +169,6 @@ const formatFecha = (fechaStr?: string) => {
   })
 }
 
-
 function estadoSesionTexto(estado: number | undefined) {
   switch (estado) {
     case EstadoSesion.PENDIENTE: return 'Pendiente'
@@ -168,8 +178,6 @@ function estadoSesionTexto(estado: number | undefined) {
   }
 }
 </script>
-
-
 
 <template>
   <div class="app">
@@ -189,38 +197,22 @@ function estadoSesionTexto(estado: number | undefined) {
           </td>
         </tr>
         <tr v-for="(row, i) in calendarDayMatrix" :key="i">
-          <td
-            v-for="(cell, j) in row"
-            :key="j"
-            class="calendar-day"
-            :class="{ dead: !cell }"
-          >
+          <td v-for="(cell, j) in row" :key="j" class="calendar-day" :class="{ dead: !cell }">
             <div v-if="cell" class="calendar-cell-content">
-              <span
-                :class="{
-                  'day-number': true,
-                  'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
-                }"
-              >
+              <span :class="{
+                'day-number': true,
+                'day-number--today': cell === currentDay && month === currentMonth && year === currentYear
+              }">
                 {{ cell }}
               </span>
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
-                <li
-                  v-for="(sesion, index) in sesionesPorDia(cell)"
-                  :key="index"
-                  class="sesion-item"
-                  @click="openModal(sesion)"
-                  :style="{ backgroundColor: getColorForService(sesion.servicio?.nombre) }"
-                >
+                <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
+                  @click="openModal(sesion)" :style="{ backgroundColor: getColorForService(sesion.servicio?.nombre) }">
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
-                    <span
-                      v-if="sesion.usuario?.id"
-                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
-                      title="Identificador de usuario"
-                    ></span>
+                    <span v-if="sesion.usuario?.id" :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
+                      title="Identificador de usuario"></span>
                   </div>
-                  
                 </li>
               </ul>
             </div>
@@ -229,56 +221,50 @@ function estadoSesionTexto(estado: number | undefined) {
       </table>
     </div>
 
-    <!-- MODAL CON INFORMACIÓN DETALLADA -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <div class="modal-content" @click.stop>
-          <h2>Información de la Sesión</h2>
-          <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
-          <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
-          <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
-          <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
-          <p><strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}</p>
-
-    
-        </div>
-
+        <h2>Información de la Sesión</h2>
+        <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
+        <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
+        <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
+        <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
+        <p><strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}</p>
         <div class="botones-modal">
-         
-          <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker"
-            class="mover"
-            @click="
-              showDatePicker = true;
-              newDate = getFechaInputValue(selectedSesion?.fecha);
-            "
-          >
+
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="
+            showDatePicker = true;
+          newDate = getFechaInputValue(selectedSesion?.fecha);
+          motivo = '';
+          ">
             Mover
           </button>
 
           <div v-if="showDatePicker" style="margin: 1rem 0; width: 100%;">
             <label for="nueva-fecha">Selecciona la nueva fecha y hora:</label>
-            <input
-              id="nueva-fecha"
-              type="datetime-local"
-              v-model="newDate"
-              style="margin-left: 8px;"
-              :min="getFechaInputValue(selectedSesion?.fecha)"
-            />
-          </div>
-          <button
-               v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker"
-              class="mover"
-              :disabled="!newDate"
-              @click="solicitarMoverSesion"
-              > Solicitar cambio de fecha y hora
-            </button>
+            <input id="nueva-fecha" type="datetime-local" v-model="newDate" style="margin-left: 8px;"
+              :min="getFechaInputValue(selectedSesion?.fecha)" />
 
-          <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR'"
-            class="cancelar"
-            @click="showDatePicker ? cancelarMover() : closeModal()"
-          >
+            <div class="motivo-centrado">
+              <label for="motivo" style="margin-bottom: 0.25rem;"><strong>Motivo:</strong></label>
+              <div class="custom-select-motivo">
+                <select id="motivo" v-model="motivo" required>
+                  <option value="" disabled>Selecciona un motivo</option>
+                  <option value="ENFERMEDAD">Enfermedad</option>
+                  <option value="LESION">Lesión</option>
+                  <option value="FAMILIAR">Familiar</option>
+                  <option value="OTROS">Otros</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker" class="mover"
+            :disabled="!newDate || !motivo" @click="solicitarMoverSesion">
+            Solicitar cambio
+          </button>
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar"
+            @click="calendarioStore.cancelarSesion(selectedSesion?.id)">
             Cancelar
           </button>
           <button class="cerrar" @click="closeModal">Cerrar</button>
@@ -290,6 +276,7 @@ function estadoSesionTexto(estado: number | undefined) {
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
+
 .app {
   font-family: $fuente-principal;
   padding: 2rem;
@@ -317,6 +304,7 @@ function estadoSesionTexto(estado: number | undefined) {
       border: 1px solid #ccc;
       border-radius: 8px;
     }
+
     select {
       -webkit-appearance: auto;
       -moz-appearance: auto;
@@ -428,60 +416,68 @@ function estadoSesionTexto(estado: number | undefined) {
     margin: 1rem 0;
     font-size: 1rem;
   }
+
   .botones-modal {
-    
+
     justify-content: center;
-    gap: 1rem; 
-    margin-top: 25px; 
- }
- .mover {
-  background-color: #f5a01b; 
-  margin-left: 10px;
-  color: #ffffff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
-  &:hover {
-    background-color: #c77800; 
+    gap: 1rem;
+    margin-top: 25px;
+  }
+
+  .mover {
+    background-color: #f5a01b;
+    margin-left: 10px;
     color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+      background-color: #c77800;
+      color: #ffffff;
+    }
   }
-}
-.cancelar {
-  background-color: #E53935; 
-  margin-left: 10px;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.3s;
-  &:hover {
-    background-color: #B71C1C; 
+
+  .cancelar {
+    background-color: #E53935;
+    margin-left: 10px;
     color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #B71C1C;
+      color: #fff;
+    }
+  }
+
+  .cerrar {
+    background-color: $color-boton;
+    margin-left: 10px;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #0056b3;
+    }
   }
 }
-.cerrar {
-  background-color: $color-boton; 
-  margin-left: 10px;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.3s;
-  &:hover {
-    background-color: #0056b3;
-  }
-}
-}
+
 .figura {
   display: inline-block;
   vertical-align: middle;
@@ -489,19 +485,23 @@ function estadoSesionTexto(estado: number | undefined) {
   height: 12px;
   background: transparent;
 }
+
 .figura.cuadrado {
   background: #333;
   border-radius: 4px;
 }
+
 .figura.circulo {
   background: #3498db;
   border-radius: 50%;
 }
+
 .figura.rombo {
   background: #e67e22;
   transform: rotate(45deg);
   border-radius: 4px;
 }
+
 .figura.triangulo {
   width: 0;
   height: 0;
@@ -512,6 +512,57 @@ function estadoSesionTexto(estado: number | undefined) {
   margin-left: 10px;
   vertical-align: middle;
 }
+
+.motivo-centrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.custom-select-motivo {
+  position: relative;
+  width: 210px;
+  margin-top: 0.2rem;
+}
+
+.custom-select-motivo select {
+  width: 110%;
+  font-size: 1rem;
+  padding: 0.5em 2.2em 0.5em 1em;
+  border: 1px solid #caced1;
+  border-radius: 8px;
+  color: #394066;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 40px;
+  line-height: 1.2;
+}
+
+.custom-select-motivo select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.custom-select-motivo::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 2.5px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #394066;
+  transform: translateY(-50%);
+}
+
 @media (max-width: 600px) {
   .modal-content {
     padding: 1rem;
@@ -533,6 +584,7 @@ function estadoSesionTexto(estado: number | undefined) {
       gap: 0.5rem;
       align-items: stretch;
     }
+
     .mover,
     .cancelar,
     .cerrar {
@@ -543,5 +595,4 @@ function estadoSesionTexto(estado: number | undefined) {
     }
   }
 }
-
 </style>

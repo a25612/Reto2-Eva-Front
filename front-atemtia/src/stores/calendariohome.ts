@@ -97,8 +97,7 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  // Crea solicitud y pone la sesión en pendiente (NO cambia la fecha)
-  async function solicitarMoverSesion(id: number, nuevaFecha: string) {
+  async function solicitarMoverSesion(id: number, nuevaFecha: string, motivo: string) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
       solicitudesCambio.value.push({
@@ -107,11 +106,10 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         nuevaFecha,
         confirmado: false
       })
-      await moverSesion(id) // solo cambia el estado a pendiente, no la fecha
+      await moverSesion(id)
     }
   }
 
-  // Cuando el empleado confirma, SÍ cambia la fecha y pone estado a confirmada (1)
   async function confirmarMoverSesion(id: number) {
     const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
     if (solicitud) {

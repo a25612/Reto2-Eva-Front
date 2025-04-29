@@ -12,7 +12,7 @@ watchEffect(() => {
 
 const cerrarSesionHandler = () => {
   localStorage.clear();
-  router.push('/login'); 
+  router.push('/login');
 };
 </script>
 
@@ -27,11 +27,11 @@ const cerrarSesionHandler = () => {
       <ul class="nav-izquierda-menu">
         <li>
           <a href="#" class="menu-izquierda-link">
-            <i class="fas fa-home"></i> 
+            <i class="fas fa-home"></i>
             Inicio
           </a>
         </li>
-      
+
         <li>
           <router-link to="/home-app-atemtia/mi-cuenta" class="menu-izquierda-link">
             <i class="fa-solid fa-user"></i>
@@ -45,11 +45,9 @@ const cerrarSesionHandler = () => {
           </router-link>
         </li>
         <li>
-          <button 
-            @click="cerrarSesionHandler" 
-            class="menu-izquierda-link-cerrar-sesion" 
+          <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion"
             :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '555px' : '0' }">
-             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
       </ul>
@@ -60,6 +58,7 @@ const cerrarSesionHandler = () => {
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
+
 .btn-menudesplegable {
   position: fixed;
   top: 1rem;
@@ -148,7 +147,7 @@ const cerrarSesionHandler = () => {
       li {
         margin: 1rem 0;
 
-        .menu-izquierda-link-cerrar-sesion{
+        .menu-izquierda-link-cerrar-sesion {
           display: flex;
           align-items: center;
           text-decoration: none;
@@ -233,13 +232,14 @@ const cerrarSesionHandler = () => {
   .btn-menudesplegable {
     display: none;
   }
+
   .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
-    margin-top: 640px !important; 
+    margin-top: 640px !important;
 
   }
 
   .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
-    margin-top: 685px !important; 
+    margin-top: 685px !important;
   }
 }
 </style>
