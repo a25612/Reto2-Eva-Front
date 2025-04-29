@@ -4,6 +4,7 @@ import { useAuthStore } from './login'
 
 export const useCalendarioHomeStore = defineStore('calendariohome', () => {
   const sesiones = ref<any[]>([])
+  const solicitudesCambio = ref<any[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -50,20 +51,90 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  // NUEVO: función para mover sesión
-  async function moverSesion(id: number, nuevaFecha: string) {
-    // Simulación local (ajusta según tu backend si lo tienes)
+  // SOLO los campos que espera el DTO: FECHA y ESTADO (en mayúsculas)
+  function limpiarSesionParaPut(sesion: any) {
+    return {
+      FECHA: sesion.fecha,
+      ESTADO: sesion.estado
+    }
+  }
+
+  // Cambia solo el estado a 0 (PENDIENTE), NO cambia la fecha
+  async function moverSesion(id: number) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
-      sesion.fecha = nuevaFecha
+      const dto = limpiarSesionParaPut({ ...sesion, estado: 0 }) // fecha original, estado pendiente
+      console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
+      try {
+        const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dto)
+        })
+        if (!response.ok) throw new Error('Error al poner en pendiente la sesión')
+        await fetchSesiones()
+      } catch (e: any) {
+        error.value = e.message || 'Error al poner en pendiente la sesión'
+      }
     }
-    // Si tienes backend, aquí harías la petición fetch/axios
-    // await fetch(`https://localhost:7163/api/Sesion/${id}`, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ fecha: nuevaFecha }),
-    // })
-    // await fetchSesiones()
+  }
+
+  // Cambia estado a 2 (CANCELADA)
+  async function cancelarSesion(id: number) {
+    const sesion = sesiones.value.find(s => s.id === id)
+    if (sesion) {
+      const dto = limpiarSesionParaPut({ ...sesion, estado: 2 })
+      console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
+      try {
+        const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dto)
+        })
+        if (!response.ok) throw new Error('Error al cancelar la sesión')
+        await fetchSesiones()
+      } catch (e: any) {
+        error.value = e.message || 'Error al cancelar la sesión'
+      }
+    }
+  }
+
+  // Crea solicitud y pone la sesión en pendiente (NO cambia la fecha)
+  async function solicitarMoverSesion(id: number, nuevaFecha: string) {
+    const sesion = sesiones.value.find(s => s.id === id)
+    if (sesion) {
+      solicitudesCambio.value.push({
+        id: sesion.id,
+        fechaActual: sesion.fecha,
+        nuevaFecha,
+        confirmado: false
+      })
+      await moverSesion(id) // solo cambia el estado a pendiente, no la fecha
+    }
+  }
+
+  // Cuando el empleado confirma, SÍ cambia la fecha y pone estado a confirmada (1)
+  async function confirmarMoverSesion(id: number) {
+    const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
+    if (solicitud) {
+      const sesion = sesiones.value.find(s => s.id === id)
+      if (sesion) {
+        const dto = limpiarSesionParaPut({ ...sesion, fecha: solicitud.nuevaFecha, estado: 1 })
+        console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
+        try {
+          const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+          })
+          if (!response.ok) throw new Error('Error al confirmar la sesión')
+          solicitud.confirmado = true
+          await fetchSesiones()
+        } catch (e: any) {
+          error.value = e.message || 'Error al confirmar la sesión'
+        }
+      }
+    }
   }
 
   return {
@@ -71,6 +142,10 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     isLoading,
     error,
     fetchSesiones,
-    moverSesion, // <-- IMPORTANTE
+    moverSesion,
+    cancelarSesion,
+    solicitarMoverSesion,
+    confirmarMoverSesion,
+    solicitudesCambio
   }
 })

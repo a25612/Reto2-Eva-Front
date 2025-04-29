@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useCalendarioHomeStore } from '../stores/calendariohome'
-import { useAuthStore } from '../stores/login' 
+import { useAuthStore } from '../stores/login'
+
+
+enum EstadoSesion {
+  PENDIENTE = 0,
+  CONFIRMADA = 1,
+  CANCELADA = 2
+}
 
 const calendarioStore = useCalendarioHomeStore()
 const authStore = useAuthStore()
@@ -77,21 +84,39 @@ const closeModal = () => {
   selectedSesion.value = null
 }
 
-// NUEVO: Estados para mover sesión
 const showDatePicker = ref(false)
 const newDate = ref('')
 
-// NUEVO: Función para mover la sesión
-const moverSesion = async () => {
+
+const getFechaInputValue = (fechaStr?: string) => {
+  if (!fechaStr) return ''
+  const fecha = new Date(fechaStr)
+  const yyyy = fecha.getFullYear()
+  const mm = String(fecha.getMonth() + 1).padStart(2, '0')
+  const dd = String(fecha.getDate()).padStart(2, '0')
+  const hh = String(fecha.getHours()).padStart(2, '0')
+  const min = String(fecha.getMinutes()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+}
+
+const solicitarMoverSesion = () => {
   if (!newDate.value || !selectedSesion.value) return
-  // Ajusta este método según tu API/store
-  await calendarioStore.moverSesion(selectedSesion.value.id, newDate.value)
+
+  const nuevaFecha = new Date(newDate.value)
+  const fechaReservaActual = new Date(selectedSesion.value.fecha)
+
+  if (nuevaFecha < fechaReservaActual) {
+    alert('No puedes seleccionar una fecha anterior a la reserva actual.')
+    return
+  }
+
+  calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value)
+  alert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.')
   showDatePicker.value = false
   showModal.value = false
   newDate.value = ''
 }
 
-// NUEVO: Cancelar mover
 const cancelarMover = () => {
   showDatePicker.value = false
   newDate.value = ''
@@ -131,7 +156,19 @@ const formatFecha = (fechaStr?: string) => {
     minute: '2-digit'
   })
 }
+
+
+function estadoSesionTexto(estado: number | undefined) {
+  switch (estado) {
+    case EstadoSesion.PENDIENTE: return 'Pendiente'
+    case EstadoSesion.CONFIRMADA: return 'Confirmada'
+    case EstadoSesion.CANCELADA: return 'Cancelada'
+    default: return estado ?? ''
+  }
+}
 </script>
+
+
 
 <template>
   <div class="app">
@@ -182,6 +219,7 @@ const formatFecha = (fechaStr?: string) => {
                       title="Identificador de usuario"
                     ></span>
                   </div>
+                  
                 </li>
               </ul>
             </div>
@@ -193,30 +231,55 @@ const formatFecha = (fechaStr?: string) => {
     <!-- MODAL CON INFORMACIÓN DETALLADA -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <h2>Información de la Sesión</h2>
-        <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
-        <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
-        <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
-        <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
+        <div class="modal-content" @click.stop>
+          <h2>Información de la Sesión</h2>
+          <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
+          <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
+          <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
+          <p><strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}</p>
+
+    
+        </div>
+
         <div class="botones-modal">
-          <!-- Botón Mover y selector de fecha -->
+         
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="showDatePicker = true"> Mover </button>
-          
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker"
+            class="mover"
+            @click="
+              showDatePicker = true;
+              newDate = getFechaInputValue(selectedSesion?.fecha);
+            "
+          >
+            Mover
+          </button>
 
           <div v-if="showDatePicker" style="margin: 1rem 0; width: 100%;">
-            <label for="nueva-fecha">Selecciona la nueva fecha:</label>
-            <input id="nueva-fecha" type="date" v-model="newDate" style="margin-left: 8px;" />
+            <label for="nueva-fecha">Selecciona la nueva fecha y hora:</label>
+            <input
+              id="nueva-fecha"
+              type="datetime-local"
+              v-model="newDate"
+              style="margin-left: 8px;"
+              :min="getFechaInputValue(selectedSesion?.fecha)"
+            />
           </div>
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker"
-            class="mover"
-            :disabled="!newDate"
-            @click="moverSesion"
+               v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker"
+              class="mover"
+              :disabled="!newDate"
+              @click="solicitarMoverSesion"
+              > Solicitar cambio de fecha y hora
+            </button>
+
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR'"
+            class="cancelar"
+            @click="showDatePicker ? cancelarMover() : closeModal()"
           >
-            Mover a fecha
+            Cancelar
           </button>
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar">Cancelar</button>
           <button class="cerrar" @click="closeModal">Cerrar</button>
         </div>
       </div>
@@ -365,13 +428,14 @@ const formatFecha = (fechaStr?: string) => {
     font-size: 1rem;
   }
   .botones-modal {
-    display: flex;
+    
     justify-content: center;
     gap: 1rem; 
     margin-top: 25px; 
  }
  .mover {
   background-color: #f5a01b; 
+  margin-left: 10px;
   color: #ffffff;
   border: none;
   padding: 0.5rem 1rem;
@@ -387,6 +451,7 @@ const formatFecha = (fechaStr?: string) => {
 }
 .cancelar {
   background-color: #E53935; 
+  margin-left: 10px;
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;
@@ -402,6 +467,7 @@ const formatFecha = (fechaStr?: string) => {
 }
 .cerrar {
   background-color: $color-boton; 
+  margin-left: 10px;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -469,6 +535,7 @@ const formatFecha = (fechaStr?: string) => {
     .mover,
     .cancelar,
     .cerrar {
+      margin-top: 10px;
       width: 100%;
       font-size: 1rem;
       padding: 0.75rem 0.5rem;
