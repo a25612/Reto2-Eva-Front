@@ -2,11 +2,18 @@ import { defineStore } from 'pinia'
 
 export interface MensajeConfirmacionAdaptado {
     id: number
+    id_Sesion: number
+    id_Empleado: number
+    tipo: string
+    mensaje: string
     fechaEnvio: string
+    fechaSolicitada: string
     usuarioNombre: string
     tutorNombre: string
     servicioNombre: string
-    mensaje: string
+    sesionId: number
+    estado?: 'aceptado' | 'cancelado' | 'pendiente'
+    fechaOriginal?: string
 }
 
 export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
@@ -25,11 +32,18 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 const data = await res.json()
                 this.mensajes = data.map((m: any) => ({
                     id: m.id,
-                    fechaEnvio: m.fecha,
-                    usuarioNombre: m.usuario?.nombre ?? '',
-                    tutorNombre: m.tutor?.nombre ?? '',
-                    servicioNombre: m.servicio?.nombre ?? '',
-                    mensaje: m.mensaje ?? '',
+                    id_Sesion: m.id_Sesion,
+                    id_Empleado: m.id_Empleado,
+                    tipo: m.tipo,
+                    mensaje: m.mensaje,
+                    fechaEnvio: m.fechaMensaje,
+                    fechaSolicitada: m.fechaSolicitada,
+                    usuarioNombre: m.sesion?.usuario?.nombre ?? '',
+                    tutorNombre: m.sesion?.tutor?.nombre ?? '',
+                    servicioNombre: m.sesion?.servicio?.nombre ?? '',
+                    sesionId: m.id_Sesion,
+                    estado: 'pendiente',
+                    fechaOriginal: m.sesion?.fecha
                 }))
                 this.mensajes.sort((a, b) => new Date(b.fechaEnvio).getTime() - new Date(a.fechaEnvio).getTime())
             } catch (err: any) {
@@ -38,26 +52,54 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 this.cargando = false
             }
         },
-        async aceptarMovimiento(mensajeId: number, empleadoId: number) {
+        async aceptarMovimiento(mensajeId: number) {
             try {
-                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensajeId}/aceptar`, {
-                    method: 'POST'
+                const mensaje = this.mensajes.find(m => m.id === mensajeId)
+                if (!mensaje) throw new Error('Mensaje no encontrado')
+
+                // PUT con ID en la URL y cuerpo actualizado
+                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: mensaje.id,
+                        id_Sesion: mensaje.id_Sesion,
+                        id_Empleado: mensaje.id_Empleado,
+                        tipo: 'ACEPTADO', // Actualizar el tipo según necesidad
+                        mensaje: mensaje.mensaje,
+                        fechaMensaje: mensaje.fechaEnvio,
+                        fechaSolicitada: mensaje.fechaSolicitada
+                    })
                 })
-                if (!res.ok) throw new Error()
-                await this.cargarMensajesPorEmpleado(empleadoId)
-            } catch {
-                this.error = 'No se pudo aceptar la solicitud'
+                if (!res.ok) throw new Error('Error al actualizar la sesión')
+                mensaje.estado = 'aceptado'
+            } catch (error) {
+                this.error = 'No se pudo aceptar la solicitud. Por favor, inténtalo de nuevo.'
             }
         },
-        async cancelarMovimiento(mensajeId: number, empleadoId: number) {
+        async cancelarMovimiento(mensajeId: number) {
             try {
-                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensajeId}/cancelar`, {
-                    method: 'POST'
+                const mensaje = this.mensajes.find(m => m.id === mensajeId)
+                if (!mensaje) throw new Error('Mensaje no encontrado')
+
+                // PUT con ID en la URL y cuerpo actualizado
+                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: mensaje.id,
+                        id_Sesion: mensaje.id_Sesion,
+                        id_Empleado: mensaje.id_Empleado,
+                        tipo: 'CANCELADO', // Actualizar el tipo según necesidad
+                        mensaje: mensaje.mensaje,
+                        fechaMensaje: mensaje.fechaEnvio,
+                        fechaSolicitada: mensaje.fechaOriginal ?? mensaje.fechaSolicitada
+                    })
                 })
-                if (!res.ok) throw new Error()
-                await this.cargarMensajesPorEmpleado(empleadoId)
-            } catch {
-                this.error = 'No se pudo cancelar la solicitud'
+                if (!res.ok) throw new Error('Error al cancelar la sesión')
+                mensaje.estado = 'cancelado'
+            } catch (error) {
+                this.error = 'No se pudo cancelar la solicitud. Por favor, inténtalo de nuevo.'
             }
         }
     }
