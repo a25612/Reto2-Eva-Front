@@ -1,3 +1,110 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '../stores/login'
+import { useMensajeConfirmacionStore } from '../stores/mensajeConfirmacion'
+import type { MensajeConfirmacionAdaptado } from '../stores/mensajeConfirmacion'
+
+const authStore = useAuthStore()
+const mensajeStore = useMensajeConfirmacionStore()
+
+const mesSeleccionado = ref<number | null>(null)
+const estadosMensajes = ref<Map<number, 'pendiente' | 'procesando' | 'aceptado' | 'cancelado' | 'error'>>(new Map())
+const lastAction = ref<{type: 'aceptar' | 'cancelar', id: number} | null>(null)
+
+const getEstadoMensaje = (id: number) => {
+  const mensaje = mensajeStore.mensajes.find(m => m.id === id)
+  return estadosMensajes.value.get(id) || mensaje?.estado || 'pendiente'
+}
+
+const resetEstadoMensaje = (id: number) => {
+  estadosMensajes.value.delete(id)
+}
+
+const retryLastAction = async () => {
+  if (!lastAction.value) return
+  const { type, id } = lastAction.value
+  if (type === 'aceptar') {
+    await handleAceptarSolicitud(id)
+  } else {
+    await handleCancelarSolicitud(id)
+  }
+}
+
+onMounted(async () => {
+  const empleadoId = authStore.userId
+  if (empleadoId) {
+    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId))
+  }
+})
+
+const mensajesFiltrados = computed(() => {
+  return mensajeStore.mensajes.filter((mensaje: MensajeConfirmacionAdaptado) => {
+    try {
+      const fecha = new Date(mensaje.fechaEnvio)
+      if (isNaN(fecha.getTime())) return false
+      const coincideMes = mesSeleccionado.value !== null
+        ? fecha.getMonth() === mesSeleccionado.value
+        : true
+      return coincideMes
+    } catch {
+      return mesSeleccionado.value === null
+    }
+  })
+})
+
+const meses = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+]
+
+// Ahora solo llamas a los métodos del store, sin fetch
+const handleAceptarSolicitud = async (mensajeId: number) => {
+  const empleadoId = authStore.userId
+  if (!empleadoId) return
+  lastAction.value = { type: 'aceptar', id: mensajeId }
+  estadosMensajes.value.set(mensajeId, 'procesando')
+  try {
+    await mensajeStore.aceptarMovimiento(mensajeId)
+    estadosMensajes.value.set(mensajeId, 'aceptado')
+    mensajeStore.error = null
+  } catch (error) {
+    estadosMensajes.value.set(mensajeId, 'error')
+    mensajeStore.error = 'Error al aceptar la solicitud. Por favor, inténtalo de nuevo.'
+  }
+}
+
+const handleCancelarSolicitud = async (mensajeId: number) => {
+  lastAction.value = { type: 'cancelar', id: mensajeId }
+  estadosMensajes.value.set(mensajeId, 'procesando')
+  try {
+    await mensajeStore.cancelarMovimiento(mensajeId)
+    estadosMensajes.value.set(mensajeId, 'cancelado')
+    mensajeStore.error = null
+  } catch (error) {
+    estadosMensajes.value.set(mensajeId, 'error')
+    mensajeStore.error = 'Error al cancelar la solicitud. Por favor, inténtalo de nuevo.'
+  }
+}
+
+const formatearFecha = (fechaStr: string) => {
+  if (!fechaStr) return 'Fecha no disponible'
+  try {
+    const fechaIso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T')
+    const fecha = new Date(fechaIso)
+    if (isNaN(fecha.getTime())) return 'Fecha no disponible'
+    return fecha.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch {
+    return 'Fecha no disponible'
+  }
+}
+</script>
+
 <template>
   <div class="reservas">
     <router-link to="/home-app-atemtia" class="volver-atras">
@@ -12,7 +119,6 @@
       <button v-if="lastAction" @click="retryLastAction" class="btn-retry">Reintentar</button>
     </div>
 
-    <!-- Filtro mes -->
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__filtros">
       <div class="sesion-list">
         <label>Filtrar por mes</label>
@@ -23,7 +129,6 @@
       </div>
     </div>
 
-    <!-- Lista de mensajes -->
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
       <div
         v-for="mensaje in mensajesFiltrados"
@@ -38,7 +143,6 @@
         <p><strong>Fecha solicitada:</strong> {{ formatearFecha(mensaje.fechaSolicitada) }}</p>
         <p><strong>Mensaje:</strong> {{ mensaje.mensaje || 'Sin mensaje' }}</p>
         
-        <!-- Estado y acciones con manejo de errores locales -->
         <div v-if="getEstadoMensaje(mensaje.id) === 'aceptado'" class="estado aceptado">
           <span class="icono">✓</span> FECHA CAMBIADA
         </div>
@@ -60,182 +164,14 @@
         </div>
       </div>
     </div>
-
     <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
       No hay mensajes en este mes
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '../stores/login'
-import { useMensajeConfirmacionStore } from '../stores/mensajeConfirmacion'
-import type { MensajeConfirmacionAdaptado } from '../stores/mensajeConfirmacion'
 
-const authStore = useAuthStore()
-const mensajeStore = useMensajeConfirmacionStore()
 
-const mesSeleccionado = ref<number | null>(null)
-const estadosMensajes = ref<Map<number, 'pendiente' | 'procesando' | 'aceptado' | 'cancelado' | 'error'>>(new Map())
-const lastAction = ref<{type: 'aceptar' | 'cancelar', id: number} | null>(null)
-
-// Manejo de estado local por mensaje
-const getEstadoMensaje = (id: number) => {
-  const mensaje = mensajeStore.mensajes.find(m => m.id === id)
-  // Priorizar estado local sobre el del store
-  return estadosMensajes.value.get(id) || mensaje?.estado || 'pendiente'
-}
-
-const resetEstadoMensaje = (id: number) => {
-  estadosMensajes.value.delete(id)
-}
-
-// Reintentar última acción
-const retryLastAction = async () => {
-  if (!lastAction.value) return
-  
-  const { type, id } = lastAction.value
-  if (type === 'aceptar') {
-    await handleAceptarSolicitud(id)
-  } else {
-    await handleCancelarSolicitud(id)
-  }
-}
-
-onMounted(async () => {
-  const empleadoId = authStore.userId
-  if (empleadoId) {
-    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId))
-  }
-})
-
-const mensajesFiltrados = computed(() => {
-  return mensajeStore.mensajes.filter((mensaje: MensajeConfirmacionAdaptado) => {
-    try {
-      const fecha = new Date(mensaje.fechaEnvio)
-      if (isNaN(fecha.getTime())) return false
-      
-      const coincideMes = mesSeleccionado.value !== null
-        ? fecha.getMonth() === mesSeleccionado.value
-        : true
-      return coincideMes
-    } catch {
-      return mesSeleccionado.value === null
-    }
-  })
-})
-
-const meses = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
-// Wrapper con manejo de errores local
-const handleAceptarSolicitud = async (mensajeId: number) => {
-  const empleadoId = authStore.userId
-  if (!empleadoId) return
-  
-  try {
-    // Guardar acción para posible reintento
-    lastAction.value = { type: 'aceptar', id: mensajeId }
-    
-    // Actualizar UI inmediatamente
-    estadosMensajes.value.set(mensajeId, 'procesando')
-    
-    // Llamar a API (método corregido en el store)
-    const mensaje = mensajeStore.mensajes.find(m => m.id === mensajeId)
-    if (!mensaje) throw new Error('Mensaje no encontrado')
-    
-    // Hacer PUT directo a la URL correcta
-    const putBody = {
-      id: mensaje.id,
-      id_Sesion: mensaje.id_Sesion,
-      id_Empleado: mensaje.id_Empleado,
-      tipo: mensaje.tipo,
-      mensaje: mensaje.mensaje,
-      fechaMensaje: mensaje.fechaEnvio,
-      fechaSolicitada: mensaje.fechaSolicitada
-    }
-    
-    const res = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(putBody)
-    })
-    
-    if (!res.ok) throw new Error('Error al actualizar la fecha')
-    
-    // Actualizar UI con éxito
-    estadosMensajes.value.set(mensajeId, 'aceptado')
-    mensajeStore.error = null
-  } catch (error) {
-    console.error('Error al aceptar:', error)
-    estadosMensajes.value.set(mensajeId, 'error')
-    mensajeStore.error = 'Error al aceptar la solicitud. Por favor, inténtalo de nuevo.'
-  }
-}
-
-const handleCancelarSolicitud = async (mensajeId: number) => {
-  try {
-    // Guardar acción para posible reintento
-    lastAction.value = { type: 'cancelar', id: mensajeId }
-    
-    // Actualizar UI inmediatamente
-    estadosMensajes.value.set(mensajeId, 'procesando')
-    
-    // Llamar a API (método corregido)
-    const mensaje = mensajeStore.mensajes.find(m => m.id === mensajeId)
-    if (!mensaje) throw new Error('Mensaje no encontrado')
-    
-    // Hacer PUT con la fecha original
-    const putBody = {
-      id: mensaje.id,
-      id_Sesion: mensaje.id_Sesion,
-      id_Empleado: mensaje.id_Empleado,
-      tipo: mensaje.tipo,
-      mensaje: mensaje.mensaje,
-      fechaMensaje: mensaje.fechaEnvio,
-      fechaSolicitada: mensaje.fechaOriginal || mensaje.fechaSolicitada
-    }
-    
-    const res = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(putBody)
-    })
-    
-    if (!res.ok) throw new Error('Error al cancelar la solicitud')
-    
-    // Actualizar UI con éxito
-    estadosMensajes.value.set(mensajeId, 'cancelado')
-    mensajeStore.error = null
-  } catch (error) {
-    console.error('Error al cancelar:', error)
-    estadosMensajes.value.set(mensajeId, 'error')
-    mensajeStore.error = 'Error al cancelar la solicitud. Por favor, inténtalo de nuevo.'
-  }
-}
-
-const formatearFecha = (fechaStr: string) => {
-  if (!fechaStr) return 'Fecha no disponible'
-  try {
-    const fechaIso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T')
-    const fecha = new Date(fechaIso)
-    if (isNaN(fecha.getTime())) return 'Fecha no disponible'
-    
-    return fecha.toLocaleString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch {
-    return 'Fecha no disponible'
-  }
-}
-</script>
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
