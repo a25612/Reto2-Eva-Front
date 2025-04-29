@@ -62,7 +62,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
       const dto = limpiarSesionParaPut({ ...sesion, estado: 0 }) 
-      console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
       try {
         const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
           method: 'PUT',
@@ -77,12 +76,10 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  // Cambia estado a 2 (CANCELADA)
   async function cancelarSesion(id: number) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
       const dto = limpiarSesionParaPut({ ...sesion, estado: 2 })
-      console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
       try {
         const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
           method: 'PUT',
@@ -100,23 +97,69 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
   async function solicitarMoverSesion(id: number, nuevaFecha: string, motivo: string) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
+      await moverSesion(id)
+  
+      const idEmpleado =
+        sesion.iD_EMPLEADO ||
+        (sesion.empleado && sesion.empleado.id) ||
+        sesion.id_empleado ||
+        sesion.idEmpleado ||
+        sesion.ID_EMPLEADO
+  
+      if (!idEmpleado) {
+        error.value = 'No se ha encontrado el empleado que da la sesión. Revisa los datos de la sesión.'
+        console.error('Sesión sin empleado válido:', sesion)
+        return
+      }
+  
+      const mensajeConfirmacion = {
+        id_Sesion: id,
+        id_Empleado: idEmpleado,
+        tipo: "MOVIDA",
+        mensaje: motivo,
+        fechaMensaje: new Date().toISOString(),
+        fechaSolicitada: nuevaFecha
+      }
+  
+      console.log('POST /api/MensajeConfirmacion', JSON.stringify(mensajeConfirmacion, null, 2))
+  
+      try {
+        const response = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mensajeConfirmacion)
+        })
+        if (!response.ok) throw new Error('Error al crear el mensaje de confirmación')
+      } catch (e) {
+        if (e instanceof Error) {
+          error.value = e.message
+        } else {
+          error.value = 'Error al crear el mensaje de confirmación'
+        }
+      }
+  
       solicitudesCambio.value.push({
         id: sesion.id,
         fechaActual: sesion.fecha,
         nuevaFecha,
+        motivo,
         confirmado: false
       })
-      await moverSesion(id)
+  
+      await fetchSesiones()
     }
   }
+  
 
   async function confirmarMoverSesion(id: number) {
     const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
     if (solicitud) {
       const sesion = sesiones.value.find(s => s.id === id)
       if (sesion) {
-        const dto = limpiarSesionParaPut({ ...sesion, fecha: solicitud.nuevaFecha, estado: 1 })
-        console.log('PUT /api/Sesion/' + id, JSON.stringify(dto))
+        const dto = {
+          FECHA: solicitud.nuevaFecha,
+          ESTADO: 1 
+        }
         try {
           const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
             method: 'PUT',
@@ -126,9 +169,14 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
           if (!response.ok) throw new Error('Error al confirmar la sesión')
           solicitud.confirmado = true
           await fetchSesiones()
-        } catch (e: any) {
-          error.value = e.message || 'Error al confirmar la sesión'
+        } catch (e) {
+          if (e instanceof Error) {
+            error.value = e.message
+          } else {
+            error.value = 'Error al confirmar la sesion'
+          }
         }
+        
       }
     }
   }

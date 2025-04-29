@@ -44,10 +44,10 @@ export const useSesionStore = defineStore('sesion', () => {
     const serviciosStore = useServiciosStore();
     const idCentro = serviciosStore.centroSeleccionado ?? 0;
     const idServicio = serviciosStore.servicioSeleccionado ?? 0;
-    const idOpcion = idOpcionServicio.value ?? 0;  // Usamos idOpcionServicio
+    const idOpcion = idOpcionServicio.value ?? 0; 
     const usuarioId = idUsuario.value ?? 0;
     const tutorId = idTutor.value.trim() || '';
-    const empleadoId = idEmpleado.value ?? 0;  // Añadido idEmpleado
+    const empleadoId = idEmpleado.value ?? 0;  
 
     // Log para depuración
     console.log('Datos antes de la validación:', {
@@ -57,7 +57,7 @@ export const useSesionStore = defineStore('sesion', () => {
       idOpcion,
       usuarioId,
       tutorId,
-      empleadoId,  // Incluido empleadoId en el log
+      empleadoId, 
     });
 
     // Validación de datos requeridos
@@ -70,10 +70,10 @@ export const useSesionStore = defineStore('sesion', () => {
       fechaHora: fechaHoraSeleccionada.value,
       idCentro,
       idServicio,
-      idOpcionServicio: idOpcion,  // Asegúrate de pasar el idOpcion correctamente
+      idOpcionServicio: idOpcion, 
       idUsuario: usuarioId,
       idTutor: tutorId,
-      idEmpleado: empleadoId,  // Asegúrate de incluir el idEmpleado
+      idEmpleado: empleadoId,  
     };
 
     console.log('Objeto reservaData antes de enviar:', JSON.stringify(reservaData, null, 2));
@@ -108,7 +108,7 @@ export const useSesionStore = defineStore('sesion', () => {
     confirmarSesion,
     idUsuario,
     idTutor,
-    idOpcionServicio,  // Asegúrate de exportarlo
-    idEmpleado,  // Exportamos idEmpleado
+    idOpcionServicio,
+    idEmpleado,  
   };
 });

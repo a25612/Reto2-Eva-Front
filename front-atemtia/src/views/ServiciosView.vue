@@ -5,7 +5,6 @@ import { useSesionStore } from '../stores/sesion';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../stores/login';
 import BotonScrolltop from '../components/BotonScrolltop.vue';
-import CalendarioReservas from '../components/CalendarioReservas.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -24,12 +23,6 @@ const {
   error
 } = storeToRefs(serviciosStore);
 
-const { idOpcionServicio } = storeToRefs(sesionStore);
-const { seleccionarFechaHora } = sesionStore;
-
-const servicioSeleccionado = ref<string | null>(null);
-const servicioSeleccionadoId = ref<number | null>(null);
-const mostrarCalendario = ref<boolean>(false);
 const reservaConfirmada = ref<boolean>(false);
 const fechaReserva = ref<string | null>(null);
 const horaReserva = ref<string | null>(null);
@@ -61,31 +54,6 @@ function formatPrecio(precio: number): string {
 
 function formatDuracion(minutos: number | null): string {
   return minutos ? `${minutos} min` : '';
-}
-
-function mostrarConfirmacion(servicio: string, servicioId: number, opcionId: number) {
-  servicioSeleccionado.value = servicio;
-  servicioSeleccionadoId.value = servicioId;
-  idOpcionServicio.value = opcionId;
-}
-
-function cerrarConfirmacion() {
-  servicioSeleccionado.value = null;
-}
-
-function abrirCalendario() {
-  if (servicioSeleccionadoId.value && idOpcionServicio.value !== null) {
-    serviciosStore.seleccionarServicio(servicioSeleccionadoId.value);
-    mostrarCalendario.value = true;
-  } else {
-    alert('Por favor, selecciona una opción de servicio antes de proceder.');
-  }
-}
-
-
-
-function handleCancelarFechaHora() {
-  mostrarCalendario.value = false;
 }
 
 function irHome() {
