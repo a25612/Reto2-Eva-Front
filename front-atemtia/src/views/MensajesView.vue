@@ -9,7 +9,7 @@ const mensajeStore = useMensajeConfirmacionStore()
 
 const mesSeleccionado = ref<number | null>(null)
 const estadosMensajes = ref<Map<number, 'pendiente' | 'procesando' | 'aceptado' | 'cancelado' | 'error'>>(new Map())
-const lastAction = ref<{type: 'aceptar' | 'cancelar', id: number} | null>(null)
+const lastAction = ref<{ type: 'aceptar' | 'cancelar', id: number } | null>(null)
 
 const getEstadoMensaje = (id: number) => {
   const mensaje = mensajeStore.mensajes.find(m => m.id === id)
@@ -133,11 +133,7 @@ const formatearFecha = (fechaStr: string) => {
     </div>
 
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
-      <div
-        v-for="mensaje in mensajesFiltrados"
-        :key="mensaje.id"
-        class="reserva-card"
-      >
+      <div v-for="mensaje in mensajesFiltrados" :key="mensaje.id" class="reserva-card">
         <p><strong>Usuario:</strong> {{ mensaje.usuarioNombre || 'No disponible' }}</p>
         <p><strong>Tutor:</strong> {{ mensaje.tutorNombre || 'No disponible' }}</p>
         <p><strong>Servicio:</strong> {{ mensaje.servicioNombre || 'No disponible' }}</p>
@@ -145,7 +141,7 @@ const formatearFecha = (fechaStr: string) => {
         <p><strong>Fecha original:</strong> {{ formatearFecha(mensaje.fechaOriginal ?? '') }}</p>
         <p><strong>Fecha solicitada:</strong> {{ formatearFecha(mensaje.fechaSolicitada) }}</p>
         <p><strong>Mensaje:</strong> {{ mensaje.mensaje || 'Sin mensaje' }}</p>
-        
+
         <div v-if="getEstadoMensaje(mensaje.id) === 'aceptado'" class="estado aceptado">
           <span class="icono">✓</span> FECHA CAMBIADA
         </div>
@@ -162,8 +158,12 @@ const formatearFecha = (fechaStr: string) => {
           Procesando...
         </div>
         <div v-else class="acciones">
-          <button class="btn-aceptar" @click="handleAceptarSolicitud(mensaje.id)">Aceptar</button>
-          <button class="btn-cancelar" @click="handleCancelarSolicitud(mensaje.id)">Cancelar</button>
+          <button class="btn-aceptar" @click="handleAceptarSolicitud(mensaje.id)">
+            Aceptar
+          </button>
+          <button class="btn-cancelar" @click="handleCancelarSolicitud(mensaje.id)">
+            Cancelar
+          </button>
         </div>
       </div>
     </div>
@@ -172,8 +172,6 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
-
-
 
 
 <style lang="scss">
@@ -186,26 +184,26 @@ const formatearFecha = (fechaStr: string) => {
   margin: 0 auto;
 
   .volver-atras {
-        margin-right: auto;
-        background-color: $color-boton;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: background 0.3s ease;
+    margin-right: auto;
+    background-color: $color-boton;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
 
-        &:hover {
-            background-color: darken($color-boton, 10%);
-        }
+    &:hover {
+      background-color: darken($color-boton, 10%);
     }
+  }
 
   &__titulo {
     color: $color-titulos;
@@ -216,7 +214,7 @@ const formatearFecha = (fechaStr: string) => {
 
   &__filtros {
     margin-bottom: 2rem;
-    
+
     .sesion-list {
       display: flex;
       align-items: center;
@@ -292,13 +290,13 @@ const formatearFecha = (fechaStr: string) => {
         color: #c62828;
         border: 2px solid #c62828;
       }
-      
+
       &.error {
         background: #fff3e0;
         color: #e65100;
         border: 2px solid #e65100;
         flex-direction: column;
-        
+
         .btn-reset {
           margin-top: 0.5rem;
           padding: 0.3rem 0.8rem;
@@ -308,13 +306,13 @@ const formatearFecha = (fechaStr: string) => {
           border: none;
           border-radius: 4px;
           cursor: pointer;
-          
+
           &:hover {
             background: #f57c00;
           }
         }
       }
-      
+
       &.procesando {
         background: #e3f2fd;
         color: #1565c0;
@@ -368,7 +366,7 @@ const formatearFecha = (fechaStr: string) => {
 
     &.error {
       color: #d32f2f;
-      
+
       .btn-retry {
         margin-top: 1rem;
         padding: 0.5rem 1rem;
@@ -378,7 +376,7 @@ const formatearFecha = (fechaStr: string) => {
         border-radius: 6px;
         cursor: pointer;
         font-weight: 600;
-        
+
         &:hover {
           background: #d32f2f;
         }

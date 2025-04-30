@@ -17,7 +17,7 @@ export interface MensajeConfirmacionAdaptado {
 }
 
 export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
-    state: () => ({
+    state: () => ({ 
         mensajes: [] as MensajeConfirmacionAdaptado[],
         cargando: false,
         error: null as string | null,
@@ -42,7 +42,11 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     tutorNombre: m.sesion?.tutor?.nombre ?? '',
                     servicioNombre: m.sesion?.servicio?.nombre ?? '',
                     sesionId: m.id_Sesion,
-                    estado: 'pendiente',
+                    estado: m.estado === 'ACEPTADA'
+                        ? 'aceptado'
+                        : m.estado === 'RECHAZADA'
+                        ? 'cancelado'
+                        : 'pendiente',
                     fechaOriginal: m.sesion?.fecha
                 }))
                 this.mensajes.sort((a, b) => new Date(b.fechaEnvio).getTime() - new Date(a.fechaEnvio).getTime())
@@ -56,19 +60,26 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
-                // PUT a Sesion: Cambia la fecha y el estado a "confirmada" (por ejemplo, estado: 1)
-                const body = {
-                    fecha: mensaje.fechaSolicitada, // Nueva fecha solicitada
-                    estado: 1 // Cambia esto si tu backend espera otro valor para "confirmada"
+                const bodySesion = {
+                    fecha: mensaje.fechaSolicitada,
+                    estado: 1 
                 }
+                
                 const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al actualizar la sesión')
-                mensaje.estado = 'aceptado'
-                mensaje.fechaOriginal = mensaje.fechaSolicitada // Actualiza la fecha original
+                const bodyMensaje = { estado: 'ACEPTADA' }
+                const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyMensaje)
+                })
+                if (!resMsg.ok) throw new Error('Error al actualizar el estado del mensaje')
+                mensaje.estado = 'aceptado' 
+                mensaje.fechaOriginal = mensaje.fechaSolicitada
             } catch (error) {
                 this.error = 'No se pudo aceptar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error
@@ -78,22 +89,28 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
-                // PUT a Sesion: Vuelve a la fecha original y cambia estado a "cancelada" (por ejemplo, estado: 2)
-                const body = {
-                    fecha: mensaje.fechaOriginal ?? mensaje.fechaSolicitada, // Fecha original o la solicitada si no existe
-                    estado: 2 // Cambia esto si tu backend espera otro valor para "cancelada"
+                const bodySesion = {
+                    fecha: mensaje.fechaOriginal ?? mensaje.fechaSolicitada,
+                    estado: 1 
                 }
                 const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al cancelar la sesión')
-                mensaje.estado = 'cancelado'
+                const bodyMensaje = { estado: 'RECHAZADA' }
+                const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyMensaje)
+                })
+                if (!resMsg.ok) throw new Error('Error al actualizar el estado del mensaje')
+                mensaje.estado = 'cancelado' 
             } catch (error) {
                 this.error = 'No se pudo cancelar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error
             }
-        }
+        }        
     }
 })

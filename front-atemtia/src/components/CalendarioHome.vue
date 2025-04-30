@@ -90,13 +90,6 @@ const showDatePicker = ref(false)
 const newDate = ref('')
 
 const motivo = ref('')
-const motivos = [
-  { value: '', text: 'Selecciona un motivo', disabled: true },
-  { value: 'ENFERMEDAD', text: 'Enfermedad' },
-  { value: 'LESION', text: 'Lesión' },
-  { value: 'FAMILIAR', text: 'Familiar' },
-  { value: 'OTROS', text: 'Otros' }
-]
 
 const getFechaInputValue = (fechaStr?: string) => {
   if (!fechaStr) return ''
@@ -124,12 +117,6 @@ const solicitarMoverSesion = async () => {
   alert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.')
   showDatePicker.value = false
   showModal.value = false
-  newDate.value = ''
-  motivo.value = ''
-}
-
-const cancelarMover = () => {
-  showDatePicker.value = false
   newDate.value = ''
   motivo.value = ''
 }
