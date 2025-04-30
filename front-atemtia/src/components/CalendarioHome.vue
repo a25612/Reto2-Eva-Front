@@ -228,13 +228,16 @@ function estadoSesionTexto(estado: number | undefined) {
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
-        <p><strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}</p>
+        <!-- SOLO MOSTRAR ESTADO SI NO ESTÁ CONFIRMADA -->
+        <p v-if="selectedSesion?.estado !== EstadoSesion.CONFIRMADA">
+          <strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}
+        </p>
         <div class="botones-modal">
 
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="
             showDatePicker = true;
-          newDate = getFechaInputValue(selectedSesion?.fecha);
-          motivo = '';
+            newDate = getFechaInputValue(selectedSesion?.fecha);
+            motivo = '';
           ">
             Mover
           </button>
@@ -257,7 +260,6 @@ function estadoSesionTexto(estado: number | undefined) {
               </div>
             </div>
           </div>
-
 
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker" class="mover"
             :disabled="!newDate || !motivo" @click="solicitarMoverSesion">

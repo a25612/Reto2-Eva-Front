@@ -30,13 +30,13 @@ export const useReservasStore = defineStore('reservas', () => {
 
     try {
       if (rol === 'Tutor') {
-        // Obtén los IDs de los hijos asignados (ajusta el nombre de la variable según tu auth)
+
         const usuariosIds = JSON.parse(localStorage.getItem('usuariosAsignadosIds') || '[]')
         if (!usuariosIds.length) {
           error.value = 'No tienes hijos asignados.'
           return
         }
-        // Carga reservas de todos los hijos
+        
         const peticiones = usuariosIds.map((id: number) =>
           fetch(`https://localhost:7163/api/Sesion/Usuario/${id}`, {
             headers: {
@@ -64,7 +64,6 @@ export const useReservasStore = defineStore('reservas', () => {
           },
         })
         reservas.value = await response.json()
-        // Solo para compatibilidad, aquí solo hay un usuario
         usuariosAsignados.value = reservas.value.length
           ? [{ id: reservas.value[0].usuario.id, nombre: reservas.value[0].usuario.nombre }]
           : []
