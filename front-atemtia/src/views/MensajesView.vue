@@ -183,22 +183,26 @@ const formatearFecha = (fechaStr: string) => {
   margin: 0 auto;
 
   .volver-atras {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    color: $color-principal;
-    text-decoration: none;
-    
-    i {
-      font-size: 1.2rem;
-      transition: transform 0.2s;
-    }
+        margin-right: auto;
+        background-color: $color-boton;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease;
 
-    &:hover i {
-      transform: translateX(-4px);
+        &:hover {
+            background-color: darken($color-boton, 10%);
+        }
     }
-  }
 
   &__titulo {
     color: $color-titulos;
