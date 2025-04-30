@@ -56,42 +56,34 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
+                // PUT a Sesion: Cambia la fecha y el estado a "confirmada" (por ejemplo, estado: 1)
                 const body = {
-                    id: mensaje.id, // <-- Añade esto
-                    id_Sesion: mensaje.id_Sesion,
-                    id_Empleado: mensaje.id_Empleado,
-                    tipo: 'MOVIDA',
-                    mensaje: mensaje.mensaje,
-                    fechaMensaje: mensaje.fechaEnvio,
-                    fechaSolicitada: mensaje.fechaSolicitada
+                    fecha: mensaje.fechaSolicitada, // Nueva fecha solicitada
+                    estado: 1 // Cambia esto si tu backend espera otro valor para "confirmada"
                 }
-                console.log('PUT aceptarMovimiento:', `https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, body)
-                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 })
                 if (!res.ok) throw new Error('Error al actualizar la sesión')
                 mensaje.estado = 'aceptado'
+                mensaje.fechaOriginal = mensaje.fechaSolicitada // Actualiza la fecha original
             } catch (error) {
                 this.error = 'No se pudo aceptar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error
             }
-        },        
+        },
         async cancelarMovimiento(mensajeId: number) {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
+                // PUT a Sesion: Vuelve a la fecha original y cambia estado a "cancelada" (por ejemplo, estado: 2)
                 const body = {
-                    id_Sesion: mensaje.id_Sesion,
-                    id_Empleado: mensaje.id_Empleado,
-                    tipo: 'CANCELADA', // Cambia si tu backend espera otro valor para cancelar
-                    mensaje: mensaje.mensaje,
-                    fechaMensaje: mensaje.fechaEnvio,
-                    fechaSolicitada: mensaje.fechaOriginal ?? mensaje.fechaSolicitada
+                    fecha: mensaje.fechaOriginal ?? mensaje.fechaSolicitada, // Fecha original o la solicitada si no existe
+                    estado: 2 // Cambia esto si tu backend espera otro valor para "cancelada"
                 }
-                console.log('PUT cancelarMovimiento:', `https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, body)
-                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
+                const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)

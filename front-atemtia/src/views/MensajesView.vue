@@ -57,8 +57,9 @@ const meses = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
 
-// Ahora solo llamas a los métodos del store, sin fetch
 const handleAceptarSolicitud = async (mensajeId: number) => {
+  // Evita doble click mientras procesa
+  if (getEstadoMensaje(mensajeId) === 'procesando') return
   const empleadoId = authStore.userId
   if (!empleadoId) return
   lastAction.value = { type: 'aceptar', id: mensajeId }
@@ -74,6 +75,7 @@ const handleAceptarSolicitud = async (mensajeId: number) => {
 }
 
 const handleCancelarSolicitud = async (mensajeId: number) => {
+  if (getEstadoMensaje(mensajeId) === 'procesando') return
   lastAction.value = { type: 'cancelar', id: mensajeId }
   estadosMensajes.value.set(mensajeId, 'procesando')
   try {
@@ -104,6 +106,7 @@ const formatearFecha = (fechaStr: string) => {
   }
 }
 </script>
+
 
 <template>
   <div class="reservas">
