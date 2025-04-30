@@ -58,7 +58,6 @@ const meses = [
 ]
 
 const handleAceptarSolicitud = async (mensajeId: number) => {
-  // Evita doble click mientras procesa
   if (getEstadoMensaje(mensajeId) === 'procesando') return
   const empleadoId = authStore.userId
   if (!empleadoId) return
@@ -66,7 +65,8 @@ const handleAceptarSolicitud = async (mensajeId: number) => {
   estadosMensajes.value.set(mensajeId, 'procesando')
   try {
     await mensajeStore.aceptarMovimiento(mensajeId)
-    estadosMensajes.value.set(mensajeId, 'aceptado')
+    estadosMensajes.value.set(mensajeId, 'aceptado') // feedback inmediato
+    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId)) // sincroniza con backend
     mensajeStore.error = null
   } catch (error) {
     estadosMensajes.value.set(mensajeId, 'error')
@@ -76,11 +76,14 @@ const handleAceptarSolicitud = async (mensajeId: number) => {
 
 const handleCancelarSolicitud = async (mensajeId: number) => {
   if (getEstadoMensaje(mensajeId) === 'procesando') return
+  const empleadoId = authStore.userId
+  if (!empleadoId) return
   lastAction.value = { type: 'cancelar', id: mensajeId }
   estadosMensajes.value.set(mensajeId, 'procesando')
   try {
     await mensajeStore.cancelarMovimiento(mensajeId)
-    estadosMensajes.value.set(mensajeId, 'cancelado')
+    estadosMensajes.value.set(mensajeId, 'cancelado') // feedback inmediato
+    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId)) // sincroniza con backend
     mensajeStore.error = null
   } catch (error) {
     estadosMensajes.value.set(mensajeId, 'error')
@@ -106,7 +109,6 @@ const formatearFecha = (fechaStr: string) => {
   }
 }
 </script>
-
 
 <template>
   <div class="reservas">
@@ -157,7 +159,8 @@ const formatearFecha = (fechaStr: string) => {
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'procesando'" class="estado procesando">
           Procesando...
         </div>
-        <div v-else class="acciones">
+        <!-- SOLO muestra los botones si el rol NO es TUTOR -->
+        <div v-else-if="authStore.rol && authStore.rol.toUpperCase() !== 'TUTOR'" class="acciones">
           <button class="btn-aceptar" @click="handleAceptarSolicitud(mensaje.id)">
             Aceptar
           </button>
@@ -165,6 +168,8 @@ const formatearFecha = (fechaStr: string) => {
             Cancelar
           </button>
         </div>
+
+        <!-- Si es TUTOR y el mensaje está pendiente, no se muestra nada -->
       </div>
     </div>
     <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
@@ -172,6 +177,8 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
+
+
 
 
 <style lang="scss">

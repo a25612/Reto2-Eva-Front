@@ -16,6 +16,11 @@ export interface MensajeConfirmacionAdaptado {
     fechaOriginal?: string
 }
 
+// Valores numéricos del Enum Estado en backend
+const ESTADO_PENDIENTE = 0
+const ESTADO_ACEPTADA = 1
+const ESTADO_RECHAZADA = 2
+
 export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
     state: () => ({ 
         mensajes: [] as MensajeConfirmacionAdaptado[],
@@ -42,11 +47,11 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     tutorNombre: m.sesion?.tutor?.nombre ?? '',
                     servicioNombre: m.sesion?.servicio?.nombre ?? '',
                     sesionId: m.id_Sesion,
-                    estado: m.estado === 'ACEPTADA'
+                    estado: m.estado === ESTADO_PENDIENTE
+                        ? 'pendiente'
+                        : m.estado === ESTADO_ACEPTADA
                         ? 'aceptado'
-                        : m.estado === 'RECHAZADA'
-                        ? 'cancelado'
-                        : 'pendiente',
+                        : 'cancelado',
                     fechaOriginal: m.sesion?.fecha
                 }))
                 this.mensajes.sort((a, b) => new Date(b.fechaEnvio).getTime() - new Date(a.fechaEnvio).getTime())
@@ -60,26 +65,25 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
+                // PUT a Sesion (si tu backend lo necesita)
                 const bodySesion = {
                     fecha: mensaje.fechaSolicitada,
                     estado: 1 
                 }
-                
                 const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al actualizar la sesión')
-                const bodyMensaje = { estado: 'ACEPTADA' }
+                // PUT a MensajeConfirmacion SOLO con el campo estado numérico
+                const bodyMensaje = { estado: ESTADO_ACEPTADA }
                 const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(bodyMensaje)
                 })
                 if (!resMsg.ok) throw new Error('Error al actualizar el estado del mensaje')
-                mensaje.estado = 'aceptado' 
-                mensaje.fechaOriginal = mensaje.fechaSolicitada
             } catch (error) {
                 this.error = 'No se pudo aceptar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error
@@ -89,6 +93,7 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
+                // PUT a Sesion (si tu backend lo necesita)
                 const bodySesion = {
                     fecha: mensaje.fechaOriginal ?? mensaje.fechaSolicitada,
                     estado: 1 
@@ -99,14 +104,14 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al cancelar la sesión')
-                const bodyMensaje = { estado: 'RECHAZADA' }
+                // PUT a MensajeConfirmacion SOLO con el campo estado numérico
+                const bodyMensaje = { estado: ESTADO_RECHAZADA }
                 const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(bodyMensaje)
                 })
                 if (!resMsg.ok) throw new Error('Error al actualizar el estado del mensaje')
-                mensaje.estado = 'cancelado' 
             } catch (error) {
                 this.error = 'No se pudo cancelar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error

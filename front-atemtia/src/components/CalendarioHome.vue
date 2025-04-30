@@ -158,7 +158,7 @@ const formatFecha = (fechaStr?: string) => {
 
 function estadoSesionTexto(estado: number | undefined) {
   switch (estado) {
-    case EstadoSesion.PENDIENTE: return 'Pendiente'
+    case EstadoSesion.PENDIENTE: return 'Pendiente de confirmación'
     case EstadoSesion.CONFIRMADA: return 'Confirmada'
     case EstadoSesion.CANCELADA: return 'Cancelada'
     default: return estado ?? ''
