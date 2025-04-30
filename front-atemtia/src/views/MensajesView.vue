@@ -256,6 +256,8 @@ const formatearFecha = (fechaStr: string) => {
   }
 
   .reserva-card {
+  display: flex;
+  flex-wrap: wrap ;
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
