@@ -148,18 +148,18 @@ const formatearFecha = (fechaStr: string) => {
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
       <div v-for="mensaje in mensajesFiltrados" :key="mensaje.id" class="reserva-card">
         <p>
-          <strong>Usuarios:</strong>
+          <strong class="titulo-info">Usuarios:</strong>
           <span v-if="mensaje.usuariosNombres && mensaje.usuariosNombres.length">
             {{ mensaje.usuariosNombres.join(', ') }}
           </span>
           <span v-else>No disponible</span>
         </p>
-        <p><strong>Tutor:</strong> {{ mensaje.tutorNombre || 'No disponible' }}</p>
-        <p><strong>Servicio:</strong> {{ mensaje.servicioNombre || 'No disponible' }}</p>
-        <p><strong>Fecha envío:</strong> {{ formatearFecha(mensaje.fechaEnvio) }}</p>
-        <p><strong>Fecha original:</strong> {{ formatearFecha(mensaje.fechaOriginal ?? '') }}</p>
-        <p><strong>Fecha solicitada:</strong> {{ formatearFecha(mensaje.fechaSolicitada) }}</p>
-        <p><strong>Mensaje:</strong> {{ mensaje.mensaje || 'Sin mensaje' }}</p>
+        <p><strong class="titulo-info">Tutor:</strong> {{ mensaje.tutorNombre || 'No disponible' }}</p>
+        <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre || 'No disponible' }}</p>
+        <p><strong class="titulo-info">Fecha envío:</strong> {{ formatearFecha(mensaje.fechaEnvio) }}</p>
+        <p><strong class="titulo-info">Fecha original:</strong> {{ formatearFecha(mensaje.fechaOriginal ?? '') }}</p>
+        <p><strong class="titulo-info">Fecha solicitada:</strong> {{ formatearFecha(mensaje.fechaSolicitada) }}</p>
+        <p><strong class="titulo-info">Mensaje:</strong> {{ mensaje.mensaje || 'Sin mensaje' }}</p>
 
         <div v-if="getEstadoMensaje(mensaje.id) === 'aceptado'" class="estado aceptado">
           <span class="icono">✓</span> FECHA CAMBIADA
@@ -167,7 +167,6 @@ const formatearFecha = (fechaStr: string) => {
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'cancelado'" class="estado cancelado">
           <span class="icono">✗</span> FECHA CANCELADA
         </div>
-        <!-- SOLO PARA TUTOR -->
         <div
           v-else-if="getEstadoMensaje(mensaje.id) === 'pendiente' && authStore.rol && authStore.rol.toUpperCase() === 'TUTOR'"
           class="estado pendiente">
@@ -198,6 +197,7 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
+
 
 
 
@@ -243,13 +243,14 @@ const formatearFecha = (fechaStr: string) => {
     margin-bottom: 2rem;
 
     .sesion-list {
+      margin-left: 22px;
       display: flex;
       align-items: center;
       gap: 1rem;
 
       label {
         font-weight: 600;
-        color: $color-principal;
+        color: $color-titulos;
       }
 
       select {
@@ -289,26 +290,17 @@ const formatearFecha = (fechaStr: string) => {
       transform: translateY(-2px);
     }
 
-    &__titulo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: $color-secundario;
-      margin-bottom: 0.7rem;
+    p {
+      margin: 0 0 0.3rem 0;
+      color: #222;
+      font-size: 1rem;
+      line-height: 1.5;
     }
 
-    &__info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-
-      p {
-        margin: 0;
-        color: #333;
-
-        strong {
-          color: $color-titulos;
-        }
-      }
+    .titulo-info {
+      color: $color-titulos; 
+      font-weight: 700;
+      margin-right: 4px;
     }
 
     .estado {
@@ -334,9 +326,22 @@ const formatearFecha = (fechaStr: string) => {
         border: 2px solid #c62828;
       }
 
-      
-
-
+      &.pendiente {
+        background: #fffde7;
+        color: #fbc02d;
+        border: 2px solid #fbc02d;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+        width: 100%;
+        box-sizing: border-box;
+        gap: 0.5rem;
+        font-size: 1.05rem;
+      }
 
       &.error {
         background: #fff3e0;
@@ -405,22 +410,6 @@ const formatearFecha = (fechaStr: string) => {
       }
     }
   }
-  .estado.pendiente {
-        background: #fffde7; 
-        color: #fbc02d; 
-        border: 2px solid #fbc02d;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: 8px;
-        width: 100%; 
-        box-sizing: border-box;
-        gap: 0.5rem;
-        font-size: 1.05rem;
-      }
 
   .mensaje {
     text-align: center;
