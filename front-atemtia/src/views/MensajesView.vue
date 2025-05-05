@@ -181,7 +181,7 @@ const formatearFecha = (fechaStr: string) => {
 
 
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 
 .reservas {
@@ -394,7 +394,7 @@ const formatearFecha = (fechaStr: string) => {
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .reservas {
     padding: 1rem;
 
