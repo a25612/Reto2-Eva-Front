@@ -120,6 +120,7 @@ const formatearFecha = (fechaStr: string) => {
 }
 </script>
 
+
 <template>
   <div class="reservas">
     <router-link to="/home-app-atemtia" class="volver-atras">
@@ -166,6 +167,12 @@ const formatearFecha = (fechaStr: string) => {
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'cancelado'" class="estado cancelado">
           <span class="icono">✗</span> FECHA CANCELADA
         </div>
+        <!-- SOLO PARA TUTOR -->
+        <div
+          v-else-if="getEstadoMensaje(mensaje.id) === 'pendiente' && authStore.rol && authStore.rol.toUpperCase() === 'TUTOR'"
+          class="estado pendiente">
+          <span class="icono">⏳</span> PENDIENTE DE CONFIRMAR
+        </div>
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'error'" class="estado error">
           <span class="icono">!</span> ERROR AL PROCESAR
           <button @click="resetEstadoMensaje(mensaje.id)" class="btn-reset">
@@ -191,6 +198,7 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
+
 
 
 <style scoped lang="scss">
@@ -326,6 +334,10 @@ const formatearFecha = (fechaStr: string) => {
         border: 2px solid #c62828;
       }
 
+      
+
+
+
       &.error {
         background: #fff3e0;
         color: #e65100;
@@ -393,6 +405,22 @@ const formatearFecha = (fechaStr: string) => {
       }
     }
   }
+  .estado.pendiente {
+        background: #fffde7; 
+        color: #fbc02d; 
+        border: 2px solid #fbc02d;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+        width: 100%; 
+        box-sizing: border-box;
+        gap: 0.5rem;
+        font-size: 1.05rem;
+      }
 
   .mensaje {
     text-align: center;
