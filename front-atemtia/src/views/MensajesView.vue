@@ -193,10 +193,6 @@ const formatearFecha = (fechaStr: string) => {
 </template>
 
 
-
-
-
-
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 
@@ -266,30 +262,44 @@ const formatearFecha = (fechaStr: string) => {
 
   &__lista {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
     gap: 1.5rem;
     padding: 1rem;
   }
 
   .reserva-card {
-  display: flex;
-  flex-wrap: wrap ;
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
     &:hover {
       transform: translateY(-2px);
     }
 
-    p {
-      margin: 0.5rem 0;
-      color: #333;
+    &__titulo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $color-secundario;
+      margin-bottom: 0.7rem;
+    }
 
-      strong {
-        color: $color-titulos;
+    &__info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+
+      p {
+        margin: 0;
+        color: #333;
+
+        strong {
+          color: $color-titulos;
+        }
       }
     }
 
@@ -410,17 +420,13 @@ const formatearFecha = (fechaStr: string) => {
   }
 }
 
-@media (min-width: 768px) {
-  .reservas {
+@media (max-width: 768px) {
+  .reservas__lista {
+    grid-template-columns: 1fr;
+  }
+
+  .reserva-card {
     padding: 1rem;
-
-    &__lista {
-      grid-template-columns: 1fr;
-    }
-
-    .reserva-card {
-      padding: 1rem;
-    }
   }
 }
 </style>
