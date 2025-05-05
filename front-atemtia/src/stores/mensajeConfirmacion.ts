@@ -8,7 +8,7 @@ export interface MensajeConfirmacionAdaptado {
     mensaje: string
     fechaEnvio: string
     fechaSolicitada: string
-    usuarioNombre: string
+    usuariosNombres: string[]
     tutorNombre: string
     servicioNombre: string
     sesionId: number
@@ -22,7 +22,7 @@ const ESTADO_ACEPTADA = 1
 const ESTADO_RECHAZADA = 2
 
 export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
-    state: () => ({ 
+    state: () => ({
         mensajes: [] as MensajeConfirmacionAdaptado[],
         cargando: false,
         error: null as string | null,
@@ -43,7 +43,11 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     mensaje: m.mensaje,
                     fechaEnvio: m.fechaMensaje,
                     fechaSolicitada: m.fechaSolicitada,
-                    usuarioNombre: m.sesion?.usuario?.nombre ?? '',
+                    usuariosNombres: Array.isArray(m.sesion?.usuarios)
+                        ? m.sesion.usuarios.map((u: any) => u.nombre)
+                        : m.sesion?.usuario
+                            ? [m.sesion.usuario.nombre]
+                            : [],
                     tutorNombre: m.sesion?.tutor?.nombre ?? '',
                     servicioNombre: m.sesion?.servicio?.nombre ?? '',
                     sesionId: m.id_Sesion,
@@ -61,14 +65,52 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 this.cargando = false
             }
         },
+        // MÉTODO CORRECTO PARA TUTOR
+        async cargarMensajesPorTutor(tutorId: number) { // <--- recibe el id
+            this.cargando = true
+            this.error = null
+            try {
+                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/tutor/${tutorId}`)
+                if (!res.ok) throw new Error('Error al cargar los mensajes para tutor')
+                const data = await res.json()
+                this.mensajes = data.map((m: any) => ({
+                    id: m.id,
+                    id_Sesion: m.id_Sesion,
+                    id_Empleado: m.id_Empleado,
+                    tipo: m.tipo,
+                    mensaje: m.mensaje,
+                    fechaEnvio: m.fechaMensaje,
+                    fechaSolicitada: m.fechaSolicitada,
+                    usuariosNombres: Array.isArray(m.sesion?.usuarios)
+                        ? m.sesion.usuarios.map((u: any) => u.nombre)
+                        : m.sesion?.usuario
+                            ? [m.sesion.usuario.nombre]
+                            : [],
+                    tutorNombre: m.sesion?.tutor?.nombre ?? '',
+                    servicioNombre: m.sesion?.servicio?.nombre ?? '',
+                    sesionId: m.id_Sesion,
+                    estado: m.estado === ESTADO_PENDIENTE
+                        ? 'pendiente'
+                        : m.estado === ESTADO_ACEPTADA
+                        ? 'aceptado'
+                        : 'cancelado',
+                    fechaOriginal: m.sesion?.fecha
+                }))
+                this.mensajes.sort((a, b) => new Date(b.fechaEnvio).getTime() - new Date(a.fechaEnvio).getTime())
+            } catch (err: any) {
+                this.error = 'Error al cargar los mensajes para tutor'
+            } finally {
+                this.cargando = false
+            }
+        },
         async aceptarMovimiento(mensajeId: number) {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
-                // PUT a Sesion (si tu backend lo necesita)
+
                 const bodySesion = {
                     fecha: mensaje.fechaSolicitada,
-                    estado: 1 
+                    estado: 1
                 }
                 const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
@@ -76,7 +118,7 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al actualizar la sesión')
-                // PUT a MensajeConfirmacion SOLO con el campo estado numérico
+
                 const bodyMensaje = { estado: ESTADO_ACEPTADA }
                 const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
                     method: 'PUT',
@@ -93,10 +135,10 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
             try {
                 const mensaje = this.mensajes.find(m => m.id === mensajeId)
                 if (!mensaje) throw new Error('Mensaje no encontrado')
-                // PUT a Sesion (si tu backend lo necesita)
+
                 const bodySesion = {
                     fecha: mensaje.fechaOriginal ?? mensaje.fechaSolicitada,
-                    estado: 1 
+                    estado: 1
                 }
                 const res = await fetch(`https://localhost:7163/api/Sesion/${mensaje.sesionId}`, {
                     method: 'PUT',
@@ -104,7 +146,7 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                     body: JSON.stringify(bodySesion)
                 })
                 if (!res.ok) throw new Error('Error al cancelar la sesión')
-                // PUT a MensajeConfirmacion SOLO con el campo estado numérico
+
                 const bodyMensaje = { estado: ESTADO_RECHAZADA }
                 const resMsg = await fetch(`https://localhost:7163/api/MensajeConfirmacion/${mensaje.id}`, {
                     method: 'PUT',
@@ -116,6 +158,6 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 this.error = 'No se pudo cancelar la solicitud. Por favor, inténtalo de nuevo.'
                 throw error
             }
-        }        
+        }
     }
 })

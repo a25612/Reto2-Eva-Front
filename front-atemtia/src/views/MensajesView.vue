@@ -31,9 +31,11 @@ const retryLastAction = async () => {
 }
 
 onMounted(async () => {
-  const empleadoId = authStore.userId
-  if (empleadoId) {
-    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId))
+  const userId = authStore.userId
+  if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR' && userId) {
+    await mensajeStore.cargarMensajesPorTutor(Number(userId))
+  } else if (userId) {
+    await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
   }
 })
 
@@ -59,14 +61,18 @@ const meses = [
 
 const handleAceptarSolicitud = async (mensajeId: number) => {
   if (getEstadoMensaje(mensajeId) === 'procesando') return
-  const empleadoId = authStore.userId
-  if (!empleadoId) return
+  const userId = authStore.userId
+  if (!userId) return
   lastAction.value = { type: 'aceptar', id: mensajeId }
   estadosMensajes.value.set(mensajeId, 'procesando')
   try {
     await mensajeStore.aceptarMovimiento(mensajeId)
-    estadosMensajes.value.set(mensajeId, 'aceptado') // feedback inmediato
-    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId)) // sincroniza con backend
+    estadosMensajes.value.set(mensajeId, 'aceptado')
+    if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR') {
+      await mensajeStore.cargarMensajesPorTutor(Number(userId))
+    } else {
+      await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
+    }
     mensajeStore.error = null
   } catch (error) {
     estadosMensajes.value.set(mensajeId, 'error')
@@ -76,14 +82,18 @@ const handleAceptarSolicitud = async (mensajeId: number) => {
 
 const handleCancelarSolicitud = async (mensajeId: number) => {
   if (getEstadoMensaje(mensajeId) === 'procesando') return
-  const empleadoId = authStore.userId
-  if (!empleadoId) return
+  const userId = authStore.userId
+  if (!userId) return
   lastAction.value = { type: 'cancelar', id: mensajeId }
   estadosMensajes.value.set(mensajeId, 'procesando')
   try {
     await mensajeStore.cancelarMovimiento(mensajeId)
-    estadosMensajes.value.set(mensajeId, 'cancelado') // feedback inmediato
-    await mensajeStore.cargarMensajesPorEmpleado(Number(empleadoId)) // sincroniza con backend
+    estadosMensajes.value.set(mensajeId, 'cancelado')
+    if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR') {
+      await mensajeStore.cargarMensajesPorTutor(Number(userId))
+    } else {
+      await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
+    }
     mensajeStore.error = null
   } catch (error) {
     estadosMensajes.value.set(mensajeId, 'error')
@@ -136,7 +146,13 @@ const formatearFecha = (fechaStr: string) => {
 
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
       <div v-for="mensaje in mensajesFiltrados" :key="mensaje.id" class="reserva-card">
-        <p><strong>Usuario:</strong> {{ mensaje.usuarioNombre || 'No disponible' }}</p>
+        <p>
+          <strong>Usuarios:</strong>
+          <span v-if="mensaje.usuariosNombres && mensaje.usuariosNombres.length">
+            {{ mensaje.usuariosNombres.join(', ') }}
+          </span>
+          <span v-else>No disponible</span>
+        </p>
         <p><strong>Tutor:</strong> {{ mensaje.tutorNombre || 'No disponible' }}</p>
         <p><strong>Servicio:</strong> {{ mensaje.servicioNombre || 'No disponible' }}</p>
         <p><strong>Fecha envío:</strong> {{ formatearFecha(mensaje.fechaEnvio) }}</p>
@@ -168,8 +184,6 @@ const formatearFecha = (fechaStr: string) => {
             Cancelar
           </button>
         </div>
-
-        <!-- Si es TUTOR y el mensaje está pendiente, no se muestra nada -->
       </div>
     </div>
     <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
@@ -177,6 +191,8 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
+
+
 
 
 
