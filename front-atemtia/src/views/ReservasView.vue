@@ -127,6 +127,7 @@ function formatearFechaSinSegundos(fechaStr: string) {
     align-items: center;
     gap: 10px;
     margin-bottom: 0;
+    
   }
 
   .sesion-list label {
@@ -137,6 +138,7 @@ function formatearFechaSinSegundos(fechaStr: string) {
     margin-right: 5px;
     margin-bottom: 0;
     white-space: nowrap;
+    margin-left: 15px;
   }
 
   .sesion-list select {
