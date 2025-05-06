@@ -16,10 +16,6 @@ const getEstadoMensaje = (id: number) => {
   return estadosMensajes.value.get(id) || mensaje?.estado || 'pendiente'
 }
 
-const resetEstadoMensaje = (id: number) => {
-  estadosMensajes.value.delete(id)
-}
-
 const retryLastAction = async () => {
   if (!lastAction.value) return
   const { type, id } = lastAction.value
@@ -174,9 +170,6 @@ const formatearFecha = (fechaStr: string) => {
         </div>
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'error'" class="estado error">
           <span class="icono">!</span> ERROR AL PROCESAR
-          <button @click="resetEstadoMensaje(mensaje.id)" class="btn-reset">
-            Reintentar
-          </button>
         </div>
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'procesando'" class="estado procesando">
           Procesando...
