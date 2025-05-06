@@ -121,6 +121,13 @@ const solicitarMoverSesion = async () => {
   motivo.value = ''
 }
 
+// NUEVA FUNCIÓN PARA CANCELAR Y CERRAR EL MODAL
+const cancelarYCerrar = async () => {
+  if (!selectedSesion.value) return
+  await calendarioStore.cancelarSesion(selectedSesion.value.id)
+  closeModal()
+}
+
 const getColorForService = (serviceName: string) => {
   const colors: { [key: string]: string } = {
     'matronatación': '#B5E3FF',
@@ -220,7 +227,6 @@ function estadoSesionTexto(estado: number | undefined) {
           <strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}
         </p>
         <div class="botones-modal">
-
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="
             showDatePicker = true;
             newDate = getFechaInputValue(selectedSesion?.fecha);
@@ -252,8 +258,10 @@ function estadoSesionTexto(estado: number | undefined) {
             :disabled="!newDate || !motivo" @click="solicitarMoverSesion">
             Solicitar cambio
           </button>
+
+          <!-- BOTÓN CANCELAR QUE HACE PUT Y CIERRA EL MODAL -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar"
-            @click="calendarioStore.cancelarSesion(selectedSesion?.id)">
+            @click="cancelarYCerrar">
             Cancelar
           </button>
           <button class="cerrar" @click="closeModal">Cerrar</button>
@@ -262,6 +270,7 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
