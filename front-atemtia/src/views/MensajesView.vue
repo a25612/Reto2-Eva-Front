@@ -101,7 +101,7 @@ const formatearFecha = (fechaStr: string) => {
   if (!fechaStr) return 'Fecha no disponible'
   try {
     let fechaIso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T')
-    
+    // Si no tiene Z ni offset, añade Z para forzar UTC
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(fechaIso) && !/Z|[+\-]\d{2}:?\d{2}$/.test(fechaIso)) {
       fechaIso += 'Z'
     }

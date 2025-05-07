@@ -31,6 +31,7 @@ const cerrarSesionHandler = () => {
             Inicio
           </a>
         </li>
+
         <li>
           <router-link to="/home-app-atemtia/mi-cuenta" class="menu-izquierda-link">
             <i class="fa-solid fa-user"></i>
@@ -43,9 +44,9 @@ const cerrarSesionHandler = () => {
             Administración
           </router-link>
         </li>
-        <!-- Botón cerrar sesión SIEMPRE ABAJO -->
-        <li class="cerrar-sesion-bottom">
-          <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion">
+        <li>
+          <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion"
+            :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '555px' : '0' }">
             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
@@ -55,101 +56,8 @@ const cerrarSesionHandler = () => {
 </template>
 
 
-
-
 <style lang="scss">
 @import '../assets/styles/variables.scss';
-
-.desplegable-izquierda {
-  position: relative;
-
-  .nav-tutor,
-  .nav-empleado,
-  .nav-izquierda {
-    font-family: $fuente-principal;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 43%;
-    height: 100vh;
-    background: $color-secundario;
-    box-shadow: 2px 0 8px $color-principal;
-    z-index: 2000;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem 0 0 0;
-  }
-
-  .nav-izquierda-menu {
-    list-style: none;
-    padding: 0 0.5rem 0 0.5rem;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    overflow-y: auto;
-  }
-
-  .nav-izquierda-menu li {
-    margin: 1rem 0;
-  }
-
-  .menu-izquierda-link,
-  .menu-izquierda-link-cerrar-sesion {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: $color-fondo;
-    background: none;
-    border: none;
-    font: inherit;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-
-    i {
-      margin-right: 15px;
-      font-size: 1.2rem;
-    }
-
-    &:hover {
-      color: #dedfe1;
-    }
-  }
-
-  .cerrar-sesion-bottom {
-    margin-top: auto !important;
-    padding-bottom: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .desplegable-izquierda {
-    .nav-tutor,
-    .nav-empleado,
-    .nav-izquierda {
-      width: 70vw;
-      min-width: 220px;
-      max-width: 100vw;
-    }
-    .nav-izquierda-menu {
-      padding-bottom: 2rem;
-    }
-  }
-}
-
-@media (min-width: 769px) {
-  .desplegable-izquierda {
-    .nav-tutor,
-    .nav-empleado,
-    .nav-izquierda {
-      width: 18vw;
-      min-width: 180px;
-      max-width: 340px;
-    }
-  }
-}
 
 .btn-menudesplegable {
   position: fixed;
@@ -165,6 +73,12 @@ const cerrarSesionHandler = () => {
   padding: 1rem;
   transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .bar-izquierda {
     display: block;
     width: 25px;
@@ -172,6 +86,160 @@ const cerrarSesionHandler = () => {
     background: $color-secundario;
     border-radius: 2px;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+
+    &:nth-child(1) {
+      transform-origin: top left;
+    }
+
+    &:nth-child(2) {
+      transform-origin: center;
+    }
+
+    &:nth-child(3) {
+      transform-origin: bottom left;
+    }
+  }
+}
+
+.desplegable-izquierda {
+  position: relative;
+
+  .nav-tutor {
+    font-family: $fuente-principal;
+    position: fixed;
+    top: 1px;
+    left: -44%;
+    width: 43%;
+    height: 100%;
+    margin-top: 101px;
+    background: $color-secundario;
+    box-shadow: 2px 0 8px $color-principal;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .nav-empleado {
+    font-family: $fuente-principal;
+    position: fixed;
+    top: 1px;
+    left: -44%;
+    width: 43%;
+    height: 100%;
+    margin-top: 101px;
+    background: $color-secundario;
+    box-shadow: 2px 0 8px $color-principal;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .nav-izquierda {
+    &-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        margin: 1rem 0;
+
+        .menu-izquierda-link-cerrar-sesion {
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+          color: $color-fondo;
+
+          i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+          }
+
+          &:hover {
+            color: #dedfe1;
+          }
+        }
+
+        .menu-izquierda-link {
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+          color: $color-fondo;
+
+          i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+          }
+
+          &:hover {
+            color: #dedfe1;
+          }
+        }
+      }
+    }
+
+    &.active {
+      left: 0;
+      margin-top: 101px;
+    }
+  }
+
+  &.active {
+    .btn-menudesplegable {
+      left: 31%;
+    }
+  }
+
+  .btn-menudesplegable {
+    .bar-izquierda {
+      &.active {
+        &:nth-child(1) {
+          transform: rotate(45deg) translate(4px, 4px);
+        }
+
+        &:nth-child(2) {
+          opacity: 0;
+        }
+
+        &:nth-child(3) {
+          transform: rotate(-45deg) translate(4px, -4px);
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .desplegable-izquierda {
+    .nav-izquierda {
+      width: 9%;
+      right: 0;
+      left: 0;
+      position: fixed;
+      margin-top: 80px;
+    }
+
+    &.active {
+      .btn-menudesplegable {
+        left: 19%;
+      }
+    }
+  }
+
+  .btn-menudesplegable {
+    display: none;
+  }
+
+  .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
+    margin-top: 640px !important;
+
+  }
+
+  .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
+    margin-top: 685px !important;
   }
 }
 </style>
