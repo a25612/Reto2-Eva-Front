@@ -173,6 +173,7 @@ function irHome() {
   color: $color-principal;
 
   p {
+
     margin: 0;
     font-style: italic;
   }
@@ -208,7 +209,9 @@ function irHome() {
 }
 
 .servicios-seccion {
+  font-family: $fuente-principal;
   h2 {
+    
     color: $color-titulos;
     margin-bottom: 25px;
     font-weight: 600;
@@ -231,12 +234,14 @@ function irHome() {
 }
 
 .servicios-grid {
+  font-family: $fuente-principal;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 25px;
 }
 
 .servicio-card {
+  font-family: $fuente-principal;
   background-color: $color-fondo;
   border-radius: 10px;
   padding: 25px;
@@ -249,6 +254,7 @@ function irHome() {
   }
 
   .descripcion {
+
     font-size: 1.1rem;
     color: #666;
     margin-bottom: 15px;
@@ -284,22 +290,6 @@ function irHome() {
         font-weight: bold;
         color: $color-principal;
       }
-
-      .btn-reservar {
-        background-color: $color-secundario;
-        color: white;
-        border: none;
-        padding: 8px 11px;
-        cursor: pointer;
-        border-radius: 5px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        font-size: 0.8rem;
-
-        &:hover {
-          background-color: $color-principal;
-        }
-      }
     }
   }
 }
@@ -312,87 +302,6 @@ function irHome() {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.modal-content {
-  border-radius: 8px;
-  background: $color-fondo;
-  padding: 30px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  font-family: $fuente-principal;
-
-  h2 {
-    color: $color-titulos;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-  }
-
-  p {
-    color: #444;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-
-    li {
-      font-size: 1rem;
-      color: #333;
-      margin-bottom: 8px;
-    }
-
-    strong {
-      color: $color-principal;
-    }
-  }
-
-  button {
-    background-color: $color-secundario;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-
-    &:hover {
-      background-color: darken($color-boton, 10%);
-      transform: scale(1.05);
-    }
-  }
-
-  .modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    margin-top: 10px;
-  }
-
-  .boton-si,
-  .boton-no {
-    background-color: $color-secundario;
-    border: none;
-    padding: 10px 15px;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #5e9422;
-    }
-  }
-
-  .boton-no {
-    background-color: rgb(194, 15, 15);
-
-    &:hover {
-      background-color: darken(#ddd, 10%);
-    }
-  }
 
   @media (max-width: 768px) {
     .servicios-grid {
@@ -412,5 +321,5 @@ function irHome() {
       width: 100%;
     }
   }
-}
+
 </style>

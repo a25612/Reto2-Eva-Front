@@ -100,7 +100,11 @@ const handleCancelarSolicitud = async (mensajeId: number) => {
 const formatearFecha = (fechaStr: string) => {
   if (!fechaStr) return 'Fecha no disponible'
   try {
-    const fechaIso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T')
+    let fechaIso = fechaStr.includes('T') ? fechaStr : fechaStr.replace(' ', 'T')
+    // Si no tiene Z ni offset, añade Z para forzar UTC
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(fechaIso) && !/Z|[+\-]\d{2}:?\d{2}$/.test(fechaIso)) {
+      fechaIso += 'Z'
+    }
     const fecha = new Date(fechaIso)
     if (isNaN(fecha.getTime())) return 'Fecha no disponible'
     return fecha.toLocaleString('es-ES', {
@@ -108,14 +112,15 @@ const formatearFecha = (fechaStr: string) => {
       month: 'long',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Europe/Madrid'
     })
   } catch {
     return 'Fecha no disponible'
   }
 }
-</script>
 
+</script>
 
 <template>
   <div class="reservas">
@@ -191,6 +196,7 @@ const formatearFecha = (fechaStr: string) => {
     </div>
   </div>
 </template>
+
 
 
 

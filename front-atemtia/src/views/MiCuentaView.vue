@@ -101,8 +101,6 @@ const cerrarSesion = () => {
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
-@import '../assets/styles/variables.scss';
-
 .mi-cuenta {
   font-family: $fuente-principal;
   display: flex;

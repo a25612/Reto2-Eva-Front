@@ -65,8 +65,7 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 this.cargando = false
             }
         },
-        // MÉTODO CORRECTO PARA TUTOR
-        async cargarMensajesPorTutor(tutorId: number) { // <--- recibe el id
+        async cargarMensajesPorTutor(tutorId: number) {
             this.cargando = true
             this.error = null
             try {
