@@ -166,8 +166,9 @@ const formatearFecha = (fechaStr: string) => {
         <div
           v-else-if="getEstadoMensaje(mensaje.id) === 'pendiente' && authStore.rol && authStore.rol.toUpperCase() === 'TUTOR'"
           class="estado pendiente">
-          <span class="icono">⏳</span> PENDIENTE DE CONFIRMAR
+          <span class="icono spin-clockwise">⏳</span> PENDIENTE DE CONFIRMAR
         </div>
+
         <div v-else-if="getEstadoMensaje(mensaje.id) === 'error'" class="estado error">
           <span class="icono">!</span> ERROR AL PROCESAR
         </div>
@@ -291,7 +292,7 @@ const formatearFecha = (fechaStr: string) => {
     }
 
     .titulo-info {
-      color: $color-titulos; 
+      color: $color-titulos;
       font-weight: 700;
       margin-right: 4px;
     }
@@ -429,6 +430,22 @@ const formatearFecha = (fechaStr: string) => {
     }
   }
 }
+
+@keyframes spinClockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.spin-clockwise {
+  display: inline-block;
+  animation: spinClockwise 3.5s linear infinite;
+}
+
 
 @media (max-width: 768px) {
   .reservas__lista {

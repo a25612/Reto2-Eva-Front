@@ -88,10 +88,39 @@ const closeModal = () => {
 
 const showDatePicker = ref(false)
 const newDate = ref('')
-
 const motivo = ref('')
 
-const getFechaInputValue = (fechaStr?: string) => {
+// Confirm modals
+const showConfirmCambio = ref(false)
+const showConfirmCancelar = ref(false)
+
+// Alert modal (replaces alert())
+const showAlertModal = ref(false)
+const alertMessage = ref('')
+const alertCallback = ref<null | (() => void)>(null)
+function openAlert(message: string, callback?: () => void) {
+  alertMessage.value = message
+  showAlertModal.value = true
+  alertCallback.value = callback || null
+}
+function closeAlert() {
+  showAlertModal.value = false
+  if (alertCallback.value) {
+    alertCallback.value()
+    alertCallback.value = null
+  }
+}
+
+// --- NUEVA FUNCIÓN ---
+function esSesionPasada(sesion: any): boolean {
+  if (!sesion?.fecha) return false
+  const fechaSesion = new Date(sesion.fecha)
+  const ahora = new Date()
+  return fechaSesion < ahora
+}
+
+// --- FUNCIÓN SOLICITADA ---
+function getFechaInputValue(fechaStr?: string): string {
   if (!fechaStr) return ''
   const fecha = new Date(fechaStr)
   const yyyy = fecha.getFullYear()
@@ -103,28 +132,50 @@ const getFechaInputValue = (fechaStr?: string) => {
 }
 
 const solicitarMoverSesion = async () => {
+  showConfirmCambio.value = true
+}
+
+const confirmarMoverSesion = async () => {
   if (!newDate.value || !motivo.value || !selectedSesion.value) return
 
   const nuevaFecha = new Date(newDate.value)
   const fechaReservaActual = new Date(selectedSesion.value.fecha)
 
   if (nuevaFecha < fechaReservaActual) {
-    alert('No puedes seleccionar una fecha anterior a la reserva actual.')
+    showConfirmCambio.value = false
+    openAlert('No puedes seleccionar una fecha anterior a la reserva actual.')
+    return
+  }
+  if (esSesionPasada(selectedSesion.value)) {
+    showConfirmCambio.value = false
+    openAlert('No se puede mover una sesión pasada.')
     return
   }
 
   await calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value, motivo.value)
-  alert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.')
-  showDatePicker.value = false
-  showModal.value = false
-  newDate.value = ''
-  motivo.value = ''
+  showConfirmCambio.value = false
+
+  openAlert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.', () => {
+    showDatePicker.value = false
+    showModal.value = false
+    newDate.value = ''
+    motivo.value = ''
+  })
 }
 
-// NUEVA FUNCIÓN PARA CANCELAR Y CERRAR EL MODAL
 const cancelarYCerrar = async () => {
+  showConfirmCancelar.value = true
+}
+
+const confirmarCancelarSesion = async () => {
   if (!selectedSesion.value) return
+  if (esSesionPasada(selectedSesion.value)) {
+    showConfirmCancelar.value = false
+    openAlert('No se puede cancelar una sesión pasada.')
+    return
+  }
   await calendarioStore.cancelarSesion(selectedSesion.value.id)
+  showConfirmCancelar.value = false
   closeModal()
 }
 
@@ -173,6 +224,8 @@ function estadoSesionTexto(estado: number | undefined) {
 }
 </script>
 
+
+
 <template>
   <div class="app">
     <div class="calendar container">
@@ -200,23 +253,15 @@ function estadoSesionTexto(estado: number | undefined) {
                 {{ cell }}
               </span>
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
-                <li
-                  v-for="(sesion, index) in sesionesPorDia(cell)"
-                  :key="index"
-                  class="sesion-item"
-                  :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }"
-                  @click="openModal(sesion)"
+                <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
+                  :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }" @click="openModal(sesion)"
                   :style="sesion.estado === EstadoSesion.CANCELADA
                     ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through', cursor: 'not-allowed' }
-                    : { backgroundColor: getColorForService(sesion.servicio?.nombre) }"
-                >
+                    : { backgroundColor: getColorForService(sesion.servicio?.nombre) }">
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
-                    <span
-                      v-if="sesion.usuario?.id"
-                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
-                      title="Identificador de usuario"
-                    ></span>
+                    <span v-if="sesion.usuario?.id" :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
+                      title="Identificador de usuario"></span>
                   </div>
                 </li>
               </ul>
@@ -226,6 +271,7 @@ function estadoSesionTexto(estado: number | undefined) {
       </table>
     </div>
 
+    <!-- MODAL PRINCIPAL -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <h2>Información de la Sesión</h2>
@@ -233,25 +279,26 @@ function estadoSesionTexto(estado: number | undefined) {
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
-        <!-- SOLO MOSTRAR ESTADO SI NO ESTÁ CONFIRMADA -->
         <p v-if="selectedSesion?.estado !== EstadoSesion.CONFIRMADA">
           <strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}
         </p>
+
         <div class="botones-modal">
-          <!-- Solo mostrar "Mover" si NO está cancelada -->
+          <!-- Botón Mover -->
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA"
-            class="mover"
-            @click="
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
+            class="mover" @click="
               showDatePicker = true;
-              newDate = getFechaInputValue(selectedSesion?.fecha);
-              motivo = '';
-            "
-          >
+            newDate = getFechaInputValue(selectedSesion?.fecha);
+            motivo = '';
+            ">
             Mover
           </button>
 
-          <div v-if="showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA" style="margin: 1rem 0; width: 100%;">
+          <!-- Inputs para mover solo si la sesión NO es pasada -->
+          <div
+            v-if="showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
+            style="margin: 1rem 0; width: 100%;">
             <label for="nueva-fecha">Selecciona la nueva fecha y hora:</label>
             <input id="nueva-fecha" type="datetime-local" v-model="newDate" style="margin-left: 8px;"
               :min="getFechaInputValue(selectedSesion?.fecha)" />
@@ -270,30 +317,64 @@ function estadoSesionTexto(estado: number | undefined) {
             </div>
           </div>
 
+          <!-- Botón Solicitar cambio -->
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA"
-            class="mover"
-            :disabled="!newDate || !motivo"
-            @click="solicitarMoverSesion"
-          >
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
+            class="mover" :disabled="!newDate || !motivo" @click="solicitarMoverSesion">
             Solicitar cambio
           </button>
 
-          <!-- Solo mostrar "Cancelar" si NO está cancelada -->
+          <!-- Botón Cancelar -->
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && selectedSesion?.estado !== EstadoSesion.CANCELADA"
-            class="cancelar"
-            @click="cancelarYCerrar"
-          >
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
+            class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
+
           <!-- El botón cerrar siempre aparece -->
           <button class="cerrar" @click="closeModal">Cerrar</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR SOLICITAR CAMBIO -->
+    <div v-if="showConfirmCambio" class="modal-overlay">
+      <div class="modal-content" @click.stop>
+        <h2>¿Seguro que quieres solicitar el cambio de fecha?</h2>
+        <p><strong>Nueva fecha:</strong> {{ formatFecha(newDate) }}</p>
+        <p><strong>Motivo:</strong> {{ motivo }}</p>
+        <div class="botones-modal">
+          <button class="mover" @click="confirmarMoverSesion">Sí, solicitar cambio</button>
+          <button class="cerrar" @click="showConfirmCambio = false">No, volver</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR CANCELAR SESIÓN -->
+    <div v-if="showConfirmCancelar" class="modal-overlay">
+      <div class="modal-content" @click.stop>
+        <h2>¿Seguro que quieres cancelar la sesión?</h2>
+        <div class="botones-modal">
+          <button class="cancelar" @click="confirmarCancelarSesion">Sí, cancelar sesión</button>
+          <button class="cerrar" @click="showConfirmCancelar = false">No, volver</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ALERTA PERSONALIZADO -->
+    <div v-if="showAlertModal" class="modal-overlay">
+      <div class="modal-content" @click.stop>
+        <h2>Atención</h2>
+        <p>{{ alertMessage }}</p>
+        <div class="botones-modal">
+          <button class="cerrar" @click="closeAlert">Aceptar</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
@@ -404,6 +485,7 @@ function estadoSesionTexto(estado: number | undefined) {
     margin-top: 10px;
     cursor: pointer;
   }
+
   .sesion-cancelada {
     background-color: #F2F2F2 !important;
     color: #999 !important;
@@ -416,27 +498,18 @@ function estadoSesionTexto(estado: number | undefined) {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999; 
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal-content {
-  position: relative; 
-  z-index: 10000; 
+  position: relative;
+  z-index: 10000;
   font-family: $fuente-principal;
   background: white;
   padding: 2rem;
@@ -515,7 +588,6 @@ function estadoSesionTexto(estado: number | undefined) {
     }
   }
 }
-
 
 .figura {
   display: inline-block;
@@ -602,13 +674,14 @@ function estadoSesionTexto(estado: number | undefined) {
   transform: translateY(-50%);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .modal-content {
-    padding: 1rem;
-    max-width: 95vw;
-    width: 98vw;
+    
+    max-width: 85vw;
+    width: 85vw;
     border-radius: 0;
     font-size: 0.95rem;
+    border-radius: 8px;
 
     h2 {
       font-size: 1.1rem;
