@@ -46,7 +46,7 @@ const cerrarSesionHandler = () => {
         </li>
         <li>
           <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion"
-            :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '555px' : '0' }">
+            :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '640px' : '0' }">
             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
@@ -234,7 +234,7 @@ const cerrarSesionHandler = () => {
   }
 
   .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
-    margin-top: 640px !important;
+    margin-top: 660px !important;
 
   }
 
