@@ -200,12 +200,23 @@ function estadoSesionTexto(estado: number | undefined) {
                 {{ cell }}
               </span>
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
-                <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
-                  @click="openModal(sesion)" :style="{ backgroundColor: getColorForService(sesion.servicio?.nombre) }">
+                <li
+                  v-for="(sesion, index) in sesionesPorDia(cell)"
+                  :key="index"
+                  class="sesion-item"
+                  :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }"
+                  @click="openModal(sesion)"
+                  :style="sesion.estado === EstadoSesion.CANCELADA
+                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through', cursor: 'not-allowed' }
+                    : { backgroundColor: getColorForService(sesion.servicio?.nombre) }"
+                >
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
-                    <span v-if="sesion.usuario?.id" :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
-                      title="Identificador de usuario"></span>
+                    <span
+                      v-if="sesion.usuario?.id"
+                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
+                      title="Identificador de usuario"
+                    ></span>
                   </div>
                 </li>
               </ul>
@@ -227,15 +238,20 @@ function estadoSesionTexto(estado: number | undefined) {
           <strong>Estado:</strong> {{ estadoSesionTexto(selectedSesion?.estado) }}
         </p>
         <div class="botones-modal">
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker" class="mover" @click="
-            showDatePicker = true;
-            newDate = getFechaInputValue(selectedSesion?.fecha);
-            motivo = '';
-          ">
+          <!-- Solo mostrar "Mover" si NO está cancelada -->
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA"
+            class="mover"
+            @click="
+              showDatePicker = true;
+              newDate = getFechaInputValue(selectedSesion?.fecha);
+              motivo = '';
+            "
+          >
             Mover
           </button>
 
-          <div v-if="showDatePicker" style="margin: 1rem 0; width: 100%;">
+          <div v-if="showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA" style="margin: 1rem 0; width: 100%;">
             <label for="nueva-fecha">Selecciona la nueva fecha y hora:</label>
             <input id="nueva-fecha" type="datetime-local" v-model="newDate" style="margin-left: 8px;"
               :min="getFechaInputValue(selectedSesion?.fecha)" />
@@ -254,23 +270,30 @@ function estadoSesionTexto(estado: number | undefined) {
             </div>
           </div>
 
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker" class="mover"
-            :disabled="!newDate || !motivo" @click="solicitarMoverSesion">
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA"
+            class="mover"
+            :disabled="!newDate || !motivo"
+            @click="solicitarMoverSesion"
+          >
             Solicitar cambio
           </button>
 
-          <!-- BOTÓN CANCELAR QUE HACE PUT Y CIERRA EL MODAL -->
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'" class="cancelar"
-            @click="cancelarYCerrar">
+          <!-- Solo mostrar "Cancelar" si NO está cancelada -->
+          <button
+            v-if="authStore.rol.toUpperCase() === 'TUTOR' && selectedSesion?.estado !== EstadoSesion.CANCELADA"
+            class="cancelar"
+            @click="cancelarYCerrar"
+          >
             Cancelar
           </button>
+          <!-- El botón cerrar siempre aparece -->
           <button class="cerrar" @click="closeModal">Cerrar</button>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
@@ -381,6 +404,12 @@ function estadoSesionTexto(estado: number | undefined) {
     margin-top: 10px;
     cursor: pointer;
   }
+  .sesion-cancelada {
+    background-color: #F2F2F2 !important;
+    color: #999 !important;
+    text-decoration: line-through;
+    cursor: not-allowed !important;
+  }
 }
 
 .modal-overlay {
@@ -395,7 +424,19 @@ function estadoSesionTexto(estado: number | undefined) {
   justify-content: center;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .modal-content {
+  position: relative; 
+  z-index: 10000; 
   font-family: $fuente-principal;
   background: white;
   padding: 2rem;
@@ -416,7 +457,6 @@ function estadoSesionTexto(estado: number | undefined) {
   }
 
   .botones-modal {
-
     justify-content: center;
     gap: 1rem;
     margin-top: 25px;
@@ -475,6 +515,7 @@ function estadoSesionTexto(estado: number | undefined) {
     }
   }
 }
+
 
 .figura {
   display: inline-block;
