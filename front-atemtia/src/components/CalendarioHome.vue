@@ -185,9 +185,19 @@ const confirmarMoverSesion = async () => {
   })
 }
 
+// CANCELAR SESIÓN: OCULTA TAMBIÉN EL FORMULARIO DE MOVER SI ESTÁ ABIERTO
 const cancelarYCerrar = () => {
   showMotivoCancelacion.value = true
   motivoCancelacion.value = ''
+  showDatePicker.value = false      // <- Esto oculta el formulario de mover si estaba abierto
+  newDate.value = ''
+  motivo.value = ''
+}
+
+const cancelarCambioDeHora = () => {
+  showDatePicker.value = false
+  newDate.value = ''
+  motivo.value = ''
 }
 
 const confirmarCancelarSesion = async () => {
@@ -298,10 +308,10 @@ function estadoSesionTexto(estado: number | undefined) {
       </table>
     </div>
 
-    <!-- MODAL PRINCIPAL -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <!-- MODAL PRINCIPAL -->
+      <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <h2>Información de la Sesión</h2>
+        <h2 style="color:#19b7e6;text-align:center;">Información de la Sesión</h2>
         <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
@@ -348,16 +358,19 @@ function estadoSesionTexto(estado: number | undefined) {
                 </select>
               </div>
             </div>
+            <div class="botones-modal" style="margin-top:1rem;">
+            
+              <button
+                class="mover"
+                :disabled="!newDate || !motivo"
+                @click="solicitarMoverSesion"
+                style="background: #ffb326; color: white; margin-left: 1rem;">
+                Solicitar cambio
+              </button>
+            </div>
           </div>
 
-          <!-- Botón Solicitar cambio -->
-          <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
-            class="mover" :disabled="!newDate || !motivo" @click="solicitarMoverSesion">
-            Solicitar cambio
-          </button>
-
-          <!-- Botón Cancelar -->
+          <!-- Botón Cancelar sesión -->
           <button
             v-if="authStore.rol.toUpperCase() === 'TUTOR'
                   && selectedSesion?.estado !== EstadoSesion.CANCELADA
@@ -386,6 +399,7 @@ function estadoSesionTexto(estado: number | undefined) {
         </div>
       </div>
     </div>
+    
 
     <!-- MODAL CONFIRMAR SOLICITAR CAMBIO -->
     <div v-if="showConfirmCambio" class="modal-overlay">
