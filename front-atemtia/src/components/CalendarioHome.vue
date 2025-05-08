@@ -256,7 +256,7 @@ function estadoSesionTexto(estado: number | undefined) {
                 <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
                   :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }" @click="openModal(sesion)"
                   :style="sesion.estado === EstadoSesion.CANCELADA
-                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through', cursor: 'not-allowed' }
+                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through', }
                     : { backgroundColor: getColorForService(sesion.servicio?.nombre) }">
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
@@ -487,10 +487,10 @@ function estadoSesionTexto(estado: number | undefined) {
   }
 
   .sesion-cancelada {
-    background-color: #F2F2F2 !important;
-    color: #999 !important;
+    background-color: #F2F2F2;
+    color: #999 ;
     text-decoration: line-through;
-    cursor: not-allowed !important;
+    
   }
 }
 
@@ -522,6 +522,7 @@ function estadoSesionTexto(estado: number | undefined) {
   h2 {
     margin-top: 0;
     font-size: 1.5rem;
+    color: $color-titulos;
   }
 
   p {

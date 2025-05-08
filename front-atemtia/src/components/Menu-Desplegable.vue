@@ -234,12 +234,12 @@ const cerrarSesionHandler = () => {
   }
 
   .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
-    margin-top: 660px !important;
+    margin-top: 660px;
 
   }
 
   .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
-    margin-top: 685px !important;
+    margin-top: 685px;
   }
 }
 </style>
