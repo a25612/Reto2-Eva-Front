@@ -2,13 +2,11 @@
 import { ref, onMounted, watch } from 'vue';
 import { useServiciosStore } from '../stores/servicios';
 import { storeToRefs } from 'pinia';
-import { useAuthStore } from '../stores/login';
 import BotonScrolltop from '../components/BotonScrolltop.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const serviciosStore = useServiciosStore();
-const authStore = useAuthStore();
 
 const {
   centros,
@@ -251,7 +249,6 @@ function irHome() {
   }
 
   .descripcion {
-
     font-size: 1.1rem;
     color: #666;
     margin-bottom: 15px;
