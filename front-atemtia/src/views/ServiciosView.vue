@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useServiciosStore } from '../stores/servicios';
-import { useSesionStore } from '../stores/sesion';
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '../stores/login';
 import BotonScrolltop from '../components/BotonScrolltop.vue';
@@ -9,9 +8,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const serviciosStore = useServiciosStore();
-const sesionStore = useSesionStore();
 const authStore = useAuthStore();
-const { rol } = storeToRefs(authStore);
 
 const {
   centros,

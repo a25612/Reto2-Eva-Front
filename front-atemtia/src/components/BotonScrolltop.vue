@@ -29,7 +29,7 @@ const { mostrarBotonScroll, scrollToTop } = useBotonScroll();
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
   opacity: 0;
   visibility: hidden;
 }
@@ -39,8 +39,7 @@ const { mostrarBotonScroll, scrollToTop } = useBotonScroll();
   visibility: visible;
 }
 
-.boton-scroll-top:active,
-.boton-scroll-top:focus {
+.boton-scroll-top:active {
   background-color: $color-boton;
 }
 </style>

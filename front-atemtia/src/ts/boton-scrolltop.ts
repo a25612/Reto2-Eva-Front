@@ -19,8 +19,5 @@ export function useBotonScroll() {
     window.removeEventListener("scroll", handleScroll);
   });
 
-  return {
-    mostrarBotonScroll,
-    scrollToTop,
-  };
+  return { mostrarBotonScroll, scrollToTop };
 }
