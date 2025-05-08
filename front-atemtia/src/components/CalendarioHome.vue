@@ -84,11 +84,17 @@ const closeModal = () => {
   showDatePicker.value = false
   newDate.value = ''
   motivo.value = ''
+  showMotivoCancelacion.value = false
+  motivoCancelacion.value = ''
 }
 
 const showDatePicker = ref(false)
 const newDate = ref('')
 const motivo = ref('')
+
+// Para motivo de cancelación
+const showMotivoCancelacion = ref(false)
+const motivoCancelacion = ref('')
 
 // Confirm modals
 const showConfirmCambio = ref(false)
@@ -111,7 +117,6 @@ function closeAlert() {
   }
 }
 
-// --- NUEVA FUNCIÓN ---
 function esSesionPasada(sesion: any): boolean {
   if (!sesion?.fecha) return false
   const fechaSesion = new Date(sesion.fecha)
@@ -119,7 +124,6 @@ function esSesionPasada(sesion: any): boolean {
   return fechaSesion < ahora
 }
 
-// --- FUNCIÓN SOLICITADA ---
 function getFechaInputValue(fechaStr?: string): string {
   if (!fechaStr) return ''
   const fecha = new Date(fechaStr)
@@ -133,6 +137,15 @@ function getFechaInputValue(fechaStr?: string): string {
 
 const solicitarMoverSesion = async () => {
   showConfirmCambio.value = true
+}
+
+function faltanMenosDeDosHoras(sesion: any): boolean {
+  if (!sesion?.fecha) return false
+  const fechaSesion = new Date(sesion.fecha)
+  const ahora = new Date()
+  const diffMs = fechaSesion.getTime() - ahora.getTime()
+  const diffHoras = diffMs / (1000 * 60 * 60)
+  return diffHoras < 2
 }
 
 const confirmarMoverSesion = async () => {
@@ -152,6 +165,15 @@ const confirmarMoverSesion = async () => {
     return
   }
 
+  const ahora = new Date()
+  const diffMs = fechaReservaActual.getTime() - ahora.getTime()
+  const diffHoras = diffMs / (1000 * 60 * 60)
+  if (diffHoras < 2) {
+    showConfirmCambio.value = false
+    openAlert('No se puede mover la sesión con menos de 2 horas de antelación.')
+    return
+  }
+
   await calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value, motivo.value)
   showConfirmCambio.value = false
 
@@ -163,19 +185,26 @@ const confirmarMoverSesion = async () => {
   })
 }
 
-const cancelarYCerrar = async () => {
-  showConfirmCancelar.value = true
+const cancelarYCerrar = () => {
+  showMotivoCancelacion.value = true
+  motivoCancelacion.value = ''
 }
 
 const confirmarCancelarSesion = async () => {
   if (!selectedSesion.value) return
   if (esSesionPasada(selectedSesion.value)) {
-    showConfirmCancelar.value = false
+    showMotivoCancelacion.value = false
     openAlert('No se puede cancelar una sesión pasada.')
     return
   }
-  await calendarioStore.cancelarSesion(selectedSesion.value.id)
-  showConfirmCancelar.value = false
+  if (!motivoCancelacion.value.trim()) {
+    openAlert('Por favor, indica un motivo para la cancelación.')
+    return
+  }
+
+  await calendarioStore.cancelarSesion(selectedSesion.value.id, motivoCancelacion.value)
+  showMotivoCancelacion.value = false
+  motivoCancelacion.value = ''
   closeModal()
 }
 
@@ -223,8 +252,6 @@ function estadoSesionTexto(estado: number | undefined) {
   }
 }
 </script>
-
-
 
 <template>
   <div class="app">
@@ -284,13 +311,19 @@ function estadoSesionTexto(estado: number | undefined) {
         </p>
 
         <div class="botones-modal">
-          <!-- Botón Mover -->
+          <!-- Botón Mover: solo si faltan al menos 2 horas Y NO se muestra motivo cancelación -->
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && !showDatePicker && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
-            class="mover" @click="
+            v-if="authStore.rol.toUpperCase() === 'TUTOR'
+                  && !showDatePicker
+                  && selectedSesion?.estado !== EstadoSesion.CANCELADA
+                  && !esSesionPasada(selectedSesion)
+                  && !faltanMenosDeDosHoras(selectedSesion)
+                  && !showMotivoCancelacion"
+            class="mover"
+            @click="
               showDatePicker = true;
-            newDate = getFechaInputValue(selectedSesion?.fecha);
-            motivo = '';
+              newDate = getFechaInputValue(selectedSesion?.fecha);
+              motivo = '';
             ">
             Mover
           </button>
@@ -326,15 +359,31 @@ function estadoSesionTexto(estado: number | undefined) {
 
           <!-- Botón Cancelar -->
           <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR' && selectedSesion?.estado !== EstadoSesion.CANCELADA && !esSesionPasada(selectedSesion)"
+            v-if="authStore.rol.toUpperCase() === 'TUTOR'
+                  && selectedSesion?.estado !== EstadoSesion.CANCELADA
+                  && !esSesionPasada(selectedSesion)
+                  && !showMotivoCancelacion"
             class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
 
+          <!-- Campo motivo cancelación -->
+          <div v-if="showMotivoCancelacion" class="motivo-centrado">
+            <label for="motivo-cancelacion"><strong>Motivo de la cancelación:</strong></label>
+            <textarea id="motivo-cancelacion" v-model="motivoCancelacion" rows="3" placeholder="Escribe el motivo..." />
+            <div class="botones-modal">
+              <button class="cancelar" :disabled="!motivoCancelacion.trim()" @click="confirmarCancelarSesion">
+                Sí, cancelar sesión
+              </button>
+              <button class="cerrar" @click="showMotivoCancelacion = false; motivoCancelacion = '';">
+                No, volver
+              </button>
+            </div>
+          </div>
+
           <!-- El botón cerrar siempre aparece -->
           <button class="cerrar" @click="closeModal">Cerrar</button>
         </div>
-
       </div>
     </div>
 
@@ -351,17 +400,6 @@ function estadoSesionTexto(estado: number | undefined) {
       </div>
     </div>
 
-    <!-- MODAL CONFIRMAR CANCELAR SESIÓN -->
-    <div v-if="showConfirmCancelar" class="modal-overlay">
-      <div class="modal-content" @click.stop>
-        <h2>¿Seguro que quieres cancelar la sesión?</h2>
-        <div class="botones-modal">
-          <button class="cancelar" @click="confirmarCancelarSesion">Sí, cancelar sesión</button>
-          <button class="cerrar" @click="showConfirmCancelar = false">No, volver</button>
-        </div>
-      </div>
-    </div>
-
     <!-- MODAL ALERTA PERSONALIZADO -->
     <div v-if="showAlertModal" class="modal-overlay">
       <div class="modal-content" @click.stop>
@@ -374,6 +412,8 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
+
+
 
 
 <style scoped lang="scss">
@@ -674,6 +714,77 @@ function estadoSesionTexto(estado: number | undefined) {
   border-top: 7px solid #394066;
   transform: translateY(-50%);
 }
+.motivo-centrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1.2rem 1rem 1rem 1rem;
+  background: #fafbfc;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(80, 80, 80, 0.07);
+
+  label {
+    font-size: 1.08rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    align-self: flex-start;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    max-height: 180px;
+    padding: 0.7em 1em;
+    border: 1.5px solid #caced1;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #222;
+    background: #fff;
+    resize: vertical;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px #007bff22;
+      outline: none;
+    }
+  }
+
+  .botones-modal {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    justify-content: flex-end;
+
+    button {
+      min-width: 120px;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .cancelar {
+      background: #e53935;
+      color: #fff;
+      &:hover:enabled { background: #b71c1c; }
+      &:disabled { background: #f7bdbd; color: #fff; cursor: not-allowed; }
+    }
+    .cerrar {
+      background: #e0e0e0;
+      color: #333;
+      &:hover { background: #bdbdbd; }
+    }
+  }
+}
+
 
 @media (max-width: 768px) {
   .modal-content {
@@ -706,6 +817,12 @@ function estadoSesionTexto(estado: number | undefined) {
       font-size: 1rem;
       padding: 0.75rem 0.5rem;
     }
+  }
+  .motivo-centrado {
+    padding: 1rem 0.2rem;
+    textarea { font-size: 0.98rem; }
+    .botones-modal { flex-direction: column; gap: 0.5rem; }
+    button { width: 100%; }
   }
 }
 </style>
