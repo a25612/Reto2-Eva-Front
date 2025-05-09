@@ -22,7 +22,7 @@ const year = ref(today.getFullYear())
 const currentDay = today.getDate()
 const currentMonth = today.getMonth()
 const currentYear = today.getFullYear()
-const dayNamesShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+const dayNamesShort = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const monthNamesLong = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -40,23 +40,30 @@ const daysInMonth = computed(() => {
 
 const monthName = computed(() => monthNamesLong[month.value])
 const firstDay = computed(() => new Date(year.value, month.value, 1).getDay())
-const rowCount = computed(() =>
-  Math.ceil((firstDay.value + daysInMonth.value[month.value]) / 7)
-)
+
+const rowCount = computed(() => {
+
+  let offset = firstDay.value === 0 ? 6 : firstDay.value - 1
+  return Math.ceil((offset + daysInMonth.value[month.value]) / 6)
+})
+
 
 const calendarDayMatrix = computed(() => {
   const matrix: (number | null)[][] = []
   const totalDays = daysInMonth.value[month.value]
-  const offset = firstDay.value
 
+  let offset = firstDay.value === 0 ? 6 : firstDay.value - 1
+
+  let day = 1
   for (let i = 0; i < rowCount.value; i++) {
     const row: (number | null)[] = []
-    for (let j = 0; j < 7; j++) {
-      const dayIndex = i * 7 + j
-      if (dayIndex >= offset && dayIndex < offset + totalDays) {
-        row.push(dayIndex - offset + 1)
-      } else {
+    for (let j = 0; j < 6; j++) { 
+      if (i === 0 && j < offset) {
         row.push(null)
+      } else if (day > totalDays) {
+        row.push(null)
+      } else {
+        row.push(day++)
       }
     }
     matrix.push(row)
@@ -92,15 +99,13 @@ const showDatePicker = ref(false)
 const newDate = ref('')
 const motivo = ref('')
 
-// Para motivo de cancelación
 const showMotivoCancelacion = ref(false)
 const motivoCancelacion = ref('')
 
-// Confirm modals
 const showConfirmCambio = ref(false)
-const showConfirmCancelar = ref(false)
 
-// Alert modal (replaces alert())
+
+
 const showAlertModal = ref(false)
 const alertMessage = ref('')
 const alertCallback = ref<null | (() => void)>(null)
@@ -148,6 +153,12 @@ function faltanMenosDeDosHoras(sesion: any): boolean {
   return diffHoras < 2
 }
 
+function isDomingo(fechaStr: string): boolean {
+  if (!fechaStr) return false
+  const fecha = new Date(fechaStr)
+  return fecha.getDay() === 0
+}
+
 const confirmarMoverSesion = async () => {
   if (!newDate.value || !motivo.value || !selectedSesion.value) return
 
@@ -162,6 +173,11 @@ const confirmarMoverSesion = async () => {
   if (esSesionPasada(selectedSesion.value)) {
     showConfirmCambio.value = false
     openAlert('No se puede mover una sesión pasada.')
+    return
+  }
+  if (isDomingo(newDate.value)) {
+    showConfirmCambio.value = false
+    openAlert('No se puede seleccionar domingo.')
     return
   }
 
@@ -185,11 +201,10 @@ const confirmarMoverSesion = async () => {
   })
 }
 
-// CANCELAR SESIÓN: OCULTA TAMBIÉN EL FORMULARIO DE MOVER SI ESTÁ ABIERTO
 const cancelarYCerrar = () => {
   showMotivoCancelacion.value = true
   motivoCancelacion.value = ''
-  showDatePicker.value = false      // <- Esto oculta el formulario de mover si estaba abierto
+  showDatePicker.value = false
   newDate.value = ''
   motivo.value = ''
 }
@@ -212,7 +227,7 @@ const confirmarCancelarSesion = async () => {
     return
   }
 
-  await calendarioStore.cancelarSesion(selectedSesion.value.id, motivoCancelacion.value)
+  await calendarioStore.cancelarSesion(selectedSesion.value.id)
   showMotivoCancelacion.value = false
   motivoCancelacion.value = ''
   closeModal()
@@ -263,6 +278,7 @@ function estadoSesionTexto(estado: number | undefined) {
 }
 </script>
 
+
 <template>
   <div class="app">
     <div class="calendar container">
@@ -308,8 +324,8 @@ function estadoSesionTexto(estado: number | undefined) {
       </table>
     </div>
 
-      <!-- MODAL PRINCIPAL -->
-      <div v-if="showModal" class="modal-overlay" @click="closeModal">
+    <!-- MODAL PRINCIPAL -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <h2 style="color:#19b7e6;text-align:center;">Información de la Sesión</h2>
         <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
@@ -345,24 +361,17 @@ function estadoSesionTexto(estado: number | undefined) {
             <label for="nueva-fecha">Selecciona la nueva fecha y hora:</label>
             <input id="nueva-fecha" type="datetime-local" v-model="newDate" style="margin-left: 8px;"
               :min="getFechaInputValue(selectedSesion?.fecha)" />
-
+            <span v-if="isDomingo(newDate)" style="color:red; font-size:0.9em;">
+              No se puede seleccionar domingo
+            </span>
             <div class="motivo-centrado">
               <label for="motivo" style="margin-bottom: 0.25rem;"><strong>Motivo:</strong></label>
-              <div class="custom-select-motivo">
-                <select id="motivo" v-model="motivo" required>
-                  <option value="" disabled>Selecciona un motivo</option>
-                  <option value="ENFERMEDAD">Enfermedad</option>
-                  <option value="LESION">Lesión</option>
-                  <option value="FAMILIAR">Familiar</option>
-                  <option value="OTROS">Otros</option>
-                </select>
-              </div>
+              <textarea id="motivo" v-model="motivo" rows="3" placeholder="Escribe el motivo..." />
             </div>
             <div class="botones-modal" style="margin-top:1rem;">
-            
               <button
                 class="mover"
-                :disabled="!newDate || !motivo"
+                :disabled="!newDate || !motivo || isDomingo(newDate)"
                 @click="solicitarMoverSesion"
                 style="background: #ffb326; color: white; margin-left: 1rem;">
                 Solicitar cambio
@@ -399,7 +408,6 @@ function estadoSesionTexto(estado: number | undefined) {
         </div>
       </div>
     </div>
-    
 
     <!-- MODAL CONFIRMAR SOLICITAR CAMBIO -->
     <div v-if="showConfirmCambio" class="modal-overlay">
@@ -426,9 +434,6 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
-
-
-
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
