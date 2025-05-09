@@ -94,6 +94,54 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
+  // Xancela la sesión y envía el mensaje de confirmación tipo CANCELADA
+  async function cancelarSesionConMensaje(id: number, motivo: string) {
+    const sesion = sesiones.value.find(s => s.id === id)
+    if (!sesion) {
+      error.value = 'Sesión no encontrada'
+      return
+    }
+
+    await cancelarSesion(id)
+
+    const idEmpleado =
+      sesion.iD_EMPLEADO ||
+      (sesion.empleado && sesion.empleado.id) ||
+      sesion.id_empleado ||
+      sesion.idEmpleado ||
+      sesion.ID_EMPLEADO
+
+    if (!idEmpleado) {
+      error.value = 'No se ha encontrado el empleado que da la sesión. Revisa los datos de la sesión.'
+      return
+    }
+
+    const mensajeConfirmacion = {
+      id_Sesion: sesion.id,
+      id_Empleado: idEmpleado,
+      tipo: "CANCELADA",
+      mensaje: motivo,
+      fechaMensaje: new Date().toISOString(),
+      fechaSolicitada: sesion.fecha,
+      estado: 0
+    }
+
+    try {
+      const response = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mensajeConfirmacion)
+      })
+      if (!response.ok) throw new Error('Error al crear el mensaje de confirmación')
+    } catch (e) {
+      if (e instanceof Error) {
+        error.value = e.message
+      } else {
+        error.value = 'Error al crear el mensaje de confirmación'
+      }
+    }
+  }
+
   async function solicitarMoverSesion(id: number, nuevaFecha: string, motivo: string) {
     const sesion = sesiones.value.find(s => s.id === id)
     if (sesion) {
@@ -122,8 +170,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         estado: 0
       }
 
-      console.log('JSON enviado a POST /api/MensajeConfirmacion:', JSON.stringify(mensajeConfirmacion, null, 2))
-      
       try {
         const response = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
           method: 'POST',
@@ -151,8 +197,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-
-
   async function confirmarMoverSesion(id: number) {
     const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
     if (solicitud) {
@@ -178,7 +222,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
             error.value = 'Error al confirmar la sesion'
           }
         }
-
       }
     }
   }
@@ -190,6 +233,7 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     fetchSesiones,
     moverSesion,
     cancelarSesion,
+    cancelarSesionConMensaje, 
     solicitarMoverSesion,
     confirmarMoverSesion,
     solicitudesCambio
