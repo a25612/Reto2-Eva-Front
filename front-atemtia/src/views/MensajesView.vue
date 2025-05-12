@@ -6,7 +6,7 @@ import type { MensajeConfirmacionAdaptado } from '../stores/mensajeConfirmacion'
 
 const authStore = useAuthStore()
 const mensajeStore = useMensajeConfirmacionStore()
-
+const tipoFiltro = ref<string>('')
 const mesSeleccionado = ref<number | null>(null)
 const estadosMensajes = ref<Map<number, 'pendiente' | 'procesando' | 'aceptado' | 'cancelado' | 'error'>>(new Map())
 const lastAction = ref<{ type: 'aceptar' | 'cancelar', id: number } | null>(null)
@@ -36,18 +36,19 @@ onMounted(async () => {
 })
 
 const mensajesFiltrados = computed(() => {
-  return mensajeStore.mensajes.filter((mensaje: MensajeConfirmacionAdaptado) => {
-    try {
+  return mensajeStore.mensajes
+    .slice()
+    .sort((a, b) => new Date(b.fechaEnvio).getTime() - new Date(a.fechaEnvio).getTime()) 
+    .filter((mensaje: MensajeConfirmacionAdaptado) => {
       const fecha = new Date(mensaje.fechaEnvio)
-      if (isNaN(fecha.getTime())) return false
       const coincideMes = mesSeleccionado.value !== null
         ? fecha.getMonth() === mesSeleccionado.value
         : true
-      return coincideMes
-    } catch {
-      return mesSeleccionado.value === null
-    }
-  })
+      const coincideTipo = tipoFiltro.value
+        ? mensaje.tipo === tipoFiltro.value
+        : true
+      return coincideMes && coincideTipo
+    })
 })
 
 const meses = [
@@ -143,7 +144,14 @@ const formatearFecha = (fechaStr: string) => {
           <option :value="null">Todos</option>
           <option v-for="(mes, i) in meses" :key="i" :value="i">{{ mes }}</option>
         </select>
+        <label>Tipo de mensaje</label>
+        <select v-model="tipoFiltro">
+          <option value="">Todos</option>
+          <option value="MOVIDA">Movida</option>
+          <option value="CANCELADA">Cancelada</option>
+        </select>
       </div>
+
     </div>
 
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
@@ -155,50 +163,54 @@ const formatearFecha = (fechaStr: string) => {
           </span>
           <span v-else>No disponible</span>
         </p>
-        <p><strong class="titulo-info">Tutor:</strong> {{ mensaje.tutorNombre || 'No disponible' }}</p>
-        <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre || 'No disponible' }}</p>
+        <p><strong class="titulo-info">Tutor:</strong> {{ mensaje.tutorNombre}}</p>
+        <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre}}</p>
+        <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre}}</p>
+        <p><strong class="titulo-info">Tipo:</strong> {{ mensaje.tipo}}</p>
         <p><strong class="titulo-info">Fecha envío:</strong> {{ formatearFecha(mensaje.fechaEnvio) }}</p>
         <p><strong class="titulo-info">Fecha original:</strong> {{ formatearFecha(mensaje.fechaOriginal ?? '') }}</p>
         <p><strong class="titulo-info">Fecha solicitada:</strong> {{ formatearFecha(mensaje.fechaSolicitada) }}</p>
         <p><strong class="titulo-info">Mensaje:</strong> {{ mensaje.mensaje || 'Sin mensaje' }}</p>
 
-        <div v-if="getEstadoMensaje(mensaje.id) === 'aceptado'" class="estado aceptado">
-          <span class="icono">✓</span> FECHA CAMBIADA
-        </div>
-        <div v-else-if="getEstadoMensaje(mensaje.id) === 'cancelado'" class="estado cancelado">
-          <span class="icono">✗</span> FECHA CANCELADA
-        </div>
-        <div
-          v-else-if="getEstadoMensaje(mensaje.id) === 'pendiente' && authStore.rol && authStore.rol.toUpperCase() === 'TUTOR'"
-          class="estado pendiente">
-          <span class="icono spin-clockwise">⏳</span> PENDIENTE DE CONFIRMAR
+        <div v-if="mensaje.tipo === 'CANCELADA'" class="estado cancelado">
+          <span class="icono">✗</span>
+          SESIÓN CANCELADA
         </div>
 
-        <div v-else-if="getEstadoMensaje(mensaje.id) === 'error'" class="estado error">
-          <span class="icono">!</span> ERROR AL PROCESAR
-        </div>
-        <div v-else-if="getEstadoMensaje(mensaje.id) === 'procesando'" class="estado procesando">
-          Procesando...
-        </div>
-        <!-- SOLO muestra los botones si el rol NO es TUTOR -->
-        <div v-else-if="authStore.rol && authStore.rol.toUpperCase() !== 'TUTOR'" class="acciones">
-          <button class="btn-aceptar" @click="handleAceptarSolicitud(mensaje.id)">
-            Aceptar
-          </button>
-          <button class="btn-cancelar" @click="handleCancelarSolicitud(mensaje.id)">
-            Cancelar
-          </button>
+        <div v-else>
+          <div v-if="getEstadoMensaje(mensaje.id) === 'aceptado'" class="estado aceptado">
+            <span class="icono">✓</span> SOLICITUD ACEPTADA
+          </div>
+          <div v-else-if="getEstadoMensaje(mensaje.id) === 'cancelado'" class="estado cancelado">
+            <span class="icono">✗</span> SOLICITUD CANCELADA
+          </div>
+          <div
+            v-else-if="getEstadoMensaje(mensaje.id) === 'pendiente' && authStore.rol && authStore.rol.toUpperCase() === 'TUTOR'"
+            class="estado pendiente">
+            <span class="icono spin-clockwise">⏳</span> PENDIENTE DE CONFIRMAR
+          </div>
+          <div v-else-if="getEstadoMensaje(mensaje.id) === 'error'" class="estado error">
+            <span class="icono">!</span> ERROR AL PROCESAR
+          </div>
+          <div v-else-if="getEstadoMensaje(mensaje.id) === 'procesando'" class="estado procesando">
+            Procesando...
+          </div>
+          <div v-else-if="authStore.rol && authStore.rol.toUpperCase() !== 'TUTOR'" class="acciones">
+            <button class="btn-aceptar" @click="handleAceptarSolicitud(mensaje.id)">
+              Aceptar
+            </button>
+            <button class="btn-cancelar" @click="handleCancelarSolicitud(mensaje.id)">
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
-      No hay mensajes en este mes
+      <div v-if="!mensajeStore.cargando && !mensajeStore.error && mensajesFiltrados.length === 0" class="mensaje">
+        No hay mensajes en este mes
+      </div>
     </div>
   </div>
 </template>
-
-
-
 
 
 <style scoped lang="scss">
@@ -330,18 +342,19 @@ const formatearFecha = (fechaStr: string) => {
         background: #fffde7;
         color: #fbc02d;
         border: 2px solid #fbc02d;
+        padding: 0.8rem;
+        font-size: 1.1rem;
         border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
+        font-weight: 600;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 8px;
+        margin-top: 1rem;
         width: 100%;
         box-sizing: border-box;
         gap: 0.5rem;
-        font-size: 1.05rem;
       }
+
 
       &.error {
         background: #fff3e0;

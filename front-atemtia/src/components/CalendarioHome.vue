@@ -209,12 +209,6 @@ const cancelarYCerrar = () => {
   motivo.value = ''
 }
 
-const cancelarCambioDeHora = () => {
-  showDatePicker.value = false
-  newDate.value = ''
-  motivo.value = ''
-}
-
 const confirmarCancelarSesion = async () => {
   if (!selectedSesion.value) return
   if (esSesionPasada(selectedSesion.value)) {
@@ -226,12 +220,12 @@ const confirmarCancelarSesion = async () => {
     openAlert('Por favor, indica un motivo para la cancelación.')
     return
   }
-
-  await calendarioStore.cancelarSesion(selectedSesion.value.id)
+  await calendarioStore.cancelarSesion(selectedSesion.value.id, motivoCancelacion.value)
   showMotivoCancelacion.value = false
   motivoCancelacion.value = ''
   closeModal()
 }
+
 
 const getColorForService = (serviceName: string) => {
   const colors: { [key: string]: string } = {
