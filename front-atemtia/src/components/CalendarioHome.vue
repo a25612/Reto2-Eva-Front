@@ -23,7 +23,6 @@ const currentDay = today.getDate()
 const currentMonth = today.getMonth()
 const currentYear = today.getFullYear()
 
-// Solo lunes a sábado
 const dayNamesShort = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const monthNamesLong = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -42,37 +41,30 @@ const daysInMonth = computed(() => {
 
 const monthName = computed(() => monthNamesLong[month.value])
 
-// Ajuste: lunes = 0, ..., sábado = 5 (domingo no se muestra)
 const firstDay = computed(() => {
   const jsDay = new Date(year.value, month.value, 1).getDay()
-  // jsDay: 0 (domingo), 1 (lunes), ..., 6 (sábado)
-  // Queremos: lunes=0, ..., sábado=5
-  // Si es domingo (0), lo ponemos al final (6), así el offset será 6 (no se muestra)
   return jsDay === 0 ? 6 : jsDay - 1
 })
 
-// Construye la matriz del calendario SIN domingos (solo lunes a sábado)
 const calendarDayMatrix = computed(() => {
   const matrix: (number | null)[][] = []
   const totalDays = daysInMonth.value[month.value]
   let day = 1
   let offset = firstDay.value
-  // Calcula el número de filas necesarias
   const rows = Math.ceil((offset + totalDays) / 6)
   for (let i = 0; i < rows; i++) {
     const row: (number | null)[] = []
-    for (let j = 0; j < 6; j++) { // Solo lunes a sábado
+    for (let j = 0; j < 6; j++) { 
       if (i === 0 && j < offset) {
         row.push(null)
       } else if (day > totalDays) {
         row.push(null)
       } else {
-        // Verifica si el día es domingo (getDay() === 0)
         const date = new Date(year.value, month.value, day)
         if (date.getDay() === 0) {
           day++
           j--
-          continue // Salta los domingos
+          continue 
         }
         row.push(day++)
       }
@@ -81,6 +73,10 @@ const calendarDayMatrix = computed(() => {
   }
   return matrix
 })
+
+const calendarRows = computed(() =>
+  calendarDayMatrix.value.filter(row => row.some(cell => cell !== null))
+)
 
 const sesiones = computed(() => calendarioStore.sesiones)
 const sesionesPorDia = (dia: number) => {
@@ -300,7 +296,8 @@ function estadoSesionTexto(estado: number | undefined) {
             {{ day }}
           </td>
         </tr>
-        <tr v-for="(row, i) in calendarDayMatrix" :key="i">
+        <!-- AJUSTE: usa calendarRows en vez de calendarDayMatrix -->
+        <tr v-for="(row, i) in calendarRows" :key="i">
           <td v-for="(cell, j) in row" :key="j" class="calendar-day" :class="{ dead: !cell }">
             <div v-if="cell" class="calendar-cell-content">
               <span :class="{
@@ -342,19 +339,16 @@ function estadoSesionTexto(estado: number | undefined) {
 
         <div class="botones-modal">
           <!-- Botón Mover: solo si faltan al menos 2 horas Y NO se muestra motivo cancelación -->
-          <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR'
-                  && !showDatePicker
-                  && selectedSesion?.estado !== EstadoSesion.CANCELADA
-                  && !esSesionPasada(selectedSesion)
-                  && !faltanMenosDeDosHoras(selectedSesion)
-                  && !showMotivoCancelacion"
-            class="mover"
-            @click="
-              showDatePicker = true;
-              newDate = getFechaInputValue(selectedSesion?.fecha);
-              motivo = '';
-            ">
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
+            && !showDatePicker
+            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && !esSesionPasada(selectedSesion)
+            && !faltanMenosDeDosHoras(selectedSesion)
+            && !showMotivoCancelacion" class="mover" @click="
+                    showDatePicker = true;
+                  newDate = getFechaInputValue(selectedSesion?.fecha);
+                  motivo = '';
+                  ">
             Mover
           </button>
 
@@ -373,10 +367,7 @@ function estadoSesionTexto(estado: number | undefined) {
               <textarea id="motivo" v-model="motivo" rows="3" placeholder="Escribe el motivo..." />
             </div>
             <div class="botones-modal" style="margin-top:1rem;">
-              <button
-                class="mover"
-                :disabled="!newDate || !motivo || isDomingo(newDate)"
-                @click="solicitarMoverSesion"
+              <button class="mover" :disabled="!newDate || !motivo || isDomingo(newDate)" @click="solicitarMoverSesion"
                 style="background: #ffb326; color: white; margin-left: 1rem;">
                 Solicitar cambio
               </button>
@@ -384,12 +375,10 @@ function estadoSesionTexto(estado: number | undefined) {
           </div>
 
           <!-- Botón Cancelar sesión -->
-          <button
-            v-if="authStore.rol.toUpperCase() === 'TUTOR'
-                  && selectedSesion?.estado !== EstadoSesion.CANCELADA
-                  && !esSesionPasada(selectedSesion)
-                  && !showMotivoCancelacion"
-            class="cancelar" @click="cancelarYCerrar">
+          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
+            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && !esSesionPasada(selectedSesion)
+            && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
 
@@ -438,6 +427,7 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 @import '../assets/styles/variables.scss';
@@ -551,9 +541,9 @@ function estadoSesionTexto(estado: number | undefined) {
 
   .sesion-cancelada {
     background-color: #F2F2F2;
-    color: #999 ;
+    color: #999;
     text-decoration: line-through;
-    
+
   }
 }
 
@@ -737,6 +727,7 @@ function estadoSesionTexto(estado: number | undefined) {
   border-top: 7px solid #394066;
   transform: translateY(-50%);
 }
+
 .motivo-centrado {
   display: flex;
   flex-direction: column;
@@ -797,13 +788,25 @@ function estadoSesionTexto(estado: number | undefined) {
     .cancelar {
       background: #e53935;
       color: #fff;
-      &:hover:enabled { background: #b71c1c; }
-      &:disabled { background: #f7bdbd; color: #fff; cursor: not-allowed; }
+
+      &:hover:enabled {
+        background: #b71c1c;
+      }
+
+      &:disabled {
+        background: #f7bdbd;
+        color: #fff;
+        cursor: not-allowed;
+      }
     }
+
     .cerrar {
       background: #e0e0e0;
       color: #333;
-      &:hover { background: #bdbdbd; }
+
+      &:hover {
+        background: #bdbdbd;
+      }
     }
   }
 }
@@ -811,7 +814,7 @@ function estadoSesionTexto(estado: number | undefined) {
 
 @media (max-width: 768px) {
   .modal-content {
-    
+
     max-width: 85vw;
     width: 85vw;
     border-radius: 0;
@@ -841,11 +844,22 @@ function estadoSesionTexto(estado: number | undefined) {
       padding: 0.75rem 0.5rem;
     }
   }
+
   .motivo-centrado {
     padding: 1rem 0.2rem;
-    textarea { font-size: 0.98rem; }
-    .botones-modal { flex-direction: column; gap: 0.5rem; }
-    button { width: 100%; }
+
+    textarea {
+      font-size: 0.98rem;
+    }
+
+    .botones-modal {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    button {
+      width: 100%;
+    }
   }
 }
 </style>
