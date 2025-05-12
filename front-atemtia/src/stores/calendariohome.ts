@@ -193,6 +193,17 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
+  async function fetchUsuariosGrupo(sesionId: number) {
+    try {
+      const response = await fetch(`https://localhost:7163/api/Sesiones/${sesionId}/usuarios`)
+      if (!response.ok) throw new Error('Error al obtener los usuarios del grupo')
+      return await response.json()
+    } catch (e) {
+      return []
+    }
+  }
+  
+
   return {
     sesiones,
     isLoading,
@@ -202,6 +213,7 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     cancelarSesion,
     solicitarMoverSesion,
     confirmarMoverSesion,
-    solicitudesCambio
+    solicitudesCambio,
+    fetchUsuariosGrupo 
   }
 })

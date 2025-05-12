@@ -88,10 +88,39 @@ const sesionesPorDia = (dia: number) => {
 
 const selectedSesion = ref<any>(null)
 const showModal = ref(false)
-const openModal = (sesion: any) => {
+
+// --- NUEVO: Usuarios grupo dinámico ---
+const usuariosGrupo = ref<any[]>([])
+const usuariosGrupoLoading = ref(false)
+const usuariosGrupoError = ref<string | null>(null)
+
+const esSesionGrupal = (sesion: any) => {
+  if (!sesion) return false
+  const nombre = sesion.servicio?.nombre?.toLowerCase() || ''
+  return nombre === 'matronatación' || nombre === 'iniciación'
+}
+
+const openModal = async (sesion: any) => {
   selectedSesion.value = sesion
   showModal.value = true
+
+  const rol = authStore.rol?.toUpperCase()
+  if (rol === 'EMPLEADO' && esSesionGrupal(sesion)) {
+    usuariosGrupoLoading.value = true
+    usuariosGrupoError.value = null
+    usuariosGrupo.value = []
+    try {
+      usuariosGrupo.value = await calendarioStore.fetchUsuariosGrupo(sesion.id)
+    } catch (e: any) {
+      usuariosGrupoError.value = e.message || 'Error al obtener los usuarios del grupo'
+    } finally {
+      usuariosGrupoLoading.value = false
+    }
+  } else {
+    usuariosGrupo.value = []
+  }
 }
+
 const closeModal = () => {
   showModal.value = false
   selectedSesion.value = null
@@ -100,6 +129,9 @@ const closeModal = () => {
   motivo.value = ''
   showMotivoCancelacion.value = false
   motivoCancelacion.value = ''
+  usuariosGrupo.value = []
+  usuariosGrupoError.value = null
+  usuariosGrupoLoading.value = false
 }
 
 const showDatePicker = ref(false)
@@ -231,7 +263,6 @@ const confirmarCancelarSesion = async () => {
   closeModal()
 }
 
-
 const getColorForService = (serviceName: string) => {
   const colors: { [key: string]: string } = {
     'matronatación': '#B5E3FF',
@@ -278,7 +309,6 @@ function estadoSesionTexto(estado: number | undefined) {
 </script>
 
 
-
 <template>
   <div class="app">
     <div class="calendar container">
@@ -296,7 +326,6 @@ function estadoSesionTexto(estado: number | undefined) {
             {{ day }}
           </td>
         </tr>
-        <!-- AJUSTE: usa calendarRows en vez de calendarDayMatrix -->
         <tr v-for="(row, i) in calendarRows" :key="i">
           <td v-for="(cell, j) in row" :key="j" class="calendar-day" :class="{ dead: !cell }">
             <div v-if="cell" class="calendar-cell-content">
@@ -331,6 +360,20 @@ function estadoSesionTexto(estado: number | undefined) {
         <h2 style="color:#19b7e6;text-align:center;">Información de la Sesión</h2>
         <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
+        <!-- Mostrar usuarios del grupo si es empleado y la sesión es grupal -->
+        <div v-if="authStore.rol.toUpperCase() === 'EMPLEADO' && esSesionGrupal(selectedSesion)">
+          <p><strong>Usuarios del grupo:</strong></p>
+          <div v-if="usuariosGrupoLoading">Cargando usuarios...</div>
+          <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
+          <ul v-else>
+            <li v-for="usuario in usuariosGrupo" :key="usuario.id">
+              {{ usuario.nombre }}
+            </li>
+            <li v-if="usuariosGrupo.length === 0" style="color: #888;">No hay usuarios en este grupo</li>
+          </ul>
+        </div>
+        <!-- FIN BLOQUE USUARIOS GRUPO -->
+
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
         <p v-if="selectedSesion?.estado !== EstadoSesion.CONFIRMADA">
@@ -427,6 +470,9 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
+
+
+
 
 
 <style scoped lang="scss">
