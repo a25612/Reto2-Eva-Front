@@ -22,6 +22,8 @@ const year = ref(today.getFullYear())
 const currentDay = today.getDate()
 const currentMonth = today.getMonth()
 const currentYear = today.getFullYear()
+
+// Solo lunes a sábado
 const dayNamesShort = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const monthNamesLong = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -39,30 +41,39 @@ const daysInMonth = computed(() => {
 })
 
 const monthName = computed(() => monthNamesLong[month.value])
-const firstDay = computed(() => new Date(year.value, month.value, 1).getDay())
 
-const rowCount = computed(() => {
-
-  let offset = firstDay.value === 0 ? 6 : firstDay.value - 1
-  return Math.ceil((offset + daysInMonth.value[month.value]) / 6)
+// Ajuste: lunes = 0, ..., sábado = 5 (domingo no se muestra)
+const firstDay = computed(() => {
+  const jsDay = new Date(year.value, month.value, 1).getDay()
+  // jsDay: 0 (domingo), 1 (lunes), ..., 6 (sábado)
+  // Queremos: lunes=0, ..., sábado=5
+  // Si es domingo (0), lo ponemos al final (6), así el offset será 6 (no se muestra)
+  return jsDay === 0 ? 6 : jsDay - 1
 })
 
-
+// Construye la matriz del calendario SIN domingos (solo lunes a sábado)
 const calendarDayMatrix = computed(() => {
   const matrix: (number | null)[][] = []
   const totalDays = daysInMonth.value[month.value]
-
-  let offset = firstDay.value === 0 ? 6 : firstDay.value - 1
-
   let day = 1
-  for (let i = 0; i < rowCount.value; i++) {
+  let offset = firstDay.value
+  // Calcula el número de filas necesarias
+  const rows = Math.ceil((offset + totalDays) / 6)
+  for (let i = 0; i < rows; i++) {
     const row: (number | null)[] = []
-    for (let j = 0; j < 6; j++) { 
+    for (let j = 0; j < 6; j++) { // Solo lunes a sábado
       if (i === 0 && j < offset) {
         row.push(null)
       } else if (day > totalDays) {
         row.push(null)
       } else {
+        // Verifica si el día es domingo (getDay() === 0)
+        const date = new Date(year.value, month.value, day)
+        if (date.getDay() === 0) {
+          day++
+          j--
+          continue // Salta los domingos
+        }
         row.push(day++)
       }
     }
@@ -103,8 +114,6 @@ const showMotivoCancelacion = ref(false)
 const motivoCancelacion = ref('')
 
 const showConfirmCambio = ref(false)
-
-
 
 const showAlertModal = ref(false)
 const alertMessage = ref('')
@@ -271,6 +280,7 @@ function estadoSesionTexto(estado: number | undefined) {
   }
 }
 </script>
+
 
 
 <template>
