@@ -419,7 +419,7 @@ function estadoSesionTexto(estado: number | undefined) {
 
           <!-- Botón Cancelar sesión -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
-            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && selectedSesion?.estado == EstadoSesion.CONFIRMADA
             && !esSesionPasada(selectedSesion)
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
