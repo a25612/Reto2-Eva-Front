@@ -384,7 +384,7 @@ function estadoSesionTexto(estado: number | undefined) {
           <!-- Botón Mover: solo si faltan al menos 2 horas Y NO se muestra motivo cancelación -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
             && !showDatePicker
-            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && selectedSesion?.estado == EstadoSesion.CONFIRMADA
             && !esSesionPasada(selectedSesion)
             && !faltanMenosDeDosHoras(selectedSesion)
             && !showMotivoCancelacion" class="mover" @click="
@@ -419,7 +419,7 @@ function estadoSesionTexto(estado: number | undefined) {
 
           <!-- Botón Cancelar sesión -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
-            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && selectedSesion?.estado == EstadoSesion.CONFIRMADA
             && !esSesionPasada(selectedSesion)
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
