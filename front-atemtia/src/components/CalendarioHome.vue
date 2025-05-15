@@ -89,7 +89,6 @@ const sesionesPorDia = (dia: number) => {
 const selectedSesion = ref<any>(null)
 const showModal = ref(false)
 
-// --- NUEVO: Usuarios grupo dinámico ---
 const usuariosGrupo = ref<any[]>([])
 const usuariosGrupoLoading = ref(false)
 const usuariosGrupoError = ref<string | null>(null)

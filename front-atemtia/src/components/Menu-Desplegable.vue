@@ -68,7 +68,7 @@ const cerrarSesionHandler = () => {
   gap: 5px;
   background: none;
   border: none;
-  margin-top: 90px;
+  margin-top: 110px;
   cursor: pointer;
   padding: 1rem;
   transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -183,7 +183,7 @@ const cerrarSesionHandler = () => {
 
     &.active {
       left: 0;
-      margin-top: 101px;
+      margin-top: 115px;
     }
   }
 
@@ -219,7 +219,7 @@ const cerrarSesionHandler = () => {
       right: 0;
       left: 0;
       position: fixed;
-      margin-top: 80px;
+      margin-top: 109px;
     }
 
     &.active {

@@ -18,7 +18,7 @@ const irAHome = () => {
     <div class="header-container">
       <div class="header-logo">
         <a @click.prevent="irAHome" class="header-titulo-link">
-          <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png"
+          <img src="https://espacioatemtia.es/wp-content/uploads/2025/05/TERAPIAS-ACUATICAS-pack-basico-logotipo_01-scaled.jpg"
             alt="Servicios ATEMTIA" class="logo-atemtia">
         </a>
       </div>

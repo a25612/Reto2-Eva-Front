@@ -15,7 +15,7 @@ const login = async () => {
 <template>
   <div class="login-container">
     <div class="logo">
-      <img src="https://www.atades.org/wp-content/uploads/2021/10/atades-logo-atemtia-2x.png" 
+      <img src="https://espacioatemtia.es/wp-content/uploads/2025/05/TERAPIAS-ACUATICAS-pack-basico-logotipo_01-scaled.jpg" 
           alt="Servicios ATEMTIA" 
           class="logo-atemtia-login">
     </div>
