@@ -362,14 +362,14 @@ function estadoSesionTexto(estado: number | undefined) {
         <!-- Mostrar usuarios del grupo si es empleado y la sesión es grupal -->
         <div v-if="authStore.rol.toUpperCase() === 'EMPLEADO' && esSesionGrupal(selectedSesion)">
           <p><strong>Usuarios del grupo:</strong></p>
-          <div v-if="usuariosGrupoLoading">Cargando usuarios...</div>
-          <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
+          <!-- <div v-if="usuariosGrupoLoading">Cargando usuarios...</div> -->
+          <!-- <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
           <ul v-else>
             <li v-for="usuario in usuariosGrupo" :key="usuario.id">
               {{ usuario.nombre }}
             </li>
             <li v-if="usuariosGrupo.length === 0" style="color: #888;">No hay usuarios en este grupo</li>
-          </ul>
+          </ul> -->
         </div>
         <!-- FIN BLOQUE USUARIOS GRUPO -->
 

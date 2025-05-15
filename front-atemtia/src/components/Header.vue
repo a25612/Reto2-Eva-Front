@@ -18,7 +18,7 @@ const irAHome = () => {
     <div class="header-container">
       <div class="header-logo">
         <a @click.prevent="irAHome" class="header-titulo-link">
-          <img src="https://espacioatemtia.es/wp-content/uploads/2025/05/TERAPIAS-ACUATICAS-pack-basico-logotipo_01-scaled.jpg"
+          <img src="/public/TERAPIAS-ACUATICAS.PNG"
             alt="Servicios ATEMTIA" class="logo-atemtia">
         </a>
       </div>
@@ -32,8 +32,8 @@ const irAHome = () => {
 
 .header {
   font-family: $fuente-principal;
-  background-color: $color-fondo;
-  color: $color-titulos; 
+  background-color: #5ac8fa;
+  
   padding: 19px;
   position: sticky;
   top: 0;
