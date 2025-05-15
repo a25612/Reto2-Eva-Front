@@ -59,7 +59,7 @@ const irAHome = () => {
     }
 
     .logo-atemtia {
-      height: 62px;
+      height: 88px;
     }
   }
 }
