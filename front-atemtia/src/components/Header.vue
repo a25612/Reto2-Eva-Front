@@ -32,8 +32,7 @@ const irAHome = () => {
 
 .header {
   font-family: $fuente-principal;
-  background-color: #5ac8fa;
-  
+  background-color: 	#00ABE4;
   padding: 19px;
   position: sticky;
   top: 0;

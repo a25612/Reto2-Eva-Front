@@ -83,7 +83,7 @@ const cerrarSesionHandler = () => {
     display: block;
     width: 25px;
     height: 3px;
-    background: $color-secundario;
+    background: #31EC56;
     border-radius: 2px;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 
