@@ -83,7 +83,7 @@ const cerrarSesionHandler = () => {
     display: block;
     width: 25px;
     height: 3px;
-    background: #31EC56;
+    background: $color-secundario;
     border-radius: 2px;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 
@@ -112,7 +112,7 @@ const cerrarSesionHandler = () => {
     width: 43%;
     height: 100%;
     margin-top: 101px;
-    background: $color-secundario;
+    background: #4b9f29;
     box-shadow: 2px 0 8px $color-principal;
     transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2000;
@@ -129,7 +129,7 @@ const cerrarSesionHandler = () => {
     width: 43%;
     height: 100%;
     margin-top: 101px;
-    background: $color-secundario;
+    background: #4b9f29;
     box-shadow: 2px 0 8px $color-principal;
     transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2000;
