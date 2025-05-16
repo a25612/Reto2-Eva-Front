@@ -10,8 +10,8 @@
   <div class="home">
     <div class="bienvenida">
       <div class="bienvenida-content">
-        <h1>Bienvenido a la App de ATEMTIA</h1>
-        <p>La plataforma de gestión de reservas diseñada para facilitar el acceso a los tutores.</p>
+        <h1>Bienvenido a la App de ATEMTIA Terapias Acuáticas</h1>
+        <p>La plataforma de gestión de reservas diseñada para facilitar el acceso a tutores y profesionales.</p>
       </div>
     </div>
 
@@ -21,16 +21,14 @@
       <div class="info">
         <h2>¿Qué ofrecemos?</h2>
         <p>
-          ATEMTIA App es una aplicación web que permite a los tutores gestionar sus reservas e incidencias 
-          de forma sencilla y rápida.
+          ATEMTIA Terapias Acuáticas es una aplicación web que permite a los usuarios gestionar sus sesiones de forma sencilla y rápida.
         </p>
       </div>
 
       <div class="info">
         <h2>¿Qué puedes hacer?</h2>
         <p>
-          Dentro de la app podrás cancelar, mover o hacer reservas de nuestros servicios. 
-          También podrás comunicarte con los profesionales.
+          Dentro de la app podrás consultar los horarios de tus sesiones, mover o cancelarlas si es necesario, y ver el historial de sesiones pasadas.
         </p>
       </div>
 
