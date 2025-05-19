@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { useCarruselStore } from "../stores/carrusel";
 import { iniciarCarrusel } from "../stores/carrusel"; 
-import { computed } from 'vue';
-
 
 const carruselStore = useCarruselStore();
 
 onMounted(() => {
   carruselStore.obtenerAnuncios();
-  iniciarCarrusel(); // Iniciar el carrusel al montar el componente
+  iniciarCarrusel();
 });
 
 const formatFecha = (fecha: string): string => {
@@ -23,25 +21,20 @@ const formatFecha = (fecha: string): string => {
     });
 };
 
-// Ordenar los anuncios por fecha de creación
-const anunciosOrdenados = computed(() => {
-  return carruselStore.anuncios.slice().sort((a, b) => {
-    const fechaA = new Date(a.fecha_Publicacion).getTime();
-    const fechaB = new Date(b.fecha_Publicacion).getTime();
-    return fechaB - fechaA; // Orden descendente, de la más reciente a la más antigua
-  });
+const anunciosRecientes = computed(() => {
+  return carruselStore.anuncios
+    .slice()
+    .sort((a, b) => new Date(b.fecha_Publicacion).getTime() - new Date(a.fecha_Publicacion).getTime())
+    .slice(0, 3);
 });
 </script>
 
-
 <template>
-  <!-- CARRUSEL DE ANUNCIOS -->
   <div class="carrusel">
     <div class="carrusel-container">
-      <!-- Mostrar anuncios dinámicamente -->
       <div
         class="carrusel-tarjeta"
-        v-for="anuncio in carruselStore.anuncios"
+        v-for="anuncio in anunciosRecientes"
         :key="anuncio.id"
       >
         <img
@@ -51,23 +44,16 @@ const anunciosOrdenados = computed(() => {
         />
         <div class="carrusel-content">
           <h3 class="carrusel-titulo">{{ anuncio.titulo }}</h3>
-          <!-- Mostrar la fecha de publicación correctamente -->
           <p class="carrusel-fecha"> 📅 {{ formatFecha(anuncio.fecha_Publicacion) }}</p>
           <p class="carrusel-descripcion">{{ anuncio.descripcion }}</p>
         </div>
       </div>
     </div>
-
-    <!-- SCROLL PARA EL CARRUSEL -->
     <div class="carrusel-scroll">
       <div class="carrusel-scrollbar"></div>
     </div>
   </div>
 </template>
-
-
-
-
 
 <style lang="scss" scoped>
 @import "../assets/styles/variables.scss";

@@ -307,7 +307,4 @@ function formatearFechaSinSegundos(fechaStr: string) {
     grid-template-columns: repeat(4, 1fr);
   }
 }
-
-
-
 </style>
