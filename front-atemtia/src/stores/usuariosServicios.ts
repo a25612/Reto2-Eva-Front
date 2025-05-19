@@ -105,23 +105,31 @@ export const useUsuarioServiciosStore = defineStore("usuarioServiciosStore", () 
   };
 
   // PUT relación
-  const actualizarRelacion = async (relacion: RelacionUsuarioServicio) => {
+  const actualizarRelacion = async (
+    idUsuarioOriginal: number,
+    idServicioOriginal: number,
+    idUsuarioNuevo: number,
+    idServicioNuevo: number
+  ) => {
     try {
       const response = await fetch(
-        `https://localhost:7163/api/UsuarioServicios/${relacion.usuarioId}/${relacion.servicioId}`,
+        `https://localhost:7163/api/UsuarioServicios/${idUsuarioOriginal}/${idServicioOriginal}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id_USUARIO: relacion.usuarioId,
-            id_SERVICIO: relacion.servicioId,
+            idUsuario: idUsuarioNuevo,
+            idServicio: idServicioNuevo,
           }),
         }
       );
 
-      if (!response.ok) throw new Error("Error al actualizar relación");
+      if (!response.ok) {
+        const errorMsg = await response.text();
+        throw new Error("Error al actualizar relación: " + errorMsg);
+      }
       await cargarRelaciones();
     } catch (error) {
       console.error("Error al actualizar relación:", error);

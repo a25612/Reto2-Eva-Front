@@ -5,36 +5,45 @@ import type { RelacionUsuarioServicio } from "../stores/usuariosServicios";
 import { useUsuariosStore } from "../stores/usuarios";
 import { useServiciosStore } from "../stores/servicios";
 
-// Store instances
 const usuarioServiciosStore = useUsuarioServiciosStore();
 const usuariosStore = useUsuariosStore();
 const serviciosStore = useServiciosStore();
 
-// Reactive variables
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
-const updatedRelacion = ref<Partial<RelacionUsuarioServicio> & { usuario?: any; servicio?: any }>({ id: "", usuario: null, servicio: null });
+const updatedRelacion = ref<{ id: string; usuario: any; servicio: any }>({ id: "", usuario: null, servicio: null });
 const newRelacion = ref<{ usuario: any; servicio: any }>({ usuario: null, servicio: null });
 
-// Lifecycle hooks
-onMounted(() => {
-  usuarioServiciosStore.cargarRelaciones();
-  usuariosStore.cargarUsuarios();
-  serviciosStore.cargarServicios();
+const idUsuarioOriginal = ref<number | null>(null);
+const idServicioOriginal = ref<number | null>(null);
+
+const datosCargados = ref(false);
+
+onMounted(async () => {
+  await Promise.all([
+    usuariosStore.cargarUsuarios(),
+    serviciosStore.cargarServicios(),
+    usuarioServiciosStore.cargarRelaciones(),
+  ]);
+  datosCargados.value = true;
 });
 
-// Watch for changes in the current relationship
 watch(
   () => usuarioServiciosStore.relacionActual,
   (nuevaRelacion) => {
-    if (nuevaRelacion) {
+    if (nuevaRelacion && datosCargados.value) {
+      idUsuarioOriginal.value = nuevaRelacion.usuarioId;
+      idServicioOriginal.value = nuevaRelacion.servicioId;
+      // Buscar el objeto real en los arrays para que el autocomplete funcione
       updatedRelacion.value = {
-        ...nuevaRelacion,
+        id: nuevaRelacion.id,
         usuario: usuariosStore.usuarios.find((u) => u.id === nuevaRelacion.usuarioId) || null,
         servicio: serviciosStore.servicios.find((s) => s.id === nuevaRelacion.servicioId) || null,
       };
       showFormUpdate.value = true;
     } else {
+      idUsuarioOriginal.value = null;
+      idServicioOriginal.value = null;
       updatedRelacion.value = { id: "", usuario: null, servicio: null };
       showFormUpdate.value = false;
     }
@@ -42,8 +51,10 @@ watch(
   { immediate: true }
 );
 
-// Function to save a new relationship
 const saveRelacion = async () => {
+  // Debug log
+  console.log("saveRelacion - usuario:", newRelacion.value.usuario, "servicio:", newRelacion.value.servicio);
+
   if (newRelacion.value.usuario?.id && newRelacion.value.servicio?.id) {
     await usuarioServiciosStore.guardarRelacion({
       usuarioId: newRelacion.value.usuario.id,
@@ -56,44 +67,46 @@ const saveRelacion = async () => {
   }
 };
 
-// Function to update an existing relationship
 const updateRelacion = async () => {
-  if (updatedRelacion.value.usuario?.id && updatedRelacion.value.servicio?.id) {
-    await usuarioServiciosStore.actualizarRelacion({
-      id: updatedRelacion.value.id as string,
-      usuarioId: updatedRelacion.value.usuario.id,
-      servicioId: updatedRelacion.value.servicio.id,
-      usuarioNombre: updatedRelacion.value.usuarioNombre || "",
-      servicioNombre: updatedRelacion.value.servicioNombre || "",
-    } as RelacionUsuarioServicio);
-    showFormUpdate.value = false;
-    usuarioServiciosStore.relacionActual = null;
-  } else {
-    alert("Debes seleccionar tanto un usuario como un servicio.");
+  const usuario = updatedRelacion.value.usuario;
+  const servicio = updatedRelacion.value.servicio;
+
+  // Debug log
+  console.log("updateRelacion - usuario:", usuario, "servicio:", servicio);
+
+  if (
+    !usuario ||
+    !servicio ||
+    typeof usuario.id !== "number" ||
+    typeof servicio.id !== "number" ||
+    typeof idUsuarioOriginal.value !== "number" ||
+    typeof idServicioOriginal.value !== "number"
+  ) {
+    alert("Debes seleccionar un usuario y un servicio.");
+    return;
   }
+
+  await usuarioServiciosStore.actualizarRelacion(
+    idUsuarioOriginal.value,
+    idServicioOriginal.value,
+    usuario.id,
+    servicio.id
+  );
+  showFormUpdate.value = false;
+  usuarioServiciosStore.relacionActual = null;
 };
 
-// Filtrado
 const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.value);
 
-// Eliminar relación (separa los IDs del id compuesto)
 const eliminarRelacion = (idCompuesto: string) => {
   const [usuarioId, servicioId] = idCompuesto.split("_").map(Number);
   usuarioServiciosStore.eliminarRelacion(usuarioId, servicioId);
 };
 </script>
 
-
 <template>
   <div class="relacion-usuarios-servicios">
-    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
-      <i class="fa-solid fa-arrow-left"></i>
-    </router-link>
-    <h1 class="relacion-usuarios-servicios__titulo">Relación Usuarios - Servicios</h1>
-
-    <div class="relacion-usuarios-servicios__separador-abajo">
-      <span class="relacion-usuarios-servicios__bar-separador"></span>
-    </div>
+    <!-- ... cabecera ... -->
 
     <div class="relacion-usuarios-servicios__botones">
       <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate()">
@@ -104,13 +117,8 @@ const eliminarRelacion = (idCompuesto: string) => {
     <!-- Barra de búsqueda -->
     <div class="relacion-usuarios-servicios__buscador">
       <div class="relacion-usuarios-servicios__buscador-contenedor">
-        <input 
-          v-model="searchTerm" 
-          class="relacion-usuarios-servicios__buscador-input" 
-          type="text" 
-          placeholder="Buscar relación..." 
-          @input="handleSearch"
-        />
+        <input v-model="searchTerm" class="relacion-usuarios-servicios__buscador-input" type="text"
+          placeholder="Buscar relación..." @input="handleSearch" />
         <button class="relacion-usuarios-servicios__buscador-boton" @click="handleSearch">
           <i class="fa-solid fa-search"></i>
         </button>
@@ -119,53 +127,41 @@ const eliminarRelacion = (idCompuesto: string) => {
 
     <!-- Lista de relaciones -->
     <div v-if="usuarioServiciosStore.relacionesFiltradas.length > 0" class="relacion-usuarios-servicios__lista">
-      <div v-for="relacion in usuarioServiciosStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-servicios__item">
+      <div v-for="relacion in usuarioServiciosStore.relacionesFiltradas" :key="relacion.id"
+        class="relacion-usuarios-servicios__item">
         <div class="relacion-usuarios-servicios__item-contenido">
           <h3 class="relacion-usuarios-servicios__item-usuario">Usuario: {{ relacion.usuarioNombre }}</h3>
           <p class="relacion-usuarios-servicios__item-servicio">Servicio: {{ relacion.servicioNombre }}</p>
         </div>
         <div class="relacion-usuarios-servicios__item-acciones">
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar" @click="usuarioServiciosStore.abrirFormularioEdicion(relacion)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar"
+            @click="usuarioServiciosStore.abrirFormularioEdicion(relacion)">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="eliminarRelacion(relacion.id)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar"
+            @click="eliminarRelacion(relacion.id)">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
       </div>
     </div>
-
     <div v-else class="relacion-usuarios-servicios__no-resultados">
       <p>No se encontraron relaciones</p>
     </div>
 
     <!-- Formulario de creación -->
-    <div v-if="usuarioServiciosStore.mostrarFormularioCrear" class="relacion-usuarios-servicios__formulario">
+    <div v-if="usuarioServiciosStore.mostrarFormularioCrear && datosCargados" class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Añadir Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="saveRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="usuario-create">Usuario:</label>
-          <v-autocomplete
-            v-model="newRelacion.usuario"
-            :items="usuariosStore.usuarios"
-            item-title="nombre"
-            item-value="id"
-            return-object
-            label="Nombre del usuario"
-            required
-          ></v-autocomplete>
+          <v-autocomplete v-model="newRelacion.usuario" :items="usuariosStore.usuarios" item-title="nombre"
+            item-value="id" return-object label="Nombre del usuario" required></v-autocomplete>
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="servicio-create">Servicio:</label>
-          <v-autocomplete
-            v-model="newRelacion.servicio"
-            :items="serviciosStore.servicios"
-            item-title="nombre"
-            item-value="id"
-            return-object
-            label="Nombre del servicio"
-            required
-          ></v-autocomplete>
+          <v-autocomplete v-model="newRelacion.servicio" :items="serviciosStore.servicios" item-title="nombre"
+            item-value="id" return-object label="Nombre del servicio" required></v-autocomplete>
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <button class="relacion-usuarios-servicios__formulario-boton" type="submit">Añadir Relación</button>
@@ -174,30 +170,18 @@ const eliminarRelacion = (idCompuesto: string) => {
     </div>
 
     <!-- Formulario de edición -->
-    <div v-if="showFormUpdate && updatedRelacion.id" class="relacion-usuarios-servicios__formulario">
+    <div v-if="showFormUpdate && updatedRelacion.id && datosCargados" class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Actualizar Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="updateRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="usuario-update">Usuario:</label>
-          <v-autocomplete
-            v-model="updatedRelacion.usuario"
-            :items="usuariosStore.usuarios"
-            item-title="nombre"
-            item-value="id"
-            label="Nombre del usuario"
-            required
-          ></v-autocomplete>
+          <v-autocomplete v-model="updatedRelacion.usuario" :items="usuariosStore.usuarios" item-title="nombre"
+            item-value="id" label="Usuario" return-object required></v-autocomplete>
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="servicio-update">Servicio:</label>
-          <v-autocomplete
-            v-model="updatedRelacion.servicio"
-            :items="serviciosStore.servicios"
-            item-title="nombre"
-            item-value="id"
-            label="Nombre del servicio"
-            required
-          ></v-autocomplete>
+          <v-autocomplete v-model="updatedRelacion.servicio" :items="serviciosStore.servicios" item-title="nombre"
+            item-value="id" label="Servicio" return-object required />
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <button class="relacion-usuarios-servicios__formulario-boton" type="submit">Actualizar Relación</button>
@@ -207,9 +191,7 @@ const eliminarRelacion = (idCompuesto: string) => {
   </div>
 </template>
 
-
 <style lang="scss">
-// Variables
 @import '../assets/styles/variables.scss';
 
 .relacion-usuarios-servicios {
@@ -399,7 +381,8 @@ const eliminarRelacion = (idCompuesto: string) => {
       }
     }
   }
-  .relacion-usuarios-servicios__boton{
+
+  .relacion-usuarios-servicios__boton {
     background-color: $color-principal;
     color: white;
     border: none;
@@ -410,7 +393,7 @@ const eliminarRelacion = (idCompuesto: string) => {
 
     &:hover {
       background-color: darken($color-principal, 10%);
-    } 
+    }
   }
 }
 </style>
