@@ -217,6 +217,12 @@ const confirmarMoverSesion = async () => {
     return
   }
 
+  if (!esHoraValidaParaSesion(newDate.value)) {
+    showConfirmCambio.value = false
+    openAlert('Solo puedes mover la sesión entre 7:30 y 14:00 o entre 15:00 y 20:00.');
+    return
+  }
+
   const ahora = new Date()
   const diffMs = fechaReservaActual.getTime() - ahora.getTime()
   const diffHoras = diffMs / (1000 * 60 * 60)
@@ -305,6 +311,19 @@ function estadoSesionTexto(estado: number | undefined) {
     default: return estado ?? ''
   }
 }
+
+function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean {
+  if (!fechaStr) return false;
+  const fecha = new Date(fechaStr);
+  const inicioMinutos = fecha.getHours() * 60 + fecha.getMinutes();
+  const finMinutos = inicioMinutos + duracionMinutos;
+
+  const enManana = inicioMinutos >= 450 && finMinutos <= 840;
+  const enTarde = inicioMinutos >= 900 && finMinutos <= 1200;
+
+  return enManana || enTarde;
+}
+
 </script>
 
 
@@ -469,9 +488,6 @@ function estadoSesionTexto(estado: number | undefined) {
     </div>
   </div>
 </template>
-
-
-
 
 
 <style scoped lang="scss">
