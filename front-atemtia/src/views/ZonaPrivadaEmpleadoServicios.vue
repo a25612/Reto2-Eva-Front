@@ -74,13 +74,13 @@ const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
 
-
-
 <template>
+  <!-- Botón volver atrás funcional -->
+  <button class="volver-atras" @click="$router.back()">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+
   <div class="relacion-usuarios-tutores">
-    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
-      <i class="fa-solid fa-arrow-left"></i>
-    </router-link>
     <h1 class="relacion-usuarios-tutores__titulo">Relación Usuarios - Tutores</h1>
 
     <div class="relacion-usuarios-tutores__separador-abajo">
@@ -138,26 +138,26 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <label class="relacion-usuarios-tutores__formulario-label" for="usuario-create">Usuario:</label>
           <v-autocomplete
-             v-model="newRelacion.usuario"
+            v-model="newRelacion.usuario"
             :items="usuariosStore.usuarios"
             item-title="nombre"
             item-value="id"
             return-object
-             label="Nombre del usuario"
+            label="Nombre del usuario"
             required
-    ></v-autocomplete>
+          ></v-autocomplete>
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <label class="relacion-usuarios-tutores__formulario-label" for="tutor-create">Tutor:</label>
           <v-autocomplete
-      v-model="newRelacion.tutor"
-      :items="tutoresStore.tutores"
-      item-title="nombre"
-      item-value="id"
-      return-object
-      label="Nombre del tutor"
-      required
-    ></v-autocomplete>
+            v-model="newRelacion.tutor"
+            :items="tutoresStore.tutores"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del tutor"
+            required
+          ></v-autocomplete>
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <button class="relacion-usuarios-tutores__formulario-boton" type="submit">Añadir Relación</button>
@@ -199,10 +199,7 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
   </div>
 </template>
 
-
-
 <style lang="scss">
-// Variables
 @import '../assets/styles/variables.scss';
 
 .relacion-usuarios-tutores {

@@ -1,7 +1,10 @@
+// src/stores/servicios.ts
+
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Ref } from 'vue';
 
+// Interfaces
 interface Centro {
   id: number;
   nombre: string;
@@ -16,7 +19,7 @@ interface OpcionServicio {
   descripcion: string;
 }
 
-interface Servicio {
+export interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
@@ -30,6 +33,7 @@ interface Usuario {
 }
 
 export const useServiciosStore = defineStore('servicios', () => {
+  // State
   const centros: Ref<Centro[]> = ref([]);
   const servicios: Ref<Servicio[]> = ref([]);
   const centroSeleccionado: Ref<number | null> = ref(null);
@@ -38,16 +42,15 @@ export const useServiciosStore = defineStore('servicios', () => {
   const cargandoServicios: Ref<boolean> = ref(false);
   const error: Ref<string> = ref('');
 
+  // Cargar todos los centros
   async function cargarCentros() {
     cargandoCentros.value = true;
     error.value = '';
-    
     try {
       const response = await fetch('https://localhost:7163/api/Centro');
       if (!response.ok) {
         throw new Error(`Error al cargar los centros: ${response.status}`);
       }
-      
       centros.value = await response.json();
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido al cargar centros';
@@ -57,25 +60,22 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   }
 
+  // Cargar servicios por centro
   async function cargarServiciosPorCentro(centroId: number) {
     if (!centroId) return;
-    
     centroSeleccionado.value = centroId;
     cargandoServicios.value = true;
     servicios.value = [];
     error.value = '';
-    
     const centroSeleccionadoObj = centros.value.find(c => c.id === centroId);
     if (centroSeleccionadoObj) {
       nombreCentroSeleccionado.value = centroSeleccionadoObj.nombre;
     }
-    
     try {
       const response = await fetch(`https://localhost:7163/api/Servicios/centros/${centroId}`);
       if (!response.ok) {
         throw new Error(`Error al cargar los servicios: ${response.status}`);
       }
-      
       servicios.value = await response.json();
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido al cargar servicios';
@@ -85,7 +85,25 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   }
 
-  
+  // Cargar todos los servicios (MÉTODO NECESARIO PARA TU FRONT)
+  async function cargarServicios() {
+    cargandoServicios.value = true;
+    error.value = '';
+    try {
+      const response = await fetch('https://localhost:7163/api/Servicios');
+      if (!response.ok) {
+        throw new Error(`Error al cargar los servicios: ${response.status}`);
+      }
+      servicios.value = await response.json();
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error desconocido al cargar servicios';
+      console.error('Error al cargar servicios:', err);
+    } finally {
+      cargandoServicios.value = false;
+    }
+  }
+
+  // Exportar state y métodos
   return {
     centros,
     servicios,
@@ -96,5 +114,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     error,
     cargarCentros,
     cargarServiciosPorCentro,
+    cargarServicios, // ¡Ahora puedes usar serviciosStore.cargarServicios()!
   };
 });

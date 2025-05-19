@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useUsuarioServiciosStore } from "../stores/usuariosServicios";
+import type { RelacionUsuarioServicio } from "../stores/usuariosServicios";
 import { useUsuariosStore } from "../stores/usuarios";
 import { useServiciosStore } from "../stores/servicios";
 
-// Store imports
+// Store instances
 const usuarioServiciosStore = useUsuarioServiciosStore();
 const usuariosStore = useUsuariosStore();
 const serviciosStore = useServiciosStore();
@@ -12,8 +13,8 @@ const serviciosStore = useServiciosStore();
 // Reactive variables
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
-const updatedRelacion = ref<any>({ id: null, usuario: null, servicio: null });
-const newRelacion = ref<any>({ usuario: null, servicio: null });
+const updatedRelacion = ref<Partial<RelacionUsuarioServicio> & { usuario?: any; servicio?: any }>({ id: "", usuario: null, servicio: null });
+const newRelacion = ref<{ usuario: any; servicio: any }>({ usuario: null, servicio: null });
 
 // Lifecycle hooks
 onMounted(() => {
@@ -29,45 +30,59 @@ watch(
     if (nuevaRelacion) {
       updatedRelacion.value = {
         ...nuevaRelacion,
-        usuario: usuariosStore.usuarios.find((u) => u.nombre === nuevaRelacion.usuarioNombre) || null,
-        servicio: serviciosStore.servicios.find((s) => s.nombre === nuevaRelacion.servicioNombre) || null,
+        usuario: usuariosStore.usuarios.find((u) => u.id === nuevaRelacion.usuarioId) || null,
+        servicio: serviciosStore.servicios.find((s) => s.id === nuevaRelacion.servicioId) || null,
       };
       showFormUpdate.value = true;
     } else {
-      updatedRelacion.value = { id: null, usuario: null, servicio: null };
+      updatedRelacion.value = { id: "", usuario: null, servicio: null };
       showFormUpdate.value = false;
     }
   },
   { immediate: true }
 );
 
-// Function to save or update a relationship
-const saveOrUpdateRelacion = async (relacion: any) => {
-  if (relacion.usuario?.id && relacion.servicio?.id) {
-    const datosRelacion = {
-      idUsuario: relacion.usuario.id,
-      idServicio: relacion.servicio.id,
-      ...(relacion.id && { id: relacion.id }),
-    };
-
-    await usuarioServiciosStore.guardarRelacion(datosRelacion);
-
-    if (!relacion.id) {
-      newRelacion.value = { usuario: null, servicio: null };
-      usuarioServiciosStore.mostrarFormularioCrear = false;
-    }
-
-    showFormUpdate.value = false;
+// Function to save a new relationship
+const saveRelacion = async () => {
+  if (newRelacion.value.usuario?.id && newRelacion.value.servicio?.id) {
+    await usuarioServiciosStore.guardarRelacion({
+      usuarioId: newRelacion.value.usuario.id,
+      servicioId: newRelacion.value.servicio.id,
+    });
+    newRelacion.value = { usuario: null, servicio: null };
+    usuarioServiciosStore.mostrarFormularioCrear = false;
   } else {
     alert("Debes seleccionar tanto un usuario como un servicio.");
   }
 };
 
-const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
-const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
+// Function to update an existing relationship
+const updateRelacion = async () => {
+  if (updatedRelacion.value.usuario?.id && updatedRelacion.value.servicio?.id) {
+    await usuarioServiciosStore.actualizarRelacion({
+      id: updatedRelacion.value.id as string,
+      usuarioId: updatedRelacion.value.usuario.id,
+      servicioId: updatedRelacion.value.servicio.id,
+      usuarioNombre: updatedRelacion.value.usuarioNombre || "",
+      servicioNombre: updatedRelacion.value.servicioNombre || "",
+    } as RelacionUsuarioServicio);
+    showFormUpdate.value = false;
+    usuarioServiciosStore.relacionActual = null;
+  } else {
+    alert("Debes seleccionar tanto un usuario como un servicio.");
+  }
+};
 
+// Filtrado
 const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.value);
+
+// Eliminar relación (separa los IDs del id compuesto)
+const eliminarRelacion = (idCompuesto: string) => {
+  const [usuarioId, servicioId] = idCompuesto.split("_").map(Number);
+  usuarioServiciosStore.eliminarRelacion(usuarioId, servicioId);
+};
 </script>
+
 
 <template>
   <div class="relacion-usuarios-servicios">
@@ -81,7 +96,7 @@ const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.va
     </div>
 
     <div class="relacion-usuarios-servicios__botones">
-      <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate">
+      <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate()">
         Añadir Relación
       </button>
     </div>
@@ -113,7 +128,7 @@ const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.va
           <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar" @click="usuarioServiciosStore.abrirFormularioEdicion(relacion)">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="usuarioServiciosStore.eliminarRelacion(relacion.id)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="eliminarRelacion(relacion.id)">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -191,6 +206,7 @@ const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.va
     </div>
   </div>
 </template>
+
 
 <style lang="scss">
 // Variables
