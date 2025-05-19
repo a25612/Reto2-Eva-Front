@@ -127,7 +127,6 @@ function formatearFechaSinSegundos(fechaStr: string) {
     align-items: center;
     gap: 10px;
     margin-bottom: 0;
-    
   }
 
   .sesion-list label {
@@ -184,7 +183,8 @@ function formatearFechaSinSegundos(fechaStr: string) {
   }
 
   &__lista {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 25px;
 
     .reserva-card {
@@ -288,7 +288,7 @@ function formatearFechaSinSegundos(fechaStr: string) {
 @media (max-width: 768px) {
   .reservas {
     &__lista {
-      flex-direction: column;
+      grid-template-columns: 1fr;
       align-items: center;
     }
 
@@ -301,4 +301,13 @@ function formatearFechaSinSegundos(fechaStr: string) {
     gap: 30px;
   }
 }
+
+@media (min-width: 1200px) {
+  .reservas__lista {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+
+
 </style>
