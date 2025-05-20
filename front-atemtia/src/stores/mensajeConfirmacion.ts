@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export interface MensajeConfirmacionAdaptado {
     id: number
     id_Sesion: number
-    id_Empleado: number
+    id_Profesional: number
     tipo: string
     mensaje: string
     fechaEnvio: string
@@ -28,17 +28,17 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
         error: null as string | null,
     }),
     actions: {
-        async cargarMensajesPorEmpleado(empleadoId: number) {
+        async cargarMensajesPorProfesional(profesionalId: number) {
             this.cargando = true
             this.error = null
             try {
-                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/empleado/${empleadoId}`)
+                const res = await fetch(`https://localhost:7163/api/MensajeConfirmacion/profesional/${profesionalId}`)
                 if (!res.ok) throw new Error('Error al cargar los mensajes')
                 const data = await res.json()
                 this.mensajes = data.map((m: any) => ({
                     id: m.id,
                     id_Sesion: m.id_Sesion,
-                    id_Empleado: m.id_Empleado,
+                    id_Profesional: m.id_Profesional,
                     tipo: m.tipo,
                     mensaje: m.mensaje,
                     fechaEnvio: m.fechaMensaje,
@@ -75,7 +75,7 @@ export const useMensajeConfirmacionStore = defineStore('mensajeConfirmacion', {
                 this.mensajes = data.map((m: any) => ({
                     id: m.id,
                     id_Sesion: m.id_Sesion,
-                    id_Empleado: m.id_Empleado,
+                    id_Profesional: m.id_Profesional,
                     tipo: m.tipo,
                     mensaje: m.mensaje,
                     fechaEnvio: m.fechaMensaje,

@@ -27,15 +27,15 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         )
         const resultados = await Promise.all(peticiones)
         sesiones.value = resultados.flat()
-      } else if (rol === 'EMPLEADO') {
+      } else if (rol === 'PROFESIONAL') {
         if (!userId) {
           sesiones.value = []
           return
         }
-        const response = await fetch(`https://localhost:7163/api/Sesion/Empleado/${userId}`)
+        const response = await fetch(`https://localhost:7163/api/Sesion/Profesional/${userId}`)
         if (!response.ok) {
           sesiones.value = []
-          error.value = 'Error al obtener sesiones de empleado'
+          error.value = 'Error al obtener sesiones de profesional'
           return
         }
         sesiones.value = await response.json()
@@ -88,12 +88,12 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         })
         if (!response.ok) throw new Error('Error al cancelar la sesión')
 
-        const idEmpleado = sesion.iD_EMPLEADO || sesion.id_empleado || sesion.ID_EMPLEADO
-        if (!idEmpleado) throw new Error('No se ha encontrado el empleado de la sesión')
+        const idProfesional = sesion.iD_PROFESIONAL || sesion.id_profesional || sesion.ID_PROFESIONAL
+        if (!idProfesional) throw new Error('No se ha encontrado el profesional de la sesión')
 
         const mensajeCancelacion = {
           id_Sesion: id,
-          id_Empleado: idEmpleado,
+          id_Profesional: idProfesional,
           tipo: 'CANCELADA',
           mensaje: motivo,
           fechaMensaje: new Date().toISOString(),
@@ -119,17 +119,17 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     if (sesion) {
       await moverSesion(id)
 
-      const idEmpleado = sesion.iD_EMPLEADO || sesion.id_empleado || sesion.ID_EMPLEADO
+      const idProfesional = sesion.iD_PROFESIONAL || sesion.id_profesional || sesion.ID_PROFESIONAL
 
-      if (!idEmpleado) {
-        error.value = 'No se ha encontrado el empleado que da la sesión. Revisa los datos de la sesión.'
-        console.error('Sesión sin empleado válido:', sesion)
+      if (!idProfesional) {
+        error.value = 'No se ha encontrado el profesional que da la sesión. Revisa los datos de la sesión.'
+        console.error('Sesión sin profesional válido:', sesion)
         return
       }
 
       const mensajeConfirmacion = {
         id_Sesion: id,
-        id_Empleado: idEmpleado,
+        id_Profesional: idProfesional,
         tipo: "MOVIDA",
         mensaje: motivo,
         fechaMensaje: new Date().toISOString(),

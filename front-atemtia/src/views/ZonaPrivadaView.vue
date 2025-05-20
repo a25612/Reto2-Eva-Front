@@ -37,7 +37,7 @@
     </div>
 
     <div class="botones">
-      <router-link to="/home-app-atemtia/zona-privada/empleados-servicios" class="btn-accion">Empleados-Servicios</router-link>
+      <router-link to="/home-app-atemtia/zona-privada/profesionales-servicios" class="btn-accion">Profesionales-Servicios</router-link>
     </div>
 
   </div>

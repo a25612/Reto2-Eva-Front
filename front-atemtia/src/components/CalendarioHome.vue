@@ -104,7 +104,7 @@ const openModal = async (sesion: any) => {
   showModal.value = true
 
   const rol = authStore.rol?.toUpperCase()
-  if (rol === 'EMPLEADO' && esSesionGrupal(sesion)) {
+  if (rol === 'PROFESIONAL' && esSesionGrupal(sesion)) {
     usuariosGrupoLoading.value = true
     usuariosGrupoError.value = null
     usuariosGrupo.value = []
@@ -235,7 +235,7 @@ const confirmarMoverSesion = async () => {
   await calendarioStore.solicitarMoverSesion(selectedSesion.value.id, newDate.value, motivo.value)
   showConfirmCambio.value = false
 
-  openAlert('Solicitud de cambio enviada. El empleado debe confirmar el cambio.', () => {
+  openAlert('Solicitud de cambio enviada. El profesional debe confirmar el cambio.', () => {
     showDatePicker.value = false
     showModal.value = false
     newDate.value = ''
@@ -378,8 +378,8 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
         <h2 style="color:#19b7e6;text-align:center;">Información de la Sesión</h2>
         <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
         <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
-        <!-- Mostrar usuarios del grupo si es empleado y la sesión es grupal -->
-        <div v-if="authStore.rol.toUpperCase() === 'EMPLEADO' && esSesionGrupal(selectedSesion)">
+        <!-- Mostrar usuarios del grupo si es profesional y la sesión es grupal -->
+        <div v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && esSesionGrupal(selectedSesion)">
           <p><strong>Usuarios del grupo:</strong></p>
           <!-- <div v-if="usuariosGrupoLoading">Cargando usuarios...</div> -->
           <!-- <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>

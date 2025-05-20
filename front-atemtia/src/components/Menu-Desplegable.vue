@@ -23,7 +23,7 @@ const cerrarSesionHandler = () => {
       <span class="bar-izquierda"></span>
       <span class="bar-izquierda"></span>
     </button>
-    <nav class="nav-izquierda" :class="{ 'nav-tutor': userRole === 'TUTOR', 'nav-empleado': userRole === 'EMPLEADO' }">
+    <nav class="nav-izquierda" :class="{ 'nav-tutor': userRole === 'TUTOR', 'nav-profesional': userRole === 'PROFESIONAL' }">
       <ul class="nav-izquierda-menu">
         <li>
           <a href="#" class="menu-izquierda-link">
@@ -38,7 +38,7 @@ const cerrarSesionHandler = () => {
             Mi cuenta
           </router-link>
         </li>
-        <li v-if="userRole === 'EMPLEADO'">
+        <li v-if="userRole === 'PROFESIONAL'">
           <router-link to="/home-app-atemtia/zona-privada" class="menu-izquierda-link">
             <i class="fa-solid fa-shield"></i>
             Administración
@@ -46,7 +46,7 @@ const cerrarSesionHandler = () => {
         </li>
         <li>
           <button @click="cerrarSesionHandler" class="menu-izquierda-link-cerrar-sesion"
-            :style="{ marginTop: userRole === 'EMPLEADO' ? '520px' : userRole === 'TUTOR' ? '640px' : '0' }">
+            :style="{ marginTop: userRole === 'PROFESIONAL' ? '520px' : userRole === 'TUTOR' ? '640px' : '0' }">
             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </li>
@@ -121,7 +121,7 @@ const cerrarSesionHandler = () => {
     padding: 1rem;
   }
 
-  .nav-empleado {
+  .nav-profesional {
     font-family: $fuente-principal;
     position: fixed;
     top: 1px;
@@ -233,7 +233,7 @@ const cerrarSesionHandler = () => {
     display: none;
   }
 
-  .nav-izquierda.nav-empleado .menu-izquierda-link-cerrar-sesion {
+  .nav-izquierda.nav-profesional .menu-izquierda-link-cerrar-sesion {
     margin-top: 660px !important;
 
   }

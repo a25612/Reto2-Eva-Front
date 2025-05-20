@@ -7,7 +7,7 @@ interface Servicio {
   descripcion: string;
   precio: number | null;
   activo: boolean;
-  id_empleado: number;
+  id_profesional: number;
 }
 
 export const useServiciosStore = defineStore('servicios', () => {
@@ -24,7 +24,7 @@ export const useServiciosStore = defineStore('servicios', () => {
     descripcion: '',
     precio: null,
     activo: false,
-    id_empleado: 0,
+    id_profesional: 0,
   });
 
   const updatedServicio = ref<Servicio>({
@@ -33,7 +33,7 @@ export const useServiciosStore = defineStore('servicios', () => {
     descripcion: '',
     precio: null,
     activo: false,
-    id_empleado: 0,
+    id_profesional: 0,
   });
 
   // Función para obtener servicios
@@ -64,7 +64,7 @@ export const useServiciosStore = defineStore('servicios', () => {
 
       await fetchServicios();
       showFormCreate.value = false;
-      newServicio.value = { nombre: '', descripcion: '', precio: null, activo: false, id_empleado: 0 };
+      newServicio.value = { nombre: '', descripcion: '', precio: null, activo: false, id_profesional: 0 };
     } catch (err: any) {
       error.value = err.message || 'Error al crear el servicio';
     }

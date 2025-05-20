@@ -81,7 +81,7 @@ function formatearFechaSinSegundos(fechaStr: string) {
       <div v-for="reserva in reservasFiltradas" :key="reserva.id" class="reserva-card">
         <h3>{{ reserva.usuario.nombre }}</h3>
         <p><strong>Servicio:</strong> {{ reserva.servicio.nombre }}</p>
-        <p><strong>Empleado:</strong> {{ reserva.empleado.nombre }}</p>
+        <p><strong>Profesinal:</strong> {{ reserva.profesional.nombre }}</p>
         <p><strong>Centro:</strong> {{ reserva.centro.nombre }}</p>
         <p><strong>Precio:</strong> {{ reserva.tarifa.precio }} €</p>
         <p><strong>Fecha:</strong> {{ formatearFechaSinSegundos(reserva.fecha) }}</p>

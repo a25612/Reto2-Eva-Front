@@ -1,40 +1,29 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useUsuarioServiciosStore } from "../stores/usuariosServicios";
-import type { RelacionUsuarioServicio } from "../stores/usuariosServicios";
 import { useUsuariosStore } from "../stores/usuarios";
 import { useServiciosStore } from "../stores/servicios";
 
-const usuarioServiciosStore = useUsuarioServiciosStore();
+const relacionesStore = useUsuarioServiciosStore();
 const usuariosStore = useUsuariosStore();
 const serviciosStore = useServiciosStore();
 
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
-const updatedRelacion = ref<{ id: string; usuario: any; servicio: any }>({ id: "", usuario: null, servicio: null });
-const newRelacion = ref<{ usuario: any; servicio: any }>({ usuario: null, servicio: null });
+const updatedRelacion = ref<any>({ id: null, usuario: null, servicio: null });
+const newRelacion = ref<any>({ usuario: null, servicio: null });
 
-const idUsuarioOriginal = ref<number | null>(null);
-const idServicioOriginal = ref<number | null>(null);
-
-const datosCargados = ref(false);
-
-onMounted(async () => {
-  await Promise.all([
-    usuariosStore.cargarUsuarios(),
-    serviciosStore.cargarServicios(),
-    usuarioServiciosStore.cargarRelaciones(),
-  ]);
-  datosCargados.value = true;
+onMounted(() => {
+  relacionesStore.cargarRelaciones();
+  usuariosStore.cargarUsuarios();
+  serviciosStore.cargarServicios();
 });
 
+// Watch para edición: busca por ID, no por nombre
 watch(
-  () => usuarioServiciosStore.relacionActual,
+  () => relacionesStore.relacionActual,
   (nuevaRelacion) => {
-    if (nuevaRelacion && datosCargados.value) {
-      idUsuarioOriginal.value = nuevaRelacion.usuarioId;
-      idServicioOriginal.value = nuevaRelacion.servicioId;
-      // Buscar el objeto real en los arrays para que el autocomplete funcione
+    if (nuevaRelacion) {
       updatedRelacion.value = {
         id: nuevaRelacion.id,
         usuario: usuariosStore.usuarios.find((u) => u.id === nuevaRelacion.usuarioId) || null,
@@ -42,66 +31,37 @@ watch(
       };
       showFormUpdate.value = true;
     } else {
-      idUsuarioOriginal.value = null;
-      idServicioOriginal.value = null;
-      updatedRelacion.value = { id: "", usuario: null, servicio: null };
+      updatedRelacion.value = { id: null, usuario: null, servicio: null };
       showFormUpdate.value = false;
     }
   },
   { immediate: true }
 );
 
-const saveRelacion = async () => {
-  // Debug log
-  console.log("saveRelacion - usuario:", newRelacion.value.usuario, "servicio:", newRelacion.value.servicio);
+const saveOrUpdateRelacion = async (relacion: any) => {
+  if (relacion.usuario?.id && relacion.servicio?.id) {
+    const datosRelacion = {
+      idUsuario: relacion.usuario.id,
+      idServicio: relacion.servicio.id,
+      ...(relacion.id && { id: relacion.id }),
+    };
 
-  if (newRelacion.value.usuario?.id && newRelacion.value.servicio?.id) {
-    await usuarioServiciosStore.guardarRelacion({
-      usuarioId: newRelacion.value.usuario.id,
-      servicioId: newRelacion.value.servicio.id,
-    });
-    newRelacion.value = { usuario: null, servicio: null };
-    usuarioServiciosStore.mostrarFormularioCrear = false;
+    await relacionesStore.guardarRelacion(datosRelacion);
+
+    if (!relacion.id) {
+      newRelacion.value = { usuario: null, servicio: null };
+      relacionesStore.mostrarFormularioCrear = false;
+    }
+    showFormUpdate.value = false;
   } else {
     alert("Debes seleccionar tanto un usuario como un servicio.");
   }
 };
 
-const updateRelacion = async () => {
-  const usuario = updatedRelacion.value.usuario;
-  const servicio = updatedRelacion.value.servicio;
+const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
+const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 
-  // Debug log
-  console.log("updateRelacion - usuario:", usuario, "servicio:", servicio);
-
-  if (
-    !usuario ||
-    !servicio ||
-    typeof usuario.id !== "number" ||
-    typeof servicio.id !== "number" ||
-    typeof idUsuarioOriginal.value !== "number" ||
-    typeof idServicioOriginal.value !== "number"
-  ) {
-    alert("Debes seleccionar un usuario y un servicio.");
-    return;
-  }
-
-  await usuarioServiciosStore.actualizarRelacion(
-    idUsuarioOriginal.value,
-    idServicioOriginal.value,
-    usuario.id,
-    servicio.id
-  );
-  showFormUpdate.value = false;
-  usuarioServiciosStore.relacionActual = null;
-};
-
-const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.value);
-
-const eliminarRelacion = (idCompuesto: string) => {
-  const [usuarioId, servicioId] = idCompuesto.split("_").map(Number);
-  usuarioServiciosStore.eliminarRelacion(usuarioId, servicioId);
-};
+const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
 
 <template>
@@ -109,67 +69,81 @@ const eliminarRelacion = (idCompuesto: string) => {
     <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
       <i class="fa-solid fa-arrow-left"></i>
     </router-link>
-     <h1 class="relacion-usuarios-servicios__titulo">Relación Usuarios - Servicios</h1>
+    <h1 class="relacion-usuarios-servicios__titulo">Relación Usuarios - Servicios</h1>
 
     <div class="relacion-usuarios-servicios__separador-abajo">
       <span class="relacion-usuarios-servicios__bar-separador"></span>
     </div>
 
     <div class="relacion-usuarios-servicios__botones">
-      <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate()">
+      <button class="relacion-usuarios-servicios__boton" @click="relacionesStore.toggleFormCreate">
         Añadir Relación
       </button>
     </div>
 
-    <!-- Barra de búsqueda -->
     <div class="relacion-usuarios-servicios__buscador">
       <div class="relacion-usuarios-servicios__buscador-contenedor">
-        <input v-model="searchTerm" class="relacion-usuarios-servicios__buscador-input" type="text"
-          placeholder="Buscar relación..." @input="handleSearch" />
+        <input 
+          v-model="searchTerm" 
+          class="relacion-usuarios-servicios__buscador-input" 
+          type="text" 
+          placeholder="Buscar relación..." 
+          @input="handleSearch"
+        />
         <button class="relacion-usuarios-servicios__buscador-boton" @click="handleSearch">
           <i class="fa-solid fa-search"></i>
         </button>
       </div>
     </div>
 
-    <!-- Lista de relaciones -->
-    <div v-if="usuarioServiciosStore.relacionesFiltradas.length > 0" class="relacion-usuarios-servicios__lista">
-      <div v-for="relacion in usuarioServiciosStore.relacionesFiltradas" :key="relacion.id"
-        class="relacion-usuarios-servicios__item">
+    <div v-if="relacionesStore.relacionesFiltradas.length > 0" class="relacion-usuarios-servicios__lista">
+      <div v-for="relacion in relacionesStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-servicios__item">
         <div class="relacion-usuarios-servicios__item-contenido">
           <h3 class="relacion-usuarios-servicios__item-usuario">Usuario: {{ relacion.usuarioNombre }}</h3>
           <p class="relacion-usuarios-servicios__item-servicio">Servicio: {{ relacion.servicioNombre }}</p>
         </div>
         <div class="relacion-usuarios-servicios__item-acciones">
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar"
-            @click="usuarioServiciosStore.abrirFormularioEdicion(relacion)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar" @click="relacionesStore.abrirFormularioEdicion(relacion)">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar"
-            @click="eliminarRelacion(relacion.id)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="relacionesStore.eliminarRelacion(relacion.id)">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
       </div>
     </div>
+
     <div v-else class="relacion-usuarios-servicios__no-resultados">
       <p>No se encontraron relaciones</p>
     </div>
 
     <!-- Formulario de creación -->
-    <div v-if="usuarioServiciosStore.mostrarFormularioCrear && datosCargados"
-      class="relacion-usuarios-servicios__formulario">
+    <div v-if="relacionesStore.mostrarFormularioCrear" class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Añadir Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="saveRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="usuario-create">Usuario:</label>
-          <v-autocomplete v-model="newRelacion.usuario" :items="usuariosStore.usuarios" item-title="nombre"
-            item-value="id" return-object label="Nombre del usuario" required></v-autocomplete>
+          <v-autocomplete
+            v-model="newRelacion.usuario"
+            :items="usuariosStore.usuarios"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del usuario"
+            required
+          />
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="servicio-create">Servicio:</label>
-          <v-autocomplete v-model="newRelacion.servicio" :items="serviciosStore.servicios" item-title="nombre"
-            item-value="id" return-object label="Nombre del servicio" required></v-autocomplete>
+          <v-autocomplete
+            v-model="newRelacion.servicio"
+            :items="serviciosStore.servicios"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del servicio"
+            required
+          />
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <button class="relacion-usuarios-servicios__formulario-boton" type="submit">Añadir Relación</button>
@@ -178,18 +152,32 @@ const eliminarRelacion = (idCompuesto: string) => {
     </div>
 
     <!-- Formulario de edición -->
-    <div v-if="showFormUpdate && updatedRelacion.id && datosCargados" class="relacion-usuarios-servicios__formulario">
+    <div v-if="showFormUpdate && updatedRelacion.id" class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Actualizar Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="updateRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="usuario-update">Usuario:</label>
-          <v-autocomplete v-model="updatedRelacion.usuario" :items="usuariosStore.usuarios" item-title="nombre"
-            item-value="id" label="Usuario" return-object required></v-autocomplete>
+          <v-autocomplete
+            v-model="updatedRelacion.usuario"
+            :items="usuariosStore.usuarios"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del usuario"
+            required
+          />
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <label class="relacion-usuarios-servicios__formulario-label" for="servicio-update">Servicio:</label>
-          <v-autocomplete v-model="updatedRelacion.servicio" :items="serviciosStore.servicios" item-title="nombre"
-            item-value="id" label="Servicio" return-object required />
+          <v-autocomplete
+            v-model="updatedRelacion.servicio"
+            :items="serviciosStore.servicios"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del servicio"
+            required
+          />
         </div>
         <div class="relacion-usuarios-servicios__formulario-grupo">
           <button class="relacion-usuarios-servicios__formulario-boton" type="submit">Actualizar Relación</button>
@@ -200,6 +188,7 @@ const eliminarRelacion = (idCompuesto: string) => {
 </template>
 
 <style lang="scss">
+// Puedes copiar el mismo SCSS y solo cambiar los nombres de clase a "relacion-usuarios-servicios"
 @import '../assets/styles/variables.scss';
 
 .relacion-usuarios-servicios {
@@ -389,8 +378,7 @@ const eliminarRelacion = (idCompuesto: string) => {
       }
     }
   }
-
-  .relacion-usuarios-servicios__boton {
+  .relacion-usuarios-servicios__boton{
     background-color: $color-principal;
     color: white;
     border: none;
@@ -401,7 +389,7 @@ const eliminarRelacion = (idCompuesto: string) => {
 
     &:hover {
       background-color: darken($color-principal, 10%);
-    }
+    } 
   }
 }
 </style>

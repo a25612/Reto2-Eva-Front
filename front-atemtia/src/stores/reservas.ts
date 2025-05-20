@@ -9,7 +9,7 @@ export interface Reserva {
     nombre: string
   }
   servicio: { nombre: string }
-  empleado: { nombre: string }
+  profesional: { nombre: string }
   centro: { nombre: string }
   tarifa: { precio: number }
   facturar: boolean
@@ -51,13 +51,13 @@ export const useReservasStore = defineStore('reservas', () => {
           id: r.id,
           nombre: r.data?.[0]?.usuario?.nombre || `Usuario ${r.id}`,
         }))
-      } else if (rol === 'Empleado') {
+      } else if (rol === 'Profesional') {
         const userId = localStorage.getItem('userId')
         if (!userId) {
           error.value = 'No se encontró el usuario'
           return
         }
-        const response = await fetch(`https://localhost:7163/api/Sesion/Empleado/${userId}`, {
+        const response = await fetch(`https://localhost:7163/api/Sesion/Profesional/${userId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json',

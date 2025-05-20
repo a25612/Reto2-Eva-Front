@@ -14,7 +14,7 @@ export interface Usuario {
   nombre: string;
 }
 
-export interface Empleado {
+export interface Profesional {
   id: string;
   nombre: string;
   dni: string;
@@ -23,10 +23,10 @@ export interface Empleado {
 export const useMiCuentaStore = defineStore('miCuenta', () => {
   const tutor = ref<Tutor | null>(null);
   const usuarios = ref<Usuario[]>([]);
-  const empleados = ref<Empleado[]>([]);
+  const profesionales = ref<Profesional[]>([]);
   const cargandoTutor = ref(false);
   const cargandoUsuarios = ref(false);
-  const cargandoEmpleados = ref(false);
+  const cargandoProfesionales = ref(false);
   const error = ref('');
   const usuarioSeleccionadoId = ref<string>(localStorage.getItem('ultimoUsuarioSeleccionado') || '');
 
@@ -63,14 +63,14 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
         if (!response.ok) throw new Error(`Error al cargar usuarios: ${response.status}`);
         usuarios.value = await response.json();
         cargandoUsuarios.value = false;
-      } else if (rol === 'Empleado') {
-        cargandoEmpleados.value = true;
-        response = await fetch(`https://localhost:7163/api/Empleado/${userId}`, {
+      } else if (rol === 'Profesional') {
+        cargandoProfesionales.value = true;
+        response = await fetch(`https://localhost:7163/api/Profesional/${userId}`, {
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
-        if (!response.ok) throw new Error(`Error al cargar datos del empleado: ${response.status}`);
-        empleados.value = [await response.json()];  // Empaquetamos en un array
-        cargandoEmpleados.value = false;
+        if (!response.ok) throw new Error(`Error al cargar datos del profesional: ${response.status}`);
+        profesionales.value = [await response.json()];  // Empaquetamos en un array
+        cargandoProfesionales.value = false;
       } else {
         throw new Error('Rol no válido');
       }    
@@ -94,10 +94,10 @@ export const useMiCuentaStore = defineStore('miCuenta', () => {
   return {
     tutor,
     usuarios,
-    empleados,
+    profesionales,
     cargandoTutor,
     cargandoUsuarios,
-    cargandoEmpleados,
+    cargandoProfesionales,
     error,
     usuarioSeleccionadoId,  
     cargarTodosDatos,

@@ -53,7 +53,7 @@ const cerrarSesion = () => {
 
     <p v-if="miCuentaStore.error" class="error">{{ miCuentaStore.error }}</p>
 
-    <div v-if="miCuentaStore.cargandoTutor || miCuentaStore.cargandoUsuarios || miCuentaStore.cargandoEmpleados"
+    <div v-if="miCuentaStore.cargandoTutor || miCuentaStore.cargandoUsuarios || miCuentaStore.cargandoProfesionales"
       class="loading">
       <div class="newtons-cradle">
         <div class="newtons-cradle__dot"></div>
@@ -79,14 +79,14 @@ const cerrarSesion = () => {
       <p v-else>No hay usuarios asignados.</p>
     </div>
 
-    <div v-if="authStore.rol === 'Empleado' && miCuentaStore.empleados.length > 0" class="mi-cuenta__info">
-      <p><strong>Nombre:</strong> {{ miCuentaStore.empleados[0]?.nombre }}</p>
-      <p><strong>DNI:</strong> {{ miCuentaStore.empleados[0]?.dni }}</p>
-      <p><strong>Rol:</strong> Empleado</p>
+    <div v-if="authStore.rol === 'Profesional' && miCuentaStore.profesionales.length > 0" class="mi-cuenta__info">
+      <p><strong>Nombre:</strong> {{ miCuentaStore.profesionales[0]?.nombre }}</p>
+      <p><strong>DNI:</strong> {{ miCuentaStore.profesionales[0]?.dni }}</p>
+      <p><strong>Rol:</strong> Profesional</p>
     </div>
 
     <p
-      v-else-if="!miCuentaStore.cargandoTutor && !miCuentaStore.cargandoUsuarios && !miCuentaStore.cargandoEmpleados && !miCuentaStore.tutor && miCuentaStore.empleados.length === 0 && miCuentaStore.usuarios.length === 0">
+      v-else-if="!miCuentaStore.cargandoTutor && !miCuentaStore.cargandoUsuarios && !miCuentaStore.cargandoProfesionales && !miCuentaStore.tutor && miCuentaStore.profesionales.length === 0 && miCuentaStore.usuarios.length === 0">
       No hay información disponible.
     </p>
 

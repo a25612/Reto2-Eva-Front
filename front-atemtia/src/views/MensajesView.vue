@@ -31,7 +31,7 @@ onMounted(async () => {
   if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR' && userId) {
     await mensajeStore.cargarMensajesPorTutor(Number(userId))
   } else if (userId) {
-    await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
+    await mensajeStore.cargarMensajesPorProfesional(Number(userId))
   }
 })
 
@@ -68,7 +68,7 @@ const handleAceptarSolicitud = async (mensajeId: number) => {
     if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR') {
       await mensajeStore.cargarMensajesPorTutor(Number(userId))
     } else {
-      await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
+      await mensajeStore.cargarMensajesPorProfesional(Number(userId))
     }
     mensajeStore.error = null
   } catch (error) {
@@ -89,7 +89,7 @@ const handleCancelarSolicitud = async (mensajeId: number) => {
     if (authStore.rol && authStore.rol.toUpperCase() === 'TUTOR') {
       await mensajeStore.cargarMensajesPorTutor(Number(userId))
     } else {
-      await mensajeStore.cargarMensajesPorEmpleado(Number(userId))
+      await mensajeStore.cargarMensajesPorProfesional(Number(userId))
     }
     mensajeStore.error = null
   } catch (error) {
