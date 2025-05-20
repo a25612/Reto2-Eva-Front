@@ -106,7 +106,14 @@ const eliminarRelacion = (idCompuesto: string) => {
 
 <template>
   <div class="relacion-usuarios-servicios">
-    <!-- ... cabecera ... -->
+    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
+     <h1 class="relacion-usuarios-servicios__titulo">Relación Usuarios - Servicios</h1>
+
+    <div class="relacion-usuarios-servicios__separador-abajo">
+      <span class="relacion-usuarios-servicios__bar-separador"></span>
+    </div>
 
     <div class="relacion-usuarios-servicios__botones">
       <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate()">
@@ -150,7 +157,8 @@ const eliminarRelacion = (idCompuesto: string) => {
     </div>
 
     <!-- Formulario de creación -->
-    <div v-if="usuarioServiciosStore.mostrarFormularioCrear && datosCargados" class="relacion-usuarios-servicios__formulario">
+    <div v-if="usuarioServiciosStore.mostrarFormularioCrear && datosCargados"
+      class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Añadir Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="saveRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
