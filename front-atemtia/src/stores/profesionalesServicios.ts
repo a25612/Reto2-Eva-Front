@@ -46,7 +46,7 @@ export const useProfesionalesServiciosStore = defineStore("profesionalesServicio
 
   const cargarProfesionales = async () => {
     try {
-      const res = await fetch("https://localhost:7163/api/Profesionales");
+      const res = await fetch("https://localhost:7163/api/Profesional");
       if (!res.ok) throw new Error("Error al obtener profesionales");
       const data = await res.json();
       profesionales.value = data;
