@@ -4,33 +4,30 @@ import { useRelacionesStore } from "../stores/UsuariosTutores";
 import { useUsuariosStore } from "../stores/usuarios";
 import { useTutoresStore } from "../stores/tutores";
 
-// Store imports
 const relacionesStore = useRelacionesStore();
 const usuariosStore = useUsuariosStore();
 const tutoresStore = useTutoresStore();
 
-// Reactive variables
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
 const updatedRelacion = ref<any>({ id: null, usuario: null, tutor: null });
 const newRelacion = ref<any>({ usuario: null, tutor: null });
 
-// Lifecycle hooks
 onMounted(() => {
   relacionesStore.cargarRelaciones();
   usuariosStore.cargarUsuarios();
   tutoresStore.cargarTutores();
 });
 
-// Watch for changes in the current relationship
+// Watch para edición: busca por ID, no por nombre
 watch(
   () => relacionesStore.relacionActual,
   (nuevaRelacion) => {
     if (nuevaRelacion) {
       updatedRelacion.value = {
-        ...nuevaRelacion,
-        usuario: usuariosStore.usuarios.find((u) => u.nombre === nuevaRelacion.usuarioNombre) || null,
-        tutor: tutoresStore.tutores.find((t) => t.nombre === nuevaRelacion.tutorNombre) || null,
+        id: nuevaRelacion.id,
+        usuario: usuariosStore.usuarios.find((u) => u.id === nuevaRelacion.usuarioId) || null,
+        tutor: tutoresStore.tutores.find((t) => t.id === nuevaRelacion.tutorId) || null,
       };
       showFormUpdate.value = true;
     } else {
@@ -41,40 +38,34 @@ watch(
   { immediate: true }
 );
 
-// Function to save or update a relationship
 const saveOrUpdateRelacion = async (relacion: any) => {
+  // Debug log para ver los valores
+  console.log("Usuario:", relacion.usuario, "Tutor:", relacion.tutor);
+
   if (relacion.usuario?.id && relacion.tutor?.id) {
     const datosRelacion = {
       idUsuario: relacion.usuario.id,
       idTutor: relacion.tutor.id,
-      ...(relacion.id && { id: relacion.id }), // Include id if available
+      ...(relacion.id && { id: relacion.id }),
     };
-
-    console.log("Enviando los siguientes datos:", datosRelacion);
 
     await relacionesStore.guardarRelacion(datosRelacion);
 
-    // Reset form if new relationship is being created
     if (!relacion.id) {
       newRelacion.value = { usuario: null, tutor: null };
       relacionesStore.mostrarFormularioCrear = false;
     }
-
     showFormUpdate.value = false;
   } else {
     alert("Debes seleccionar tanto un usuario como un tutor.");
   }
 };
 
-// Save or update functions
 const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
 const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 
-// Search functionality
 const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
-
-
 
 <template>
   <div class="relacion-usuarios-tutores">
@@ -93,7 +84,6 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
       </button>
     </div>
 
-    <!-- Barra de búsqueda -->
     <div class="relacion-usuarios-tutores__buscador">
       <div class="relacion-usuarios-tutores__buscador-contenedor">
         <input 
@@ -109,7 +99,6 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
       </div>
     </div>
 
-    <!-- Lista de relaciones -->
     <div v-if="relacionesStore.relacionesFiltradas.length > 0" class="relacion-usuarios-tutores__lista">
       <div v-for="relacion in relacionesStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-tutores__item">
         <div class="relacion-usuarios-tutores__item-contenido">
@@ -138,26 +127,26 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <label class="relacion-usuarios-tutores__formulario-label" for="usuario-create">Usuario:</label>
           <v-autocomplete
-             v-model="newRelacion.usuario"
+            v-model="newRelacion.usuario"
             :items="usuariosStore.usuarios"
             item-title="nombre"
             item-value="id"
             return-object
-             label="Nombre del usuario"
+            label="Nombre del usuario"
             required
-    ></v-autocomplete>
+          />
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <label class="relacion-usuarios-tutores__formulario-label" for="tutor-create">Tutor:</label>
           <v-autocomplete
-      v-model="newRelacion.tutor"
-      :items="tutoresStore.tutores"
-      item-title="nombre"
-      item-value="id"
-      return-object
-      label="Nombre del tutor"
-      required
-    ></v-autocomplete>
+            v-model="newRelacion.tutor"
+            :items="tutoresStore.tutores"
+            item-title="nombre"
+            item-value="id"
+            return-object
+            label="Nombre del tutor"
+            required
+          />
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <button class="relacion-usuarios-tutores__formulario-boton" type="submit">Añadir Relación</button>
@@ -176,9 +165,10 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
             :items="usuariosStore.usuarios"
             item-title="nombre"
             item-value="id"
+            return-object
             label="Nombre del usuario"
             required
-          ></v-autocomplete>
+          />
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <label class="relacion-usuarios-tutores__formulario-label" for="tutor-update">Tutor:</label>
@@ -187,9 +177,10 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
             :items="tutoresStore.tutores"
             item-title="nombre"
             item-value="id"
+            return-object
             label="Nombre del tutor"
             required
-          ></v-autocomplete>
+          />
         </div>
         <div class="relacion-usuarios-tutores__formulario-grupo">
           <button class="relacion-usuarios-tutores__formulario-boton" type="submit">Actualizar Relación</button>
@@ -198,8 +189,6 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
     </div>
   </div>
 </template>
-
-
 
 <style lang="scss">
 // Variables
