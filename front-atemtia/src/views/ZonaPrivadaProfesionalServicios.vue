@@ -1,198 +1,191 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import { useRelacionesStore } from "../stores/UsuariosTutores";
-import { useUsuariosStore } from "../stores/usuarios";
-import { useTutoresStore } from "../stores/tutores";
+import { useProfesionalesServiciosStore } from "../stores/profesionalesServicios";
 
-// Store imports
-const relacionesStore = useRelacionesStore();
-const usuariosStore = useUsuariosStore();
-const tutoresStore = useTutoresStore();
+const store = useProfesionalesServiciosStore();
 
-// Reactive variables
 const searchTerm = ref("");
 const showFormUpdate = ref(false);
-const updatedRelacion = ref<any>({ id: null, usuario: null, tutor: null });
-const newRelacion = ref<any>({ usuario: null, tutor: null });
+const updatedRelacion = ref<any>({ idProfesional: null, idServicio: null, profesional: null, servicio: null });
+const newRelacion = ref<any>({ profesional: null, servicio: null });
 
-// Lifecycle hooks
 onMounted(() => {
-  relacionesStore.cargarRelaciones();
-  usuariosStore.cargarUsuarios();
-  tutoresStore.cargarTutores();
+  store.cargarRelaciones();
+  store.cargarProfesionales();
+  store.cargarServicios();
 });
 
-// Watch for changes in the current relationship
 watch(
-  () => relacionesStore.relacionActual,
+  () => store.relacionActual,
   (nuevaRelacion) => {
     if (nuevaRelacion) {
       updatedRelacion.value = {
-        ...nuevaRelacion,
-        usuario: usuariosStore.usuarios.find((u) => u.nombre === nuevaRelacion.usuarioNombre) || null,
-        tutor: tutoresStore.tutores.find((t) => t.nombre === nuevaRelacion.tutorNombre) || null,
+        idProfesional: nuevaRelacion.idProfesional,
+        idServicio: nuevaRelacion.idServicio,
+        profesional: store.profesionales.find((p) => p.id === nuevaRelacion.idProfesional) || null,
+        servicio: store.servicios.find((s) => s.id === nuevaRelacion.idServicio) || null,
       };
       showFormUpdate.value = true;
     } else {
-      updatedRelacion.value = { id: null, usuario: null, tutor: null };
+      updatedRelacion.value = { idProfesional: null, idServicio: null, profesional: null, servicio: null };
       showFormUpdate.value = false;
     }
   },
   { immediate: true }
 );
 
-// Function to save or update a relationship
 const saveOrUpdateRelacion = async (relacion: any) => {
-  if (relacion.usuario?.id && relacion.tutor?.id) {
+  if (relacion.profesional?.id && relacion.servicio?.id) {
     const datosRelacion = {
-      idUsuario: relacion.usuario.id,
-      idTutor: relacion.tutor.id,
-      ...(relacion.id && { id: relacion.id }), // Include id if available
+      idProfesional: relacion.profesional.id,
+      idServicio: relacion.servicio.id,
     };
+    await store.guardarRelacion(datosRelacion);
 
-    console.log("Enviando los siguientes datos:", datosRelacion);
-
-    await relacionesStore.guardarRelacion(datosRelacion);
-
-    // Reset form if new relationship is being created
-    if (!relacion.id) {
-      newRelacion.value = { usuario: null, tutor: null };
-      relacionesStore.mostrarFormularioCrear = false;
+    if (!relacion.idProfesional || !relacion.idServicio) {
+      newRelacion.value = { profesional: null, servicio: null };
+      store.mostrarFormularioCrear = false;
     }
-
     showFormUpdate.value = false;
   } else {
-    alert("Debes seleccionar tanto un usuario como un tutor.");
+    alert("Debes seleccionar tanto un profesional como un servicio.");
   }
 };
 
-// Save or update functions
 const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
 const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 
-// Search functionality
-const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
+const handleSearch = () => store.filtrarRelaciones(searchTerm.value);
 </script>
 
 <template>
-  <!-- Botón volver atrás funcional -->
-  <button class="volver-atras" @click="$router.back()">
-    <i class="fa-solid fa-arrow-left"></i>
-  </button>
+  <div class="relacion-profesionales-servicios">
+    <router-link to="/home-app-atemtia/zona-privada" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
+    <h1 class="relacion-profesionales-servicios__titulo">Relación Profesionales - Servicios</h1>
 
-  <div class="relacion-usuarios-tutores">
-    <h1 class="relacion-usuarios-tutores__titulo">Relación Usuarios - Tutores</h1>
-
-    <div class="relacion-usuarios-tutores__separador-abajo">
-      <span class="relacion-usuarios-tutores__bar-separador"></span>
+    <div class="relacion-profesionales-servicios__separador-abajo">
+      <span class="relacion-profesionales-servicios__bar-separador"></span>
     </div>
 
-    <div class="relacion-usuarios-tutores__botones">
-      <button class="relacion-usuarios-tutores__boton" @click="relacionesStore.toggleFormCreate">
+    <!-- BOTÓN CENTRADO -->
+    <div class="relacion-profesionales-servicios__botones">
+      <button class="relacion-profesionales-servicios__boton" @click="store.toggleFormCreate">
         Añadir Relación
       </button>
     </div>
 
-    <!-- Barra de búsqueda -->
-    <div class="relacion-usuarios-tutores__buscador">
-      <div class="relacion-usuarios-tutores__buscador-contenedor">
-        <input 
-          v-model="searchTerm" 
-          class="relacion-usuarios-tutores__buscador-input" 
-          type="text" 
-          placeholder="Buscar relación..." 
+    <div class="relacion-profesionales-servicios__buscador">
+      <div class="relacion-profesionales-servicios__buscador-contenedor">
+        <input
+          v-model="searchTerm"
+          class="relacion-profesionales-servicios__buscador-input"
+          type="text"
+          placeholder="Buscar relación..."
           @input="handleSearch"
         />
-        <button class="relacion-usuarios-tutores__buscador-boton" @click="handleSearch">
+        <button class="relacion-profesionales-servicios__buscador-boton" @click="handleSearch">
           <i class="fa-solid fa-search"></i>
         </button>
       </div>
     </div>
 
-    <!-- Lista de relaciones -->
-    <div v-if="relacionesStore.relacionesFiltradas.length > 0" class="relacion-usuarios-tutores__lista">
-      <div v-for="relacion in relacionesStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-tutores__item">
-        <div class="relacion-usuarios-tutores__item-contenido">
-          <h3 class="relacion-usuarios-tutores__item-usuario">Usuario: {{ relacion.usuarioNombre }}</h3>
-          <p class="relacion-usuarios-tutores__item-tutor">Tutor: {{ relacion.tutorNombre }}</p>
+    <div v-if="store.relacionesFiltradas.length > 0" class="relacion-profesionales-servicios__lista">
+      <div
+        v-for="relacion in store.relacionesFiltradas"
+        :key="`${relacion.idProfesional}-${relacion.idServicio}`"
+        class="relacion-profesionales-servicios__item"
+      >
+        <div class="relacion-profesionales-servicios__item-contenido">
+          <h3 class="relacion-profesionales-servicios__item-profesional">Profesional: {{ relacion.profesionalNombre }}</h3>
+          <p class="relacion-profesionales-servicios__item-servicio">Servicio: {{ relacion.servicioNombre }}</p>
         </div>
-        <div class="relacion-usuarios-tutores__item-acciones">
-          <button class="relacion-usuarios-tutores__item-boton relacion-usuarios-tutores__item-boton--editar" @click="relacionesStore.abrirFormularioEdicion(relacion)">
+        <div class="relacion-profesionales-servicios__item-acciones">
+          <button
+            class="relacion-profesionales-servicios__item-boton relacion-profesionales-servicios__item-boton--editar"
+            @click="store.abrirFormularioEdicion(relacion)"
+          >
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="relacion-usuarios-tutores__item-boton relacion-usuarios-tutores__item-boton--eliminar" @click="relacionesStore.eliminarRelacion(relacion.id)">
+          <button
+            class="relacion-profesionales-servicios__item-boton relacion-profesionales-servicios__item-boton--eliminar"
+            @click="store.eliminarRelacion(relacion.idProfesional, relacion.idServicio)"
+          >
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
       </div>
     </div>
 
-    <div v-else class="relacion-usuarios-tutores__no-resultados">
+    <div v-else class="relacion-profesionales-servicios__no-resultados">
       <p>No se encontraron relaciones</p>
     </div>
 
     <!-- Formulario de creación -->
-    <div v-if="relacionesStore.mostrarFormularioCrear" class="relacion-usuarios-tutores__formulario">
-      <h2 class="relacion-usuarios-tutores__formulario-titulo">Añadir Relación</h2>
-      <form class="relacion-usuarios-tutores__formulario-contenido" @submit.prevent="saveRelacion">
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <label class="relacion-usuarios-tutores__formulario-label" for="usuario-create">Usuario:</label>
+    <div v-if="store.mostrarFormularioCrear" class="relacion-profesionales-servicios__formulario">
+      <h2 class="relacion-profesionales-servicios__formulario-titulo">Añadir Relación</h2>
+      <form class="relacion-profesionales-servicios__formulario-contenido" @submit.prevent="saveRelacion">
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <label class="relacion-profesionales-servicios__formulario-label" for="profesional-create">Profesional:</label>
           <v-autocomplete
-            v-model="newRelacion.usuario"
-            :items="usuariosStore.usuarios"
+            v-model="newRelacion.profesional"
+            :items="store.profesionales"
             item-title="nombre"
             item-value="id"
             return-object
-            label="Nombre del usuario"
+            label="Nombre del profesional"
             required
-          ></v-autocomplete>
+          />
         </div>
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <label class="relacion-usuarios-tutores__formulario-label" for="tutor-create">Tutor:</label>
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <label class="relacion-profesionales-servicios__formulario-label" for="servicio-create">Servicio:</label>
           <v-autocomplete
-            v-model="newRelacion.tutor"
-            :items="tutoresStore.tutores"
+            v-model="newRelacion.servicio"
+            :items="store.servicios"
             item-title="nombre"
             item-value="id"
             return-object
-            label="Nombre del tutor"
+            label="Nombre del servicio"
             required
-          ></v-autocomplete>
+          />
         </div>
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <button class="relacion-usuarios-tutores__formulario-boton" type="submit">Añadir Relación</button>
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <button class="relacion-profesionales-servicios__formulario-boton" type="submit">Añadir Relación</button>
         </div>
       </form>
     </div>
 
     <!-- Formulario de edición -->
-    <div v-if="showFormUpdate && updatedRelacion.id" class="relacion-usuarios-tutores__formulario">
-      <h2 class="relacion-usuarios-tutores__formulario-titulo">Actualizar Relación</h2>
-      <form class="relacion-usuarios-tutores__formulario-contenido" @submit.prevent="updateRelacion">
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <label class="relacion-usuarios-tutores__formulario-label" for="usuario-update">Usuario:</label>
+    <div v-if="showFormUpdate && updatedRelacion.idProfesional && updatedRelacion.idServicio" class="relacion-profesionales-servicios__formulario">
+      <h2 class="relacion-profesionales-servicios__formulario-titulo">Actualizar Relación</h2>
+      <form class="relacion-profesionales-servicios__formulario-contenido" @submit.prevent="updateRelacion">
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <label class="relacion-profesionales-servicios__formulario-label" for="profesional-update">Profesional:</label>
           <v-autocomplete
-            v-model="updatedRelacion.usuario"
-            :items="usuariosStore.usuarios"
+            v-model="updatedRelacion.profesional"
+            :items="store.profesionales"
             item-title="nombre"
             item-value="id"
-            label="Nombre del usuario"
+            return-object
+            label="Nombre del profesional"
             required
-          ></v-autocomplete>
+          />
         </div>
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <label class="relacion-usuarios-tutores__formulario-label" for="tutor-update">Tutor:</label>
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <label class="relacion-profesionales-servicios__formulario-label" for="servicio-update">Servicio:</label>
           <v-autocomplete
-            v-model="updatedRelacion.tutor"
-            :items="tutoresStore.tutores"
+            v-model="updatedRelacion.servicio"
+            :items="store.servicios"
             item-title="nombre"
             item-value="id"
-            label="Nombre del tutor"
+            return-object
+            label="Nombre del servicio"
             required
-          ></v-autocomplete>
+          />
         </div>
-        <div class="relacion-usuarios-tutores__formulario-grupo">
-          <button class="relacion-usuarios-tutores__formulario-boton" type="submit">Actualizar Relación</button>
+        <div class="relacion-profesionales-servicios__formulario-grupo">
+          <button class="relacion-profesionales-servicios__formulario-boton" type="submit">Actualizar Relación</button>
         </div>
       </form>
     </div>
@@ -200,9 +193,10 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </template>
 
 <style lang="scss">
+// Variables
 @import '../assets/styles/variables.scss';
 
-.relacion-usuarios-tutores {
+.relacion-profesionales-servicios {
   background-color: $color-fondo;
   padding: 20px;
   border-radius: 10px;
@@ -220,12 +214,33 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
   &__separador-abajo {
     margin: 10px auto;
 
-    & .relacion-usuarios-tutores__bar-separador {
+    & .relacion-profesionales-servicios__bar-separador {
       display: block;
       width: 160px;
       height: 2px;
       background-color: $color-principal;
       margin: auto;
+    }
+  }
+
+  // BOTÓN CENTRADO
+  &__botones {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  &__boton {
+    background-color: $color-principal;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($color-principal, 10%);
     }
   }
 
@@ -282,8 +297,8 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
       flex: 1;
     }
 
-    &-usuario,
-    &-tutor {
+    &-profesional,
+    &-servicio {
       font-size: 16px;
       font-weight: bold;
       margin: 0 0 5px 0;
@@ -388,19 +403,6 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
         background-color: darken($color-principal, 10%);
       }
     }
-  }
-  .relacion-usuarios-tutores__boton{
-    background-color: $color-principal;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: darken($color-principal, 10%);
-    } 
   }
 }
 </style>
