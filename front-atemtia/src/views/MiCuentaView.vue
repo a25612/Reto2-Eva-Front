@@ -41,6 +41,22 @@ const cerrarSesion = () => {
   miCuentaStore.cerrarSesion();
   router.push('/login');
 };
+
+const getFiguraByUsuario = (usuarioId: string | number) => {
+  const figuras = ['cuadrado', 'rombo', 'triangulo', 'circulo']
+  const idx = typeof usuarioId === 'number'
+    ? usuarioId % figuras.length
+    : parseInt(usuarioId, 36) % figuras.length
+  return figuras[idx]
+}
+
+const getColorByUsuario = (usuarioId: string | number) => {
+  const colores = ['#3498db', '#e67e22', '#0dac35', '#9b59b6']
+  const idx = typeof usuarioId === 'number'
+    ? usuarioId % colores.length
+    : parseInt(usuarioId, 36) % colores.length
+  return colores[idx]
+}
 </script>
 
 <template>
@@ -73,6 +89,11 @@ const cerrarSesion = () => {
       <h2 class="mi-cuenta__usuarios">Mis Usuarios</h2>
       <div v-if="miCuentaStore.usuarios.length > 0" class="mi-cuenta__usuarios-tarjeta">
         <p v-for="usuario in miCuentaStore.usuarios" :key="usuario.id" class="mi-cuenta__dato">
+          <span
+            :class="['figura', getFiguraByUsuario(usuario.id)]"
+            :style="{ backgroundColor: getColorByUsuario(usuario.id) }"
+            title="Identificador de usuario"
+          ></span>
           {{ usuario.nombre }}
         </p>
       </div>
@@ -93,10 +114,6 @@ const cerrarSesion = () => {
     <button class="mi-cuenta__boton" @click="cerrarSesion">Cerrar Sesión</button>
   </div>
 </template>
-
-
-
-
 
 <style lang="scss">
 @import '../assets/styles/variables.scss';
@@ -122,7 +139,6 @@ const cerrarSesion = () => {
   }
 
   &__info {
-    
     background: $color-fondo;
     padding: 20px;
     border-radius: 8px;
@@ -158,6 +174,9 @@ const cerrarSesion = () => {
     color: #222;
     margin-bottom: 8px;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   &__boton {
@@ -198,6 +217,61 @@ const cerrarSesion = () => {
       background-color: darken($color-boton, 10%);
     }
   }
+}
+
+.figura {
+  display: inline-block;
+  vertical-align: middle;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  background: transparent;
+}
+
+.figura.cuadrado {
+  background: #333;
+  border-radius: 4px;
+}
+
+.figura.circulo {
+  background: #3498db;
+  border-radius: 50%;
+}
+
+.figura.rombo {
+  background: #e67e22;
+  transform: rotate(45deg);
+  border-radius: 4px;
+}
+
+.figura.triangulo {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 14px solid #0dac35;
+  border-radius: 0;
+  margin-right: 8px;
+  margin-left: 0;
+  vertical-align: middle;
+}
+
+.error {
+  color: #e53935;
+  background: #fff0f0;
+  border: 1px solid #e53935;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  width: 100%;
 }
 
 .newtons-cradle {
@@ -267,5 +341,4 @@ const cerrarSesion = () => {
     font-size: 18px;
   }
 }
-
 </style>

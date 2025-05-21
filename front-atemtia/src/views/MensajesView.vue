@@ -157,14 +157,13 @@ const formatearFecha = (fechaStr: string) => {
     <div v-if="!mensajeStore.cargando && !mensajeStore.error" class="reservas__lista">
       <div v-for="mensaje in mensajesFiltrados" :key="mensaje.id" class="reserva-card">
         <p>
-          <strong class="titulo-info">Usuarios:</strong>
+          <strong class="titulo-info">Usuario:</strong>
           <span v-if="mensaje.usuariosNombres && mensaje.usuariosNombres.length">
             {{ mensaje.usuariosNombres.join(', ') }}
           </span>
           <span v-else>No disponible</span>
         </p>
         <p><strong class="titulo-info">Tutor:</strong> {{ mensaje.tutorNombre}}</p>
-        <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre}}</p>
         <p><strong class="titulo-info">Servicio:</strong> {{ mensaje.servicioNombre}}</p>
         <p><strong class="titulo-info">Tipo:</strong> {{ mensaje.tipo}}</p>
         <p><strong class="titulo-info">Fecha envío:</strong> {{ formatearFecha(mensaje.fechaEnvio) }}</p>
