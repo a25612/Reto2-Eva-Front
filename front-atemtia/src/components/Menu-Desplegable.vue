@@ -215,7 +215,7 @@ const cerrarSesionHandler = () => {
 @media (min-width: 768px) {
   .desplegable-izquierda {
     .nav-izquierda {
-      width: 11%;
+      width: 9%;
       right: 0;
       left: 0;
       position: fixed;
@@ -234,12 +234,12 @@ const cerrarSesionHandler = () => {
   }
 
   .nav-izquierda.nav-profesional .menu-izquierda-link-cerrar-sesion {
-    margin-top: 400px !important;
+    margin-top: 610px !important;
 
   }
 
   .nav-izquierda.nav-tutor .menu-izquierda-link-cerrar-sesion {
-    margin-top: 440px !important;
+    margin-top: 655px !important;
   }
 }
 </style>
