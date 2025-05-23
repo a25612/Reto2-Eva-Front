@@ -54,7 +54,7 @@ const calendarDayMatrix = computed(() => {
   const rows = Math.ceil((offset + totalDays) / 6)
   for (let i = 0; i < rows; i++) {
     const row: (number | null)[] = []
-    for (let j = 0; j < 6; j++) { 
+    for (let j = 0; j < 6; j++) {
       if (i === 0 && j < offset) {
         row.push(null)
       } else if (day > totalDays) {
@@ -64,7 +64,7 @@ const calendarDayMatrix = computed(() => {
         if (date.getDay() === 0) {
           day++
           j--
-          continue 
+          continue
         }
         row.push(day++)
       }
@@ -402,16 +402,15 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           <!-- Botón Mover: solo si faltan al menos 2 horas Y NO se muestra motivo cancelación -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
             && !showDatePicker
-            && selectedSesion?.estado !== EstadoSesion.CANCELADA 
+            && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && selectedSesion?.estado !== EstadoSesion.PENDIENTE
             && !esSesionPasada(selectedSesion)
             && !faltanMenosDeDosHoras(selectedSesion)
-            && !showMotivoCancelacion" class="mover" @click="
-                    showDatePicker = true;
-                  newDate = getFechaInputValue(selectedSesion?.fecha);
-                  motivo = '';
-                  ">
+            && !showMotivoCancelacion" class="mover"
+            @click="showDatePicker = true; newDate = getFechaInputValue(selectedSesion?.fecha); motivo = '';">
             Mover
           </button>
+
 
           <!-- Inputs para mover solo si la sesión NO es pasada -->
           <div
@@ -438,10 +437,12 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           <!-- Botón Cancelar sesión -->
           <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
             && selectedSesion?.estado !== EstadoSesion.CANCELADA
+            && selectedSesion?.estado !== EstadoSesion.PENDIENTE
             && !esSesionPasada(selectedSesion)
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
+
 
           <!-- Campo motivo cancelación -->
           <div v-if="showMotivoCancelacion" class="motivo-centrado">
