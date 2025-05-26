@@ -91,6 +91,9 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         const idProfesional = sesion.iD_PROFESIONAL || sesion.id_profesional || sesion.ID_PROFESIONAL
         if (!idProfesional) throw new Error('No se ha encontrado el profesional de la sesión')
 
+        const authStore = useAuthStore()
+        const canceladaPor = authStore.rol?.toUpperCase() === 'PROFESIONAL' ? 'PROFESIONAL' : 'TUTOR'
+
         const mensajeCancelacion = {
           id_Sesion: id,
           id_Profesional: idProfesional,
@@ -98,7 +101,8 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
           mensaje: motivo,
           fechaMensaje: new Date().toISOString(),
           fechaSolicitada: sesion.fecha,
-          estado: 0
+          estado: 0,
+          canceladaPor 
         }
         const respMsg = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
           method: 'POST',
@@ -202,7 +206,6 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
       return []
     }
   }
-  
 
   return {
     sesiones,

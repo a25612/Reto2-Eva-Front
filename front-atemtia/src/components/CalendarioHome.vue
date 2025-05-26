@@ -381,16 +381,15 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
         <!-- Mostrar usuarios del grupo si es profesional y la sesión es grupal -->
         <div v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && esSesionGrupal(selectedSesion)">
           <p><strong>Usuarios del grupo:</strong></p>
-          <!-- <div v-if="usuariosGrupoLoading">Cargando usuarios...</div> -->
-          <!-- <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
+          <div v-if="usuariosGrupoLoading">Cargando usuarios...</div>
+          <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
           <ul v-else>
             <li v-for="usuario in usuariosGrupo" :key="usuario.id">
               {{ usuario.nombre }}
             </li>
             <li v-if="usuariosGrupo.length === 0" style="color: #888;">No hay usuarios en este grupo</li>
-          </ul> -->
+          </ul>
         </div>
-        <!-- FIN BLOQUE USUARIOS GRUPO -->
 
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
@@ -410,7 +409,6 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
             @click="showDatePicker = true; newDate = getFechaInputValue(selectedSesion?.fecha); motivo = '';">
             Mover
           </button>
-
 
           <!-- Inputs para mover solo si la sesión NO es pasada -->
           <div
@@ -435,14 +433,13 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           </div>
 
           <!-- Botón Cancelar sesión -->
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
+          <button v-if="['TUTOR', 'PROFESIONAL'].includes(authStore.rol.toUpperCase())
             && selectedSesion?.estado !== EstadoSesion.CANCELADA
             && selectedSesion?.estado !== EstadoSesion.PENDIENTE
             && !esSesionPasada(selectedSesion)
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
-
 
           <!-- Campo motivo cancelación -->
           <div v-if="showMotivoCancelacion" class="motivo-centrado">
