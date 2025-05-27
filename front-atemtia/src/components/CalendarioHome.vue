@@ -435,13 +435,14 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           </div>
 
           <!-- Botón Cancelar sesión -->
-          <button v-if="authStore.rol.toUpperCase() === 'TUTOR'
+          <button v-if="(authStore.rol.toUpperCase() === 'TUTOR' || authStore.rol.toUpperCase() === 'PROFESIONAL')
             && selectedSesion?.estado !== EstadoSesion.CANCELADA
             && selectedSesion?.estado !== EstadoSesion.PENDIENTE
             && !esSesionPasada(selectedSesion)
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
+
 
 
           <!-- Campo motivo cancelación -->

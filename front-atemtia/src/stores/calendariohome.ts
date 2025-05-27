@@ -91,6 +91,9 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         const idProfesional = sesion.iD_PROFESIONAL || sesion.id_profesional || sesion.ID_PROFESIONAL
         if (!idProfesional) throw new Error('No se ha encontrado el profesional de la sesión')
 
+        const authStore = useAuthStore()
+        const rolSolicitante = (authStore.rol || localStorage.getItem('rol') || '').toUpperCase()
+
         const mensajeCancelacion = {
           id_Sesion: id,
           id_Profesional: idProfesional,
@@ -98,8 +101,10 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
           mensaje: motivo,
           fechaMensaje: new Date().toISOString(),
           fechaSolicitada: sesion.fecha,
-          estado: 0
+          estado: 0,
+          rolSolicitante: rolSolicitante
         }
+
         const respMsg = await fetch('https://localhost:7163/api/MensajeConfirmacion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,6 +132,9 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         return
       }
 
+      const authStore = useAuthStore()
+      const rolSolicitante = (authStore.rol || localStorage.getItem('rol') || '').toUpperCase()
+
       const mensajeConfirmacion = {
         id_Sesion: id,
         id_Profesional: idProfesional,
@@ -134,7 +142,8 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
         mensaje: motivo,
         fechaMensaje: new Date().toISOString(),
         fechaSolicitada: nuevaFecha,
-        estado: 0
+        estado: 0,
+        rolSolicitante: rolSolicitante
       }
 
       try {
@@ -164,56 +173,56 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-  async function confirmarMoverSesion(id: number) {
-    const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
-    if (solicitud) {
-      const sesion = sesiones.value.find(s => s.id === id)
-      if (sesion) {
-        const dto = {
-          FECHA: solicitud.nuevaFecha,
-          ESTADO: 1
-        }
-        try {
-          const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dto)
-          })
-          if (!response.ok) throw new Error('Error al confirmar la sesión')
-          solicitud.confirmado = true
-          await fetchSesiones()
-        } catch (e) {
-          if (e instanceof Error) {
-            error.value = e.message
-          } else {
-            error.value = 'Error al confirmar la sesion'
+    async function confirmarMoverSesion(id: number) {
+      const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
+      if (solicitud) {
+        const sesion = sesiones.value.find(s => s.id === id)
+        if (sesion) {
+          const dto = {
+            FECHA: solicitud.nuevaFecha,
+            ESTADO: 1
+          }
+          try {
+            const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(dto)
+            })
+            if (!response.ok) throw new Error('Error al confirmar la sesión')
+            solicitud.confirmado = true
+            await fetchSesiones()
+          } catch (e) {
+            if (e instanceof Error) {
+              error.value = e.message
+            } else {
+              error.value = 'Error al confirmar la sesion'
+            }
           }
         }
       }
     }
-  }
 
-  async function fetchUsuariosGrupo(sesionId: number) {
-    try {
-      const response = await fetch(`https://localhost:7163/api/Sesiones/${sesionId}/usuarios`)
-      if (!response.ok) throw new Error('Error al obtener los usuarios del grupo')
-      return await response.json()
-    } catch (e) {
-      return []
+    async function fetchUsuariosGrupo(sesionId: number) {
+      try {
+        const response = await fetch(`https://localhost:7163/api/Sesiones/${sesionId}/usuarios`)
+        if (!response.ok) throw new Error('Error al obtener los usuarios del grupo')
+        return await response.json()
+      } catch (e) {
+        return []
+      }
     }
-  }
-  
+    
 
-  return {
-    sesiones,
-    isLoading,
-    error,
-    fetchSesiones,
-    moverSesion,
-    cancelarSesion,
-    solicitarMoverSesion,
-    confirmarMoverSesion,
-    solicitudesCambio,
-    fetchUsuariosGrupo 
-  }
-})
+    return {
+      sesiones,
+      isLoading,
+      error,
+      fetchSesiones,
+      moverSesion,
+      cancelarSesion,
+      solicitarMoverSesion,
+      confirmarMoverSesion,
+      solicitudesCambio,
+      fetchUsuariosGrupo 
+    }
+  })
