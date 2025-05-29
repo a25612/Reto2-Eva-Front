@@ -275,7 +275,17 @@ const confirmarCancelarSesion = async () => {
   closeModal()
 }
 
-const getColorForService = (serviceName: string) => {
+const getColorForService = (serviceName: string, sesion: any) => {
+  const rol = (authStore.rol || localStorage.getItem('rol') || '').toUpperCase()
+  if (rol === 'PROFESIONAL') {
+    // Grupal si tiene iD_GRUPO, individual si es null
+    if (sesion.iD_GRUPO != null) {
+      return '#B5E3FF' // Azul para grupal
+    } else {
+      return '#FFD6B3' // Naranja para individual
+    }
+  }
+  // Para tutor, usa los colores originales por servicio
   const colors: { [key: string]: string } = {
     'matronatación': '#B5E3FF',
     'iniciación': '#D6F5D6',
@@ -292,6 +302,7 @@ const getColorForService = (serviceName: string) => {
   }
   return colors[serviceName?.toLowerCase()] || '#FFFFFF'
 }
+
 
 const getFiguraByUsuario = (usuarioId: number) => {
   const figuras = ['cuadrado', 'rombo', 'triangulo', 'circulo']
@@ -364,14 +375,18 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
                 <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
                   :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }" @click="openModal(sesion)"
                   :style="sesion.estado === EstadoSesion.CANCELADA
-                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through', }
-                    : { backgroundColor: getColorForService(sesion.servicio?.nombre) }">
+                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through' }
+                    : { backgroundColor: getColorForService(sesion.servicio?.nombre, sesion) }">
                   <div class="sesion-name">
-                    {{ sesion.servicio?.nombre }}
+                    <template v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && sesion.iD_GRUPO == null">
+                      {{ sesion.usuario?.nombre }}
+                    </template>
+                    <template v-else>
+                      {{ sesion.servicio?.nombre }}
+                    </template>
                     <span v-if="authStore.rol.toUpperCase() === 'TUTOR' && sesion.usuario?.id"
-                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]" title="Identificador de usuario">
-                    </span>
-
+                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
+                      title="Identificador de usuario"></span>
                   </div>
                 </li>
               </ul>
