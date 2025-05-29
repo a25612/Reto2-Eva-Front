@@ -78,12 +78,19 @@ const calendarRows = computed(() =>
   calendarDayMatrix.value.filter(row => row.some(cell => cell !== null))
 )
 
-const sesiones = computed(() => calendarioStore.sesiones)
+const sesionesAgrupadas = computed(() => {
+  const rol = (authStore.rol || localStorage.getItem('rol') || '').toUpperCase()
+  if (rol === 'PROFESIONAL') {
+    return calendarioStore.sesiones
+  }
+  return calendarioStore.sesiones
+})
+
 const sesionesPorDia = (dia: number) => {
   const mes = String(month.value + 1).padStart(2, '0')
   const diaStr = String(dia).padStart(2, '0')
   const fecha = `${year.value}-${mes}-${diaStr}`
-  return sesiones.value.filter(s => s.fecha?.startsWith(fecha))
+  return sesionesAgrupadas.value.filter(s => s.fecha?.startsWith(fecha))
 }
 
 const selectedSesion = ref<any>(null)
@@ -104,12 +111,12 @@ const openModal = async (sesion: any) => {
   showModal.value = true
 
   const rol = authStore.rol?.toUpperCase()
-  if (rol === 'PROFESIONAL' && esSesionGrupal(sesion)) {
+  if (rol === 'PROFESIONAL' && sesion.iD_GRUPO != null) {
     usuariosGrupoLoading.value = true
     usuariosGrupoError.value = null
     usuariosGrupo.value = []
     try {
-      usuariosGrupo.value = await calendarioStore.fetchUsuariosGrupo(sesion.id)
+      usuariosGrupo.value = await calendarioStore.fetchUsuariosGrupo(sesion.iD_GRUPO)
     } catch (e: any) {
       usuariosGrupoError.value = e.message || 'Error al obtener los usuarios del grupo'
     } finally {
@@ -361,8 +368,10 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
                     : { backgroundColor: getColorForService(sesion.servicio?.nombre) }">
                   <div class="sesion-name">
                     {{ sesion.servicio?.nombre }}
-                    <span v-if="sesion.usuario?.id" :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
-                      title="Identificador de usuario"></span>
+                    <span v-if="authStore.rol.toUpperCase() === 'TUTOR' && sesion.usuario?.id"
+                      :class="['figura', getFiguraByUsuario(sesion.usuario.id)]" title="Identificador de usuario">
+                    </span>
+
                   </div>
                 </li>
               </ul>
@@ -377,20 +386,24 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
       <div class="modal-content" @click.stop>
         <h2 style="color:#19b7e6;text-align:center;">Información de la Sesión</h2>
         <p><strong>Servicio:</strong> {{ selectedSesion?.servicio?.nombre }}</p>
-        <p><strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}</p>
+
         <!-- Mostrar usuarios del grupo si es profesional y la sesión es grupal -->
-        <div v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && esSesionGrupal(selectedSesion)">
+        <div v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && selectedSesion?.iD_GRUPO != null">
           <p><strong>Usuarios del grupo:</strong></p>
-          <!-- <div v-if="usuariosGrupoLoading">Cargando usuarios...</div> -->
-          <!-- <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
+          <div v-if="usuariosGrupoLoading">Cargando usuarios...</div>
+          <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
           <ul v-else>
             <li v-for="usuario in usuariosGrupo" :key="usuario.id">
               {{ usuario.nombre }}
             </li>
             <li v-if="usuariosGrupo.length === 0" style="color: #888;">No hay usuarios en este grupo</li>
-          </ul> -->
+          </ul>
         </div>
-        <!-- FIN BLOQUE USUARIOS GRUPO -->
+
+        <!-- Mostrar usuario individual solo si la sesión NO es grupal -->
+        <p v-else>
+          <strong>Usuario:</strong> {{ selectedSesion?.usuario?.nombre }}
+        </p>
 
         <p><strong>Fecha:</strong> {{ formatFecha(selectedSesion?.fecha) }}</p>
         <p><strong>Centro:</strong> {{ selectedSesion?.centro?.nombre }}</p>
@@ -410,7 +423,6 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
             @click="showDatePicker = true; newDate = getFechaInputValue(selectedSesion?.fecha); motivo = '';">
             Mover
           </button>
-
 
           <!-- Inputs para mover solo si la sesión NO es pasada -->
           <div
@@ -442,8 +454,6 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
             && !showMotivoCancelacion" class="cancelar" @click="cancelarYCerrar">
             Cancelar
           </button>
-
-
 
           <!-- Campo motivo cancelación -->
           <div v-if="showMotivoCancelacion" class="motivo-centrado">

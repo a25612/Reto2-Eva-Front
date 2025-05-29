@@ -8,6 +8,31 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
+  function agruparSesionesGrupales(sesionesRaw: any[]): any[] {
+    const agrupadas: Record<string, any> = {}
+  
+    sesionesRaw.forEach((sesion: any) => {
+      if (sesion.iD_GRUPO != null) {
+        const clave = `${sesion.iD_GRUPO}_${sesion.fecha}`
+        if (!agrupadas[clave]) {
+          agrupadas[clave] = {
+            ...sesion,
+            usuariosDelDia: [sesion.usuario]
+          }
+        } else {
+          if (!agrupadas[clave].usuariosDelDia.some((u: any) => u.id === sesion.usuario.id)) {
+            agrupadas[clave].usuariosDelDia.push(sesion.usuario)
+          }
+        }
+      } else {
+        agrupadas[`ind_${sesion.id}`] = sesion
+      }
+    })
+  
+    return Object.values(agrupadas)
+  }
+  
+
   async function fetchSesiones() {
     isLoading.value = true
     error.value = null
@@ -38,7 +63,8 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
           error.value = 'Error al obtener sesiones de profesional'
           return
         }
-        sesiones.value = await response.json()
+        const sesionesRaw = await response.json()
+        sesiones.value = agruparSesionesGrupales(sesionesRaw)
       } else {
         sesiones.value = []
         error.value = 'Rol no reconocido o sin sesiones'
@@ -173,56 +199,55 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
     }
   }
 
-    async function confirmarMoverSesion(id: number) {
-      const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
-      if (solicitud) {
-        const sesion = sesiones.value.find(s => s.id === id)
-        if (sesion) {
-          const dto = {
-            FECHA: solicitud.nuevaFecha,
-            ESTADO: 1
-          }
-          try {
-            const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(dto)
-            })
-            if (!response.ok) throw new Error('Error al confirmar la sesión')
-            solicitud.confirmado = true
-            await fetchSesiones()
-          } catch (e) {
-            if (e instanceof Error) {
-              error.value = e.message
-            } else {
-              error.value = 'Error al confirmar la sesion'
-            }
+  async function confirmarMoverSesion(id: number) {
+    const solicitud = solicitudesCambio.value.find(s => s.id === id && !s.confirmado)
+    if (solicitud) {
+      const sesion = sesiones.value.find(s => s.id === id)
+      if (sesion) {
+        const dto = {
+          FECHA: solicitud.nuevaFecha,
+          ESTADO: 1
+        }
+        try {
+          const response = await fetch(`https://localhost:7163/api/Sesion/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+          })
+          if (!response.ok) throw new Error('Error al confirmar la sesión')
+          solicitud.confirmado = true
+          await fetchSesiones()
+        } catch (e) {
+          if (e instanceof Error) {
+            error.value = e.message
+          } else {
+            error.value = 'Error al confirmar la sesion'
           }
         }
       }
     }
+  }
 
-    async function fetchUsuariosGrupo(sesionId: number) {
-      try {
-        const response = await fetch(`https://localhost:7163/api/Sesiones/${sesionId}/usuarios`)
-        if (!response.ok) throw new Error('Error al obtener los usuarios del grupo')
-        return await response.json()
-      } catch (e) {
-        return []
-      }
+  async function fetchUsuariosGrupo(grupoId: number) {
+    try {
+      const response = await fetch(`https://localhost:7163/api/Grupo/${grupoId}/usuarios`)
+      if (!response.ok) throw new Error('Error al obtener los usuarios del grupo')
+      return await response.json()
+    } catch (e) {
+      return []
     }
-    
+  }
 
-    return {
-      sesiones,
-      isLoading,
-      error,
-      fetchSesiones,
-      moverSesion,
-      cancelarSesion,
-      solicitarMoverSesion,
-      confirmarMoverSesion,
-      solicitudesCambio,
-      fetchUsuariosGrupo 
-    }
-  })
+  return {
+    sesiones,
+    isLoading,
+    error,
+    fetchSesiones,
+    moverSesion,
+    cancelarSesion,
+    solicitarMoverSesion,
+    confirmarMoverSesion,
+    solicitudesCambio,
+    fetchUsuariosGrupo
+  }
+})
