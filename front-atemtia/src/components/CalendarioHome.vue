@@ -378,14 +378,18 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
                     ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through' }
                     : { backgroundColor: getColorForService(sesion.servicio?.nombre, sesion) }">
                   <div class="sesion-name">
-                    {{ sesion.servicio?.nombre }}
+                    <template v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && sesion.iD_GRUPO == null">
+                      {{ sesion.usuario?.nombre }}
+                    </template>
+                    <template v-else>
+                      {{ sesion.servicio?.nombre }}
+                    </template>
                     <span v-if="authStore.rol.toUpperCase() === 'TUTOR' && sesion.usuario?.id"
                       :class="['figura', getFiguraByUsuario(sesion.usuario.id)]"
                       title="Identificador de usuario"></span>
                   </div>
                 </li>
               </ul>
-
             </div>
           </td>
         </tr>
