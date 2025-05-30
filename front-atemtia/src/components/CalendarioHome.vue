@@ -9,6 +9,19 @@ enum EstadoSesion {
   CANCELADA = 2
 }
 
+interface UsuarioSesion {
+  id: number
+  nombre: string
+  estado: number
+}
+
+const usuariosSeleccionables = computed(() =>
+  usuariosGrupo.value.filter((u: UsuarioSesion) => u.estado !== EstadoSesion.CANCELADA)
+)
+
+function todosCancelados(usuarios: UsuarioSesion[]): boolean {
+  return usuarios.every((u: UsuarioSesion) => u.estado === EstadoSesion.CANCELADA)
+}
 const calendarioStore = useCalendarioHomeStore()
 const authStore = useAuthStore()
 
@@ -99,12 +112,9 @@ const showModal = ref(false)
 const usuariosGrupo = ref<any[]>([])
 const usuariosGrupoLoading = ref(false)
 const usuariosGrupoError = ref<string | null>(null)
+const usuariosSeleccionados = ref<number[]>([])
+const cancelarTodos = ref(false)
 
-const esSesionGrupal = (sesion: any) => {
-  if (!sesion) return false
-  const nombre = sesion.servicio?.nombre?.toLowerCase() || ''
-  return nombre === 'matronatación' || nombre === 'iniciación'
-}
 
 const openModal = async (sesion: any) => {
   selectedSesion.value = sesion
@@ -116,7 +126,19 @@ const openModal = async (sesion: any) => {
     usuariosGrupoError.value = null
     usuariosGrupo.value = []
     try {
-      usuariosGrupo.value = await calendarioStore.fetchUsuariosGrupo(sesion.iD_GRUPO)
+      function fechasIguales(f1: string, f2: string) {
+        return f1.slice(0, 16) === f2.slice(0, 16)
+      }
+
+      const sesionesDelGrupo = calendarioStore.sesiones.filter(
+        s => s.iD_GRUPO === sesion.iD_GRUPO && fechasIguales(s.fecha, sesion.fecha)
+      )
+      console.log('Sesiones del grupo:', sesionesDelGrupo)
+      usuariosGrupo.value = sesionesDelGrupo.map(s => ({
+        id: s.usuario.id,
+        nombre: s.usuario.nombre,
+        estado: s.estado
+      }))
     } catch (e: any) {
       usuariosGrupoError.value = e.message || 'Error al obtener los usuarios del grupo'
     } finally {
@@ -124,6 +146,26 @@ const openModal = async (sesion: any) => {
     }
   } else {
     usuariosGrupo.value = []
+  }
+}
+
+function toggleSeleccionTodos() {
+  if (cancelarTodos.value) {
+    usuariosSeleccionados.value = usuariosGrupo.value.map(u => u.id)
+  } else {
+    usuariosSeleccionados.value = []
+  }
+}
+
+function toggleUsuario(id: number) {
+  if (usuariosSeleccionados.value.includes(id)) {
+    usuariosSeleccionados.value = usuariosSeleccionados.value.filter(uid => uid !== id)
+    cancelarTodos.value = false
+  } else {
+    usuariosSeleccionados.value.push(id)
+    if (usuariosSeleccionados.value.length === usuariosGrupo.value.length) {
+      cancelarTodos.value = true
+    }
   }
 }
 
@@ -258,15 +300,31 @@ const cancelarYCerrar = () => {
   motivo.value = ''
 }
 
-const confirmarCancelarSesion = async () => {
-  if (!selectedSesion.value) return
-  if (esSesionPasada(selectedSesion.value)) {
-    showMotivoCancelacion.value = false
-    openAlert('No se puede cancelar una sesión pasada.')
+const confirmarCancelarSesionesGrupo = async () => {
+  if (usuariosSeleccionados.value.length === 0 || !motivoCancelacion.value.trim()) {
+    openAlert('Selecciona al menos un usuario y escribe un motivo.')
     return
   }
+  for (const usuarioId of usuariosSeleccionados.value) {
+    // Busca la sesión del usuario en el grupo y fecha seleccionada
+    const sesion = calendarioStore.sesiones.find(
+      s => s.iD_GRUPO === selectedSesion.value.iD_GRUPO &&
+        s.fecha === selectedSesion.value.fecha &&
+        s.usuario.id === usuarioId
+    )
+    if (sesion) {
+      await calendarioStore.cancelarSesion(sesion.id, motivoCancelacion.value)
+    }
+  }
+  showMotivoCancelacion.value = false
+  motivoCancelacion.value = ''
+  usuariosSeleccionados.value = []
+  closeModal()
+}
+
+const confirmarCancelarSesionIndividual = async () => {
   if (!motivoCancelacion.value.trim()) {
-    openAlert('Por favor, indica un motivo para la cancelación.')
+    openAlert('Debes escribir un motivo.')
     return
   }
   await calendarioStore.cancelarSesion(selectedSesion.value.id, motivoCancelacion.value)
@@ -372,11 +430,21 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
                 {{ cell }}
               </span>
               <ul v-if="sesionesPorDia(cell).length" class="sesion-list">
-                <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item"
-                  :class="{ 'sesion-cancelada': sesion.estado === EstadoSesion.CANCELADA }" @click="openModal(sesion)"
-                  :style="sesion.estado === EstadoSesion.CANCELADA
-                    ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through' }
-                    : { backgroundColor: getColorForService(sesion.servicio?.nombre, sesion) }">
+                <li v-for="(sesion, index) in sesionesPorDia(cell)" :key="index" class="sesion-item" :class="{
+                  'sesion-cancelada': (
+                    sesion.iD_GRUPO != null &&
+                    sesion.usuariosDelDia &&
+                    sesion.usuariosDelDia.length > 0 &&
+                    todosCancelados(sesion.usuariosDelDia)
+                  ) || sesion.estado === EstadoSesion.CANCELADA
+                }" @click="openModal(sesion)" :style="(
+                  sesion.iD_GRUPO != null &&
+                  sesion.usuariosDelDia &&
+                  sesion.usuariosDelDia.length > 0 &&
+                  todosCancelados(sesion.usuariosDelDia)
+                ) || sesion.estado === EstadoSesion.CANCELADA
+                  ? { backgroundColor: '#F2F2F2', color: '#999', textDecoration: 'line-through' }
+                  : { backgroundColor: getColorForService(sesion.servicio?.nombre, sesion) }">
                   <div class="sesion-name">
                     <template v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && sesion.iD_GRUPO == null">
                       {{ sesion.usuario?.nombre }}
@@ -407,11 +475,13 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           <p><strong>Usuarios del grupo:</strong></p>
           <div v-if="usuariosGrupoLoading">Cargando usuarios...</div>
           <div v-else-if="usuariosGrupoError" style="color:red">{{ usuariosGrupoError }}</div>
-          <ul v-else>
-            <li v-for="usuario in usuariosGrupo" :key="usuario.id">
+          <ul v-else class="usuarios-grupo-lista">
+            <li v-for="usuario in selectedSesion.usuariosDelDia" :key="usuario.id"
+              :class="{ tachado: usuario.estado === EstadoSesion.CANCELADA }">
               {{ usuario.nombre }}
             </li>
-            <li v-if="usuariosGrupo.length === 0" style="color: #888;">No hay usuarios en este grupo</li>
+            <li v-if="selectedSesion.usuariosDelDia.length === 0" style="color: #888;">No hay usuarios en este grupo
+            </li>
           </ul>
         </div>
 
@@ -471,16 +541,53 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
           </button>
 
           <!-- Campo motivo cancelación -->
-          <div v-if="showMotivoCancelacion" class="motivo-centrado">
-            <label for="motivo-cancelacion"><strong>Motivo de la cancelación:</strong></label>
-            <textarea id="motivo-cancelacion" v-model="motivoCancelacion" rows="3" placeholder="Escribe el motivo..." />
-            <div class="botones-modal">
-              <button class="cancelar" :disabled="!motivoCancelacion.trim()" @click="confirmarCancelarSesion">
-                Sí, cancelar sesión
-              </button>
-              <button class="cerrar" @click="showMotivoCancelacion = false; motivoCancelacion = '';">
-                No, volver
-              </button>
+          <div
+            v-if="authStore.rol.toUpperCase() === 'PROFESIONAL' && selectedSesion?.iD_GRUPO != null && showMotivoCancelacion">
+            <div class="checkboxes-grupo">
+              <div class="titulo-cancelacion"><strong>¿Qué sesiones deseas cancelar?</strong></div>
+              <label class="fila-checkbox centrado-checkbox">
+                <span>Todos</span>
+                <input type="checkbox" v-model="cancelarTodos" @change="toggleSeleccionTodos" />
+              </label>
+              <div v-for="usuario in usuariosSeleccionables" :key="usuario.id">
+                <label class="fila-checkbox centrado-checkbox">
+                  <span>{{ usuario.nombre }}</span>
+                  <input type="checkbox" :value="usuario.id" :checked="usuariosSeleccionados.includes(usuario.id)"
+                    @change="toggleUsuario(usuario.id)" :disabled="cancelarTodos" />
+                </label>
+              </div>
+            </div>
+
+            <div class="motivo-centrado">
+              <label for="motivo-cancelacion"><strong>Motivo de la cancelación:</strong></label>
+              <textarea id="motivo-cancelacion" v-model="motivoCancelacion" rows="3"
+                placeholder="Escribe el motivo..." />
+              <div class="botones-modal">
+                <button class="cancelar" :disabled="usuariosSeleccionados.length === 0 || !motivoCancelacion.trim()"
+                  @click="confirmarCancelarSesionesGrupo">
+                  Sí, cancelar sesión/es
+                </button>
+                <button class="cerrar"
+                  @click="showMotivoCancelacion = false; motivoCancelacion = ''; usuariosSeleccionados = [];">
+                  No, volver
+                </button>
+              </div>
+            </div>
+          </div>
+          <div v-else-if="showMotivoCancelacion">
+            <div class="motivo-centrado">
+              <label for="motivo-cancelacion"><strong>Motivo de la cancelación:</strong></label>
+              <textarea id="motivo-cancelacion" v-model="motivoCancelacion" rows="3"
+                placeholder="Escribe el motivo..." />
+              <div class="botones-modal">
+                <button class="cancelar" :disabled="!motivoCancelacion.trim()"
+                  @click="confirmarCancelarSesionIndividual">
+                  Sí, cancelar sesión
+                </button>
+                <button class="cerrar" @click="showMotivoCancelacion = false; motivoCancelacion = '';">
+                  No, volver
+                </button>
+              </div>
             </div>
           </div>
 
@@ -899,6 +1006,50 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
   }
 }
 
+.checkboxes-grupo {
+  .titulo-cancelacion {
+    margin-bottom: 0.7em;
+    font-size: 1.09rem;
+    font-weight: 600;
+    color: #222;
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+
+  .centrado-checkbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 1rem;
+    margin-bottom: 0.3em;
+
+    span {
+      text-align: center;
+    }
+
+    input[type="checkbox"] {
+      margin-left: 0;
+      margin-right: 0;
+      width: 18px;
+      height: 18px;
+      accent-color: #19b7e6;
+      cursor: pointer;
+    }
+  }
+}
+
+.usuarios-grupo-lista {
+  text-align: center;
+  margin: 1em 0;
+
+  .tachado {
+    text-decoration: line-through;
+    color: #888;
+    opacity: 0.7;
+  }
+}
 
 @media (max-width: 768px) {
   .modal-content {

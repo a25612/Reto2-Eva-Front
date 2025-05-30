@@ -10,28 +10,37 @@ export const useCalendarioHomeStore = defineStore('calendariohome', () => {
 
   function agruparSesionesGrupales(sesionesRaw: any[]): any[] {
     const agrupadas: Record<string, any> = {}
-  
+
     sesionesRaw.forEach((sesion: any) => {
       if (sesion.iD_GRUPO != null) {
         const clave = `${sesion.iD_GRUPO}_${sesion.fecha}`
         if (!agrupadas[clave]) {
           agrupadas[clave] = {
             ...sesion,
-            usuariosDelDia: [sesion.usuario]
+            usuariosDelDia: [{
+              id: sesion.usuario.id,
+              nombre: sesion.usuario.nombre,
+              estado: sesion.estado
+            }]
           }
         } else {
           if (!agrupadas[clave].usuariosDelDia.some((u: any) => u.id === sesion.usuario.id)) {
-            agrupadas[clave].usuariosDelDia.push(sesion.usuario)
+            agrupadas[clave].usuariosDelDia.push({
+              id: sesion.usuario.id,
+              nombre: sesion.usuario.nombre,
+              estado: sesion.estado
+            })
           }
         }
       } else {
         agrupadas[`ind_${sesion.id}`] = sesion
       }
     })
-  
+
     return Object.values(agrupadas)
   }
-  
+
+
 
   async function fetchSesiones() {
     isLoading.value = true
