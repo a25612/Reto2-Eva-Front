@@ -4,7 +4,7 @@ import { useUsuarioServiciosStore } from "../stores/usuariosServicios";
 import { useUsuariosStore } from "../stores/usuarios";
 import { useServiciosStore } from "../stores/servicios";
 
-const relacionesStore = useUsuarioServiciosStore();
+const usuarioServiciosStore = useUsuarioServiciosStore();
 const usuariosStore = useUsuariosStore();
 const serviciosStore = useServiciosStore();
 
@@ -14,14 +14,13 @@ const updatedRelacion = ref<any>({ id: null, usuario: null, servicio: null });
 const newRelacion = ref<any>({ usuario: null, servicio: null });
 
 onMounted(() => {
-  relacionesStore.cargarRelaciones();
+  usuarioServiciosStore.cargarRelaciones();
   usuariosStore.cargarUsuarios();
   serviciosStore.cargarServicios();
 });
 
-// Watch para edición: busca por ID, no por nombre
 watch(
-  () => relacionesStore.relacionActual,
+  () => usuarioServiciosStore.relacionActual,
   (nuevaRelacion) => {
     if (nuevaRelacion) {
       updatedRelacion.value = {
@@ -46,13 +45,23 @@ const saveOrUpdateRelacion = async (relacion: any) => {
       ...(relacion.id && { id: relacion.id }),
     };
 
-    await relacionesStore.guardarRelacion(datosRelacion);
+    console.log("🟦 Enviando datos:", JSON.stringify(datosRelacion, null, 2));
 
-    if (!relacion.id) {
-      newRelacion.value = { usuario: null, servicio: null };
-      relacionesStore.mostrarFormularioCrear = false;
+    try {
+      await usuarioServiciosStore.guardarRelacion(datosRelacion);
+
+      if (!relacion.id) {
+        newRelacion.value = { usuario: null, servicio: null };
+        usuarioServiciosStore.mostrarFormularioCrear = false;
+      }
+
+      showFormUpdate.value = false;
+
+    } catch (error) {
+      console.error("🔴 Error al guardar la relación:", error);
+      alert("Hubo un error al guardar. Revisa la consola.");
     }
-    showFormUpdate.value = false;
+
   } else {
     alert("Debes seleccionar tanto un usuario como un servicio.");
   }
@@ -60,9 +69,10 @@ const saveOrUpdateRelacion = async (relacion: any) => {
 
 const updateRelacion = async () => await saveOrUpdateRelacion(updatedRelacion.value);
 const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
-
-const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
+const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.value);
 </script>
+
+
 
 <template>
   <div class="relacion-usuarios-servicios">
@@ -76,7 +86,7 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
     </div>
 
     <div class="relacion-usuarios-servicios__botones">
-      <button class="relacion-usuarios-servicios__boton" @click="relacionesStore.toggleFormCreate">
+      <button class="relacion-usuarios-servicios__boton" @click="usuarioServiciosStore.toggleFormCreate">
         Añadir Relación
       </button>
     </div>
@@ -96,17 +106,17 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
       </div>
     </div>
 
-    <div v-if="relacionesStore.relacionesFiltradas.length > 0" class="relacion-usuarios-servicios__lista">
-      <div v-for="relacion in relacionesStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-servicios__item">
+    <div v-if="usuarioServiciosStore.relacionesFiltradas.length > 0" class="relacion-usuarios-servicios__lista">
+      <div v-for="relacion in usuarioServiciosStore.relacionesFiltradas" :key="relacion.id" class="relacion-usuarios-servicios__item">
         <div class="relacion-usuarios-servicios__item-contenido">
           <h3 class="relacion-usuarios-servicios__item-usuario">Usuario: {{ relacion.usuarioNombre }}</h3>
           <p class="relacion-usuarios-servicios__item-servicio">Servicio: {{ relacion.servicioNombre }}</p>
         </div>
         <div class="relacion-usuarios-servicios__item-acciones">
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar" @click="relacionesStore.abrirFormularioEdicion(relacion)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--editar" @click="usuarioServiciosStore.abrirFormularioEdicion(relacion)">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="relacionesStore.eliminarRelacion(relacion.id)">
+          <button class="relacion-usuarios-servicios__item-boton relacion-usuarios-servicios__item-boton--eliminar" @click="usuarioServiciosStore.eliminarRelacion(relacion.id)">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -118,7 +128,7 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
     </div>
 
     <!-- Formulario de creación -->
-    <div v-if="relacionesStore.mostrarFormularioCrear" class="relacion-usuarios-servicios__formulario">
+    <div v-if="usuarioServiciosStore.mostrarFormularioCrear" class="relacion-usuarios-servicios__formulario">
       <h2 class="relacion-usuarios-servicios__formulario-titulo">Añadir Relación</h2>
       <form class="relacion-usuarios-servicios__formulario-contenido" @submit.prevent="saveRelacion">
         <div class="relacion-usuarios-servicios__formulario-grupo">
@@ -186,6 +196,7 @@ const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
     </div>
   </div>
 </template>
+
 
 <style lang="scss">
 // Puedes copiar el mismo SCSS y solo cambiar los nombres de clase a "relacion-usuarios-servicios"

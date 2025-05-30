@@ -1,19 +1,18 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-// Interfaces
-export interface Usuario {
+interface Usuario {
   id: number;
   nombre: string;
 }
 
-export interface Servicio {
+interface Servicio {
   id: number;
   nombre: string;
 }
 
-export interface RelacionUsuarioServicio {
-  id: string; // id compuesto: "usuarioId_servicioId"
+interface Relacion {
+  id: number;
   usuarioId: number;
   servicioId: number;
   usuarioNombre: string;
@@ -21,139 +20,90 @@ export interface RelacionUsuarioServicio {
 }
 
 export const useUsuarioServiciosStore = defineStore("usuarioServiciosStore", () => {
-  const relaciones = ref<RelacionUsuarioServicio[]>([]);
-  const relacionesFiltradas = ref<RelacionUsuarioServicio[]>([]);
+  const relaciones = ref<Relacion[]>([]);
+  const relacionesFiltradas = ref<Relacion[]>([]);
   const usuarios = ref<Usuario[]>([]);
   const servicios = ref<Servicio[]>([]);
 
   const mostrarFormularioCrear = ref(false);
-  const relacionActual = ref<RelacionUsuarioServicio | null>(null);
+  const relacionActual = ref<Relacion | null>(null);
 
-  // GET relaciones
   const cargarRelaciones = async () => {
     try {
       const res = await fetch("https://localhost:7163/api/UsuarioServicios");
       if (!res.ok) throw new Error("Error al obtener relaciones");
-
       const data = await res.json();
-
       relaciones.value = data.map((rel: any) => ({
-        id: `${rel.id_USUARIO}_${rel.id_SERVICIO}`,
-        usuarioId: rel.id_USUARIO,
-        servicioId: rel.id_SERVICIO,
-        usuarioNombre: rel.usuario?.nombre || "",
-        servicioNombre: rel.servicio?.nombre || "",
+        id: rel.id,
+        usuarioId: rel.usuarioId,
+        servicioId: rel.servicioId,
+        usuarioNombre: rel.usuario.nombre,
+        servicioNombre: rel.servicio.nombre,
       }));
-
-      relacionesFiltradas.value = [...relaciones.value];
+      relacionesFiltradas.value = relaciones.value;
     } catch (err) {
       console.error("Error al cargar relaciones:", err);
     }
   };
 
-  // GET usuarios
   const cargarUsuarios = async () => {
     try {
       const res = await fetch("https://localhost:7163/api/Usuarios");
       if (!res.ok) throw new Error("Error al obtener usuarios");
-
       const data = await res.json();
-      usuarios.value = data.map((u: any) => ({
-        id: u.id,
-        nombre: u.nombre,
-      }));
+      usuarios.value = data;
     } catch (err) {
       console.error("Error al cargar usuarios:", err);
     }
   };
 
-  // GET servicios
   const cargarServicios = async () => {
     try {
       const res = await fetch("https://localhost:7163/api/Servicios");
       if (!res.ok) throw new Error("Error al obtener servicios");
-
       const data = await res.json();
-      servicios.value = data.map((s: any) => ({
-        id: s.id,
-        nombre: s.nombre,
-      }));
+      servicios.value = data;
     } catch (err) {
       console.error("Error al cargar servicios:", err);
     }
   };
 
-  // POST relación
-  const guardarRelacion = async (relacion: { usuarioId: number; servicioId: number }) => {
-    try {
-      const response = await fetch("https://localhost:7163/api/UsuarioServicios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          idUsuario: relacion.usuarioId,
-          idServicio: relacion.servicioId,
-        }),
+const guardarRelacion = async (relacion: { idUsuario: number; idServicio: number; id?: number }) => {
+  try {
+    let response;
+    if (relacion.id) {
+      // PUT para actualizar
+      response = await fetch(`https://localhost:7163/api/UsuarioServicios/${relacion.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idUsuario: relacion.idUsuario, idServicio: relacion.idServicio }),
       });
-
-      if (!response.ok) throw new Error("Error al crear relación");
-      await cargarRelaciones();
-    } catch (error) {
-      console.error("Error al guardar relación:", error);
+    } else {
+      // POST para crear
+      response = await fetch("https://localhost:7163/api/UsuarioServicios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idUsuario: relacion.idUsuario, idServicio: relacion.idServicio }),
+      });
     }
-  };
 
-  // PUT relación
-  const actualizarRelacion = async (
-    idUsuarioOriginal: number,
-    idServicioOriginal: number,
-    idUsuarioNuevo: number,
-    idServicioNuevo: number
-  ) => {
+    if (!response.ok) throw new Error("Error al guardar relación");
+    await cargarRelaciones();
+  } catch (error) {
+    console.error("Error al guardar relación:", error);
+  }
+};
+
+  const eliminarRelacion = async (id: number) => {
     try {
-      const response = await fetch(
-        `https://localhost:7163/api/UsuarioServicios/${idUsuarioOriginal}/${idServicioOriginal}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idUsuario: idUsuarioNuevo,
-            idServicio: idServicioNuevo,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorMsg = await response.text();
-        throw new Error("Error al actualizar relación: " + errorMsg);
-      }
+      const res = await fetch(`https://localhost:7163/api/UsuarioServicios/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error al eliminar relación");
       await cargarRelaciones();
-    } catch (error) {
-      console.error("Error al actualizar relación:", error);
+    } catch (err) {
+      console.error("Error al eliminar relación:", err);
     }
   };
 
-  // DELETE relación
-  const eliminarRelacion = async (usuarioId: number, servicioId: number) => {
-    try {
-      const response = await fetch(
-        `https://localhost:7163/api/UsuarioServicios/${usuarioId}/${servicioId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) throw new Error("Error al eliminar relación");
-      await cargarRelaciones();
-    } catch (error) {
-      console.error("Error al eliminar relación:", error);
-    }
-  };
-
-  // Filtrar
   const filtrarRelaciones = (termino: string) => {
     relacionesFiltradas.value = relaciones.value.filter((relacion) =>
       relacion.usuarioNombre.toLowerCase().includes(termino.toLowerCase()) ||
@@ -166,7 +116,7 @@ export const useUsuarioServiciosStore = defineStore("usuarioServiciosStore", () 
     mostrarFormularioCrear.value = !mostrarFormularioCrear.value;
   };
 
-  const abrirFormularioEdicion = (relacion: RelacionUsuarioServicio) => {
+  const abrirFormularioEdicion = (relacion: Relacion) => {
     relacionActual.value = { ...relacion };
     mostrarFormularioCrear.value = false;
   };
@@ -182,7 +132,6 @@ export const useUsuarioServiciosStore = defineStore("usuarioServiciosStore", () 
     cargarUsuarios,
     cargarServicios,
     guardarRelacion,
-    actualizarRelacion,
     eliminarRelacion,
     filtrarRelaciones,
     toggleFormCreate,
