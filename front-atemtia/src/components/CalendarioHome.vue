@@ -126,19 +126,16 @@ const openModal = async (sesion: any) => {
     usuariosGrupoError.value = null
     usuariosGrupo.value = []
     try {
-      function fechasIguales(f1: string, f2: string) {
-        return f1.slice(0, 16) === f2.slice(0, 16)
+      if (sesion.usuariosDelDia && sesion.usuariosDelDia.length > 0) {
+        usuariosGrupo.value = sesion.usuariosDelDia.map((u: UsuarioSesion) => ({
+          id: u.id,
+          nombre: u.nombre,
+          estado: u.estado
+        }))
+      } else {
+        usuariosGrupo.value = []
       }
-
-      const sesionesDelGrupo = calendarioStore.sesiones.filter(
-        s => s.iD_GRUPO === sesion.iD_GRUPO && fechasIguales(s.fecha, sesion.fecha)
-      )
-      console.log('Sesiones del grupo:', sesionesDelGrupo)
-      usuariosGrupo.value = sesionesDelGrupo.map(s => ({
-        id: s.usuario.id,
-        nombre: s.usuario.nombre,
-        estado: s.estado
-      }))
+      console.log('Usuarios del grupo:', usuariosGrupo.value)
     } catch (e: any) {
       usuariosGrupoError.value = e.message || 'Error al obtener los usuarios del grupo'
     } finally {
@@ -148,6 +145,7 @@ const openModal = async (sesion: any) => {
     usuariosGrupo.value = []
   }
 }
+
 
 function toggleSeleccionTodos() {
   if (cancelarTodos.value) {
