@@ -45,7 +45,7 @@ const router = createRouter({
     { path: '/home-app-atemtia/zona-privada/usuarios-servicios', name: 'zona-privadaUsrsService', component: ZonaPrivadaUsrsService},
     { path: '/home-app-atemtia/zona-privada/profesionales-servicios', name: 'zona-privadaProfesionalServicios', component: ZonaPrivadaProfesionalServicios},
     { path: '/home-app-atemtia/zona-privada/centros', name: 'zona-privadaCentros', component: ZonaPrivadaCentro},
-    { path: '/home-app-atemtia/zona-privada/servicios-centro', name: 'zona-privadaServiciosCentro', component: ZonaPrivadaServiciosCentro},	
+    // { path: '/home-app-atemtia/zona-privada/servicios-centro', name: 'zona-privadaServiciosCentro', component: ZonaPrivadaServiciosCentro},	
     { path: '/home-app-atemtia/mis-mensajes', name: 'mis-mensajes', component: MensajesView},
     
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },

@@ -68,7 +68,6 @@ export const useProfesionalesServiciosStore = defineStore("profesionalesServicio
 
   const guardarRelacion = async (relacion: { idProfesional: number; idServicio: number }) => {
     try {
-      // PUT y POST usan los dos IDs como identificador compuesto
       const existe = relaciones.value.find(
         r => r.idProfesional === relacion.idProfesional && r.idServicio === relacion.idServicio
       );
