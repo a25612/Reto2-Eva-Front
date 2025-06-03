@@ -5,7 +5,7 @@ interface Anuncio {
   id: number;
   titulo: string;
   descripcion: string;
-  activo: boolean; // Agregado el campo "activo"
+  activo: boolean; 
 }
 
 export const useAnunciosStore = defineStore('anuncios', () => {
@@ -60,7 +60,7 @@ export const useAnunciosStore = defineStore('anuncios', () => {
 
       await fetchAnuncios();
       showFormCreate.value = false;
-      newAnuncio.value = { titulo: '', descripcion: '', activo: false }; // Reiniciar el formulario
+      newAnuncio.value = { titulo: '', descripcion: '', activo: false };
     } catch (err: any) {
       error.value = err.message || 'Error al crear el anuncio';
     }
@@ -112,10 +112,9 @@ export const useAnunciosStore = defineStore('anuncios', () => {
   const filtrarAnuncios = (termino: string) => {
     anuncioSearch.value = termino;
     if (!termino) {
-      // Si no hay término, mostrar todos los anuncios
+
       anunciosFiltrados.value = [...anuncios.value];
     } else {
-      // Filtrar por título o descripción
       anunciosFiltrados.value = anuncios.value.filter((anuncio) =>
         anuncio.titulo.toLowerCase().includes(termino.toLowerCase()) ||
         anuncio.descripcion.toLowerCase().includes(termino.toLowerCase())
@@ -170,8 +169,8 @@ export const useAnunciosStore = defineStore('anuncios', () => {
 
   // Función para seleccionar un anuncio a actualizar
   const selectAnuncioToUpdate = (anuncio: Anuncio) => {
-    updatedAnuncio.value = { ...anuncio }; // Copiar los datos del anuncio seleccionado al objeto de actualización
-    showFormUpdate.value = true; // Mostrar el formulario de actualización
+    updatedAnuncio.value = { ...anuncio }; 
+    showFormUpdate.value = true;
   };
 
   return {

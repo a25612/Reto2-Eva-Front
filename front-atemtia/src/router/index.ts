@@ -21,7 +21,7 @@ import ZonaPrivadaUsrsTutores from '../views/ZonaPrivadaUsrsTutores.vue';
 import ZonaPrivadaUsrsService from '../views/ZonaPrivadaUsrsService.vue';
 import ZonaPrivadaProfesionalServicios from '../views/ZonaPrivadaProfesionalServicios.vue';
 import MensajesView from '../views/MensajesView.vue';
-import ZonaPrivadaCentro from '@/views/ZonaPrivadaCentro.vue';
+import ZonaPrivadaCentro from '../views/ZonaPrivadaCentro.vue';
 
 // Creación del router
 const router = createRouter({

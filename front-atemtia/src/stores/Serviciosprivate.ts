@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-interface Servicio {
+export interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
-  precio: number | null;
   activo: boolean;
-  id_profesional: number;
+  grupal: boolean;
 }
 
 export const useServiciosStore = defineStore('servicios', () => {
@@ -19,24 +18,23 @@ export const useServiciosStore = defineStore('servicios', () => {
   const showModalDelete = ref(false);
   const servicioSearch = ref('');
   const servicioToDelete = ref<number | null>(null);
+
   const newServicio = ref<Omit<Servicio, 'id'>>({
     nombre: '',
     descripcion: '',
-    precio: null,
     activo: false,
-    id_profesional: 0,
+    grupal: false,
   });
 
   const updatedServicio = ref<Servicio>({
     id: 0,
     nombre: '',
     descripcion: '',
-    precio: null,
     activo: false,
-    id_profesional: 0,
+    grupal: false,
   });
 
-  // Función para obtener servicios
+  // Obtener servicios
   const fetchServicios = async () => {
     try {
       const response = await fetch('https://localhost:7163/api/Servicios');
@@ -49,13 +47,20 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   };
 
-  // Función para crear un nuevo servicio
+  // Crear servicio
   const addServicio = async () => {
     try {
+      const body = {
+        nombre: newServicio.value.nombre,
+        descripcion: newServicio.value.descripcion,
+        activo: newServicio.value.activo,
+        grupal: newServicio.value.grupal,
+      };
+
       const response = await fetch('https://localhost:7163/api/Servicios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newServicio.value),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -64,25 +69,31 @@ export const useServiciosStore = defineStore('servicios', () => {
 
       await fetchServicios();
       showFormCreate.value = false;
-      newServicio.value = { nombre: '', descripcion: '', precio: null, activo: false, id_profesional: 0 };
+      newServicio.value = { nombre: '', descripcion: '', activo: false, grupal: false };
     } catch (err: any) {
       error.value = err.message || 'Error al crear el servicio';
     }
   };
 
-  // Función para actualizar un servicio
+  // Actualizar servicio
   const updateServicio = async () => {
     try {
+      const body = {
+        nombre: updatedServicio.value.nombre,
+        descripcion: updatedServicio.value.descripcion,
+        activo: updatedServicio.value.activo,
+        grupal: updatedServicio.value.grupal,
+      };
+
       const response = await fetch(`https://localhost:7163/api/Servicios/${updatedServicio.value.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedServicio.value),
+        body: JSON.stringify(body),
       });
-
       if (!response.ok) {
         throw new Error('Error al actualizar el servicio');
       }
-
+      
       await fetchServicios();
       showFormUpdate.value = false;
     } catch (err: any) {
@@ -90,7 +101,8 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   };
 
-  // Función para eliminar un servicio
+
+  // Eliminar servicio
   const deleteServicio = async () => {
     try {
       if (servicioToDelete.value === null) return;
@@ -111,7 +123,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     }
   };
 
-  // Computada para filtrar servicios por búsqueda
   const filteredServicios = computed(() => {
     if (servicioSearch.value === '') {
       return servicios.value;
@@ -122,7 +133,6 @@ export const useServiciosStore = defineStore('servicios', () => {
     );
   });
 
-  // Funciones para mostrar/ocultar formularios y modales
   const toggleFormCreate = () => {
     showFormCreate.value = !showFormCreate.value;
     if (showFormCreate.value) {

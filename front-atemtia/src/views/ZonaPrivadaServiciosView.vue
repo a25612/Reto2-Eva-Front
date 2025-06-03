@@ -24,7 +24,7 @@ onMounted(() => {
     <div class="servicios__separador-abajo">
       <span class="servicios__bar-separador"></span>
     </div>
-    
+
     <div class="servicios__botones">
       <button class="servicios__boton" @click="serviciosStore.toggleFormCreate">
         Añadir Servicio
@@ -34,13 +34,8 @@ onMounted(() => {
     <!-- Barra de búsqueda -->
     <div class="servicios__buscador">
       <div class="servicios__buscador-contenedor">
-        <input 
-          v-model="searchTerm" 
-          class="servicios__buscador-input" 
-          type="text" 
-          placeholder="Buscar servicios..." 
-          @input="handleSearch"
-        />
+        <input v-model="searchTerm" class="servicios__buscador-input" type="text" placeholder="Buscar servicios..."
+          @input="handleSearch" />
         <button class="servicios__buscador-boton" @click="handleSearch">
           <i class="fa-solid fa-search"></i>
         </button>
@@ -53,7 +48,23 @@ onMounted(() => {
       <form class="servicios__formulario-contenido" @submit.prevent="serviciosStore.addServicio">
         <div class="servicios__formulario-grupo">
           <label class="servicios__formulario-label" for="nombre">Nombre:</label>
-          <input v-model="serviciosStore.newServicio.nombre" class="servicios__formulario-input" type="text" id="nombre" placeholder="Nombre del servicio" required />
+          <input v-model="serviciosStore.newServicio.nombre" class="servicios__formulario-input" type="text" id="nombre"
+            placeholder="Nombre del servicio" required />
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="descripcion">Descripción:</label>
+          <textarea v-model="serviciosStore.newServicio.descripcion" class="servicios__formulario-input"
+            id="descripcion" placeholder="Descripción del servicio" required></textarea>
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="activo">Activo:</label>
+          <input v-model="serviciosStore.newServicio.activo" class="servicios__formulario-checkbox" type="checkbox"
+            id="activo" />
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="grupal">Grupal:</label>
+          <input v-model="serviciosStore.newServicio.grupal" class="servicios__formulario-checkbox" type="checkbox"
+            id="grupal" />
         </div>
         <div class="servicios__formulario-grupo">
           <button class="servicios__formulario-boton" type="submit">Crear Servicio</button>
@@ -67,7 +78,23 @@ onMounted(() => {
       <form class="servicios__formulario-contenido" @submit.prevent="serviciosStore.updateServicio">
         <div class="servicios__formulario-grupo">
           <label class="servicios__formulario-label" for="nombre-update">Nombre:</label>
-          <input v-model="serviciosStore.updatedServicio.nombre" class="servicios__formulario-input" type="text" id="nombre-update" required />
+          <input v-model="serviciosStore.updatedServicio.nombre" class="servicios__formulario-input" type="text"
+            id="nombre-update" required />
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="descripcion-update">Descripción:</label>
+          <textarea v-model="serviciosStore.updatedServicio.descripcion" class="servicios__formulario-input"
+            id="descripcion-update" required></textarea>
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="activo-update">Activo:</label>
+          <input v-model="serviciosStore.updatedServicio.activo" class="servicios__formulario-checkbox" type="checkbox"
+            id="activo-update" />
+        </div>
+        <div class="servicios__formulario-grupo">
+          <label class="servicios__formulario-label" for="grupal-update">Grupal:</label>
+          <input v-model="serviciosStore.updatedServicio.grupal" class="servicios__formulario-checkbox" type="checkbox"
+            id="grupal-update" />
         </div>
         <div class="servicios__formulario-grupo">
           <button class="servicios__formulario-boton" type="submit">Actualizar Servicio</button>
@@ -80,12 +107,26 @@ onMounted(() => {
       <div v-for="servicio in serviciosStore.filteredServicios" :key="servicio.id" class="servicios__item">
         <div class="servicios__item-contenido">
           <h3 class="servicios__item-titulo">{{ servicio.nombre }}</h3>
+          <p class="servicios__item-descripcion">{{ servicio.descripcion }}</p>
+          <div class="servicio-checkboxes">
+            <div class="servicio-checkbox">
+              <span>Activo:</span>
+              <input type="checkbox" :checked="servicio.activo" disabled />
+            </div>
+            <div class="servicio-checkbox">
+              <span>Grupal:</span>
+              <input type="checkbox" :checked="servicio.grupal" disabled />
+            </div>
+          </div>
+
         </div>
         <div class="servicios__item-acciones">
-          <button class="servicios__item-boton servicios__item-boton--editar" @click="serviciosStore.selectServicioToUpdate(servicio)">
+          <button class="servicios__item-boton servicios__item-boton--editar"
+            @click="serviciosStore.selectServicioToUpdate(servicio)">
             <i class="fa-solid fa-pencil"></i>
           </button>
-          <button class="servicios__item-boton servicios__item-boton--eliminar" @click="serviciosStore.openModalDelete(servicio.id)">
+          <button class="servicios__item-boton servicios__item-boton--eliminar"
+            @click="serviciosStore.openModalDelete(servicio.id)">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -108,10 +149,10 @@ onMounted(() => {
   </div>
 </template>
 
+
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
-@import '../assets/styles/variables.scss';
 
 .servicios {
   background-color: $color-fondo;
@@ -139,7 +180,9 @@ onMounted(() => {
       margin: auto;
     }
   }
-
+  .servicios__item{
+    color:#666 ;
+  }
   // Estilos para la barra de búsqueda
   &__buscador {
     margin: 15px 0;
@@ -356,7 +399,8 @@ onMounted(() => {
     margin-top: 20px;
   }
 
-  &__btn-confirmar, &__btn-cancelar {
+  &__btn-confirmar,
+  &__btn-cancelar {
     padding: 10px 20px;
     font-size: 16px;
     border: none;
@@ -398,6 +442,27 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
 }
+.servicio-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.servicio-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.servicio-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #2196f3; 
+  cursor: not-allowed;
+  margin-left: 4px;
+}
+
 </style>
