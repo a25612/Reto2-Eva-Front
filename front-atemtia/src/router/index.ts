@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useMiCuentaStore } from '../stores/micuenta';
-import { useAuthStore } from '../stores/login';
+
 
 // Importación de las vistas
 import Home from '../views/HomeView.vue';
@@ -20,6 +20,7 @@ import ZonaPrivadaAnunciosView from '../views/ZonaPrivadaAnunciosView.vue';
 import ZonaPrivadaUsrsTutores from '../views/ZonaPrivadaUsrsTutores.vue';
 import ZonaPrivadaUsrsService from '../views/ZonaPrivadaUsrsService.vue';
 import ZonaPrivadaProfesionalServicios from '../views/ZonaPrivadaProfesionalServicios.vue';
+import ZonaPrivadaServiciosCentro from '../views/ZonaPrivadaServiciosCentro.vue'; 
 import MensajesView from '../views/MensajesView.vue';
 import ZonaPrivadaCentro from '../views/ZonaPrivadaCentro.vue';
 
@@ -45,34 +46,35 @@ const router = createRouter({
     { path: '/home-app-atemtia/zona-privada/usuarios-servicios', name: 'zona-privadaUsrsService', component: ZonaPrivadaUsrsService},
     { path: '/home-app-atemtia/zona-privada/profesionales-servicios', name: 'zona-privadaProfesionalServicios', component: ZonaPrivadaProfesionalServicios},
     { path: '/home-app-atemtia/zona-privada/centros', name: 'zona-privadaCentros', component: ZonaPrivadaCentro},
-    // { path: '/home-app-atemtia/zona-privada/servicios-centro', name: 'zona-privadaServiciosCentro', component: ZonaPrivadaServiciosCentro},	
+    { path: '/home-app-atemtia/zona-privada/servicios-centro', name: 'zona-privadaServiciosCentro', component: ZonaPrivadaServiciosCentro}, 
     { path: '/home-app-atemtia/mis-mensajes', name: 'mis-mensajes', component: MensajesView},
-    
     { path: '/:pathMatch(.*)*', redirect: '/error-404' },
   ],
 });
 
+
 router.beforeEach(async (to, from, next) => {
-  if (to.name === 'home' || to.name === 'error-404' || to.name === 'login') {
+
+  if (['home', 'error-404', 'login'].includes(to.name as string)) {
     return next();
   }
 
-  // Si no está autenticado, enviarlo al login
+
   if (!isAuthenticated()) {
     console.warn('Usuario no autenticado, redirigiendo a login');
     return next({ name: 'login' });
   }
 
-  // Verificar acceso a la zona privada
+
   const userRole = getUserRole();
   if (to.name === 'zona-privada' && userRole === 'Tutor') {
     console.warn('Acceso denegado: Los tutores no pueden acceder a la zona privada');
     return next({ name: 'error-404' });
   }
 
+
   if (to.path.includes('/home-app-atemtia')) {
     const miCuentaStore = useMiCuentaStore();
-    
     try {
       if (userRole === 'Tutor' && (!miCuentaStore.usuarios || miCuentaStore.usuarios.length === 0)) {
         await miCuentaStore.cargarTodosDatos();
@@ -85,7 +87,7 @@ router.beforeEach(async (to, from, next) => {
   next();
 });
 
-// Función para validar si el usuario está autenticado
+
 function isAuthenticated() {
   const token = localStorage.getItem('token');
   if (!token) return false;
@@ -109,28 +111,5 @@ function isAuthenticated() {
 function getUserRole() {
   return localStorage.getItem('rol');
 }
-
-// Guardia de navegación para proteger rutas privadas
-router.beforeEach((to, from, next) => {
-  if (to.name === 'home' || to.name === 'error-404' || to.name === 'login') {
-    return next();
-  }
-
-  // Si no está autenticado, enviarlo al login
-  if (!isAuthenticated()) {
-    console.warn('Usuario no autenticado, redirigiendo a login');
-    return next({ name: 'login' });
-  }
-
-  // Verificar acceso a la zona privada
-  const userRole = getUserRole();
-  if (to.name === 'zona-privada' && userRole === 'Tutor') {
-    console.warn('Acceso denegado: Los tutores no pueden acceder a la zona privada');
-    return next({ name: 'error-404' });
-  }
-
-  next();
-});
-
 
 export default router;

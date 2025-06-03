@@ -66,28 +66,35 @@ export const useProfesionalesServiciosStore = defineStore("profesionalesServicio
     }
   };
 
-  const guardarRelacion = async (relacion: { idProfesional: number; idServicio: number }) => {
+  // NUEVO guardarRelacion: actualiza si se pasan originales, crea si no
+  const guardarRelacion = async (
+    nuevaRelacion: { idProfesional: number; idServicio: number },
+    originalRelacion?: { idProfesional: number; idServicio: number }
+  ) => {
     try {
-      const existe = relaciones.value.find(
-        r => r.idProfesional === relacion.idProfesional && r.idServicio === relacion.idServicio
-      );
       let response;
-      if (existe) {
-        // PUT
+      if (originalRelacion) {
+        // PUT: actualiza la relación original a los nuevos valores
         response = await fetch(
-          `https://localhost:7163/api/ProfesionalesServicios/${relacion.idProfesional}/${relacion.idServicio}`,
+          `https://localhost:7163/api/ProfesionalesServicios/${originalRelacion.idProfesional}/${originalRelacion.idServicio}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idProfesional: relacion.idProfesional, idServicio: relacion.idServicio }),
+            body: JSON.stringify({
+              idProfesional: nuevaRelacion.idProfesional,
+              idServicio: nuevaRelacion.idServicio,
+            }),
           }
         );
       } else {
-        // POST
+        // POST: crea nueva relación
         response = await fetch("https://localhost:7163/api/ProfesionalesServicios", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idProfesional: relacion.idProfesional, idServicio: relacion.idServicio }),
+          body: JSON.stringify({
+            idProfesional: nuevaRelacion.idProfesional,
+            idServicio: nuevaRelacion.idServicio,
+          }),
         });
       }
       if (!response.ok) throw new Error("Error al guardar relación");
