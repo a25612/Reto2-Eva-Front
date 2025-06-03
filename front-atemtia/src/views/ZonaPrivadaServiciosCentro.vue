@@ -46,6 +46,18 @@ const saveOrUpdateRelacion = async (relacion: any) => {
       ...(relacion.id && { id: relacion.id }),
     };
 
+    // Comprobar si la relación ya existe antes de hacer POST
+    const yaExiste = relacionesStore.relaciones.some(
+      (r) =>
+        r.servicioId === datosRelacion.servicioId &&
+        r.centroId === datosRelacion.centroId
+    );
+
+    if (yaExiste) {
+      alert("Ya existe una relación con este servicio y centro.");
+      return;
+    }
+
     await relacionesStore.guardarRelacion(datosRelacion);
 
     if (!relacion.id) {
@@ -63,6 +75,7 @@ const saveRelacion = async () => await saveOrUpdateRelacion(newRelacion.value);
 
 const handleSearch = () => relacionesStore.filtrarRelaciones(searchTerm.value);
 </script>
+
 
 <template>
   <div class="relacion-servicios-centros">

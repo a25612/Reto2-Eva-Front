@@ -68,24 +68,24 @@ export const useServiciosCentrosStore = defineStore("serviciosCentrosStore", () 
     }
   };
 
-  const guardarRelacion = async (relacion: { servicioId: number; centroId: number; id?: number }) => {
+  // Solo hace POST si la relación NO existe
+  const guardarRelacion = async (relacion: { servicioId: number; centroId: number }) => {
     try {
-      let response;
-      if (relacion.id) {
-        // PUT: Actualizar relación existente
-        response = await fetch(`https://localhost:7163/api/ServiciosCentros/${relacion.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ servicioId: relacion.servicioId, centroId: relacion.centroId }),
-        });
-      } else {
-        // POST: Crear nueva relación
-        response = await fetch("https://localhost:7163/api/ServiciosCentros", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ servicioId: relacion.servicioId, centroId: relacion.centroId }),
-        });
+      const existe = relaciones.value.some(
+        (r) => r.servicioId === relacion.servicioId && r.centroId === relacion.centroId
+      );
+
+      if (existe) {
+        alert("Ya existe una relación con ese servicio y centro.");
+        return;
       }
+
+      const response = await fetch("https://localhost:7163/api/ServiciosCentros", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idServicio: relacion.servicioId, idCentro: relacion.centroId }),
+      });
+
       if (!response.ok) throw new Error("Error al guardar relación");
       await cargarRelaciones();
     } catch (error) {
