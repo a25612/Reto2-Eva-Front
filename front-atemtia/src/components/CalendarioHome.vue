@@ -627,13 +627,14 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
 
 .app {
   font-family: $fuente-principal;
-  padding: 2rem;
+  margin-top: 10px;
   max-width: 900px;
   margin: 0 auto;
 }
 
 .calendar {
   .calendar-date-header {
+    margin-top: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1050,6 +1051,7 @@ function esHoraValidaParaSesion(fechaStr: string, duracionMinutos = 60): boolean
 }
 
 @media (max-width: 768px) {
+
   .modal-content {
 
     max-width: 85vw;

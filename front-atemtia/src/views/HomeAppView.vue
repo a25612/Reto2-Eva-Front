@@ -42,6 +42,7 @@ console.log('Usuario seleccionado desde Home:', usuarioSeleccionadoId);
 <style lang="scss">
 @import '../assets/styles/variables.scss';
 
+
 .div-mi-espacio {
   font-family: $fuente-principal;
   display: flex;
