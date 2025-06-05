@@ -1,9 +1,10 @@
 <template>
-  <router-link to="/home-app-atemtia" class="volver-atras">
-    <i class="fa-solid fa-arrow-left"></i>
-  </router-link>
+
 
   <div class="zona-privada">
+     <router-link to="/home-app-atemtia" class="volver-atras">
+      <i class="fa-solid fa-arrow-left"></i>
+    </router-link>
     <h1 class="titulo">Zona Privada</h1>
 
     <!-- Separador abajo -->
