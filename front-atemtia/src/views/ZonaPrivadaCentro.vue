@@ -155,7 +155,7 @@ const handleSearch = () => {
 
 
 
-<style lang="scss">
+<style scoped lang="scss">
 // Variables
 @import '../assets/styles/variables.scss';
 

@@ -21,6 +21,6 @@ function goToHome() {
     </v-empty-state>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 </style>

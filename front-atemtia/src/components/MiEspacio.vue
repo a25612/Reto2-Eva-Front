@@ -37,7 +37,7 @@ const mostrarServiciosTutor = computed(() => authStore.rol !== 'Tutor');
 </template>
 
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 
 .div-mi-espacio {

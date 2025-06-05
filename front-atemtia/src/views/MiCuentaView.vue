@@ -115,7 +115,7 @@ const getColorByUsuario = (usuarioId: string | number) => {
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 
 .mi-cuenta {

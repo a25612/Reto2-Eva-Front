@@ -180,7 +180,7 @@ const abrirFormularioEdicion = (tutor: any) => {
 </template>
 
 
-<style lang="scss">
+<style scoped lang="scss">
 // Variables
 @import '../assets/styles/variables.scss';
 

@@ -192,7 +192,7 @@ const handleSearch = () => store.filtrarRelaciones(searchTerm.value);
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 // Variables
 @import '../assets/styles/variables.scss';
 

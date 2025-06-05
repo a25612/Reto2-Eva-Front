@@ -198,7 +198,7 @@ const handleSearch = () => usuarioServiciosStore.filtrarRelaciones(searchTerm.va
 </template>
 
 
-<style lang="scss">
+<style scoped lang="scss">
 // Puedes copiar el mismo SCSS y solo cambiar los nombres de clase a "relacion-usuarios-servicios"
 @import '../assets/styles/variables.scss';
 

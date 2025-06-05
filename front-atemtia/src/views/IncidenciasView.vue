@@ -35,7 +35,7 @@ const enviarIncidencia = () => {
     </div>
   </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../assets/styles/variables.scss';
 
 .incidencias {
