@@ -11,9 +11,6 @@ RUN npm ci
 # Copiar los archivos del proyecto
 COPY . .
 
-# Modificamos el script para saltarnos la verificación de tipos que está fallando
-RUN NODE_OPTIONS=--max_old_space_size=4096 npm run build-only
-
 # Etapa de producción
 FROM nginx:alpine AS production
 WORKDIR /usr/share/nginx/html
