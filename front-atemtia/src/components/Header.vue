@@ -19,8 +19,9 @@ const irAHome = () => {
     <div class="header-container">
       <div class="header-logo">
         <a @click.prevent="irAHome" class="header-titulo-link">
-          <!-- <img :src="terapiasimg"
-            alt="Servicios ATEMTIA" class="logo-atemtia"> -->
+          <img src="https://www.atades.org/wp-content/uploads/TERAPIAS-ACUATICAS.png" 
+               alt="Logo ATEMTIA" 
+               class="logo-atemtia">
         </a>
       </div>
     </div>
