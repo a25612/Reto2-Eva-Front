@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import terapiasimg from '../assets/TERAPIAS-ACUATICAS.PNG';
 import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
@@ -18,7 +19,7 @@ const irAHome = () => {
     <div class="header-container">
       <div class="header-logo">
         <a @click.prevent="irAHome" class="header-titulo-link">
-          <img src="/public/TERAPIAS-ACUATICAS.PNG"
+          <img :src="terapiasimg"
             alt="Servicios ATEMTIA" class="logo-atemtia">
         </a>
       </div>
